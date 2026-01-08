@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -51,7 +52,7 @@ fun HomeScreen(modifier: Modifier = Modifier){
         containerColor = Color(0xFFFDF8F4),
         topBar = {
             Column(modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().statusBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)) {
                 Row (modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -140,10 +141,13 @@ fun HomeScreen(modifier: Modifier = Modifier){
     ) { innerPadding ->
         val sample = sampleSections
 
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
+        LazyColumn(modifier = Modifier.padding(innerPadding),
+           verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)) {
 
             sample.forEach { section ->
                 item { SectionHeader(section.title) }
+
                 items(section.memories) { memory ->
                     MemoryCard(memory)
                 }
