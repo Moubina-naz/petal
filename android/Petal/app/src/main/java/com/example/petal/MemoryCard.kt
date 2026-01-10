@@ -22,9 +22,8 @@ fun MemoryCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
             .background(
-                color = Color(0xFFF7F2ED),
+                color = Color(0xFFF6F2ED),
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp)

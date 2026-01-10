@@ -57,18 +57,20 @@ fun HomeScreen(modifier: Modifier = Modifier){
                 Row (modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ){
-                    Text(
+                    Column(){
+                        Text(
                         text = "Petal",
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color(0xFF6B4F3F)
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.padding(8.dp))
                     Text(
                         "Oct 24",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Black
                     )
+                    }
 
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(onClick = { /* later */ }) {
