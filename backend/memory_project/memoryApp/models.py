@@ -24,7 +24,7 @@ class Memory(models.Model):
     music_url = models.URLField(blank=True)
 
     tags = models.JSONField(default=list, blank=True) 
-    mood = models.IntegerField(null=True, blank=True) 
+    mood = models.IntegerField(choices=MOOD, null=True, blank=True)
     is_favorite = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     revision = models.IntegerField(default=1)

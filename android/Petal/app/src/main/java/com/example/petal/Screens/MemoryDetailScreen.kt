@@ -1,4 +1,4 @@
-package com.example.petal
+package com.example.petal.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
@@ -19,31 +20,43 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @Composable
 fun MemoryDetailScreen(
-
+    navController: NavController
 ) {
+    var isFavorite by rememberSaveable { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFDF8F4))
             .verticalScroll(rememberScrollState())
+            .statusBarsPadding()
             .padding(16.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth(),
@@ -58,17 +71,41 @@ fun MemoryDetailScreen(
             }
             Spacer(modifier = Modifier.weight(1f))
 
-            IconButton(onClick = { /* favorite */ }) {
+            IconButton(onClick = { isFavorite = !isFavorite}) {
                 Icon(
-                    Icons.Default.Favorite,
+                    imageVector = if (isFavorite)
+                        Icons.Default.Favorite else
+                            Icons.Default.FavoriteBorder,
+
                     contentDescription = "Favorite",
-                    tint = Color(0xFFB07A7A)
-                )
+                    tint =if (isFavorite)
+                        Color(0xFFB07A7A)
+                    else
+                        Color(0xFF7A6A5E))
+
+            }
+            Box{
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "More")
+                }
+                DropdownMenu(expanded = showMenu,
+                    onDismissRequest = { showMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = { /* Handle delete */ }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = {
+                            showMenu = false
+                            // TODO: navigate to EditMemoryScreen
+                        }
+                    )
+
+                }
             }
 
-            IconButton(onClick = { /* menu */ }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More")
-            }
+
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -82,16 +119,17 @@ fun MemoryDetailScreen(
         Spacer(modifier = Modifier.height(16.dp))
 //title
         Text(
-            text = "Morning\nQuiet",
+            text = "Morning Quiet",
             style = MaterialTheme.typography.headlineLarge,
             color = Color(0xFF3E2F26),
-            modifier = Modifier.weight(1f)
+
         )
         //mood
         Box(modifier = Modifier
             .background(color = Color(0xFFFCD1D1),
-                shape = RoundedCornerShape(16.dp)
-            )) {
+                shape = RoundedCornerShape(16.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
             Text(
                 text = "✳ Calm",
                 fontSize = 12.sp,
@@ -99,6 +137,7 @@ fun MemoryDetailScreen(
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
+
 
         //Body
         Text(
@@ -120,7 +159,7 @@ Sometimes the most important moments are the ones where absolutely nothing happe
             letterSpacing = 1.sp,
             color = Color(0xFF9C8F86)
         )
-
+        Spacer(modifier = Modifier.height(16.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -138,4 +177,10 @@ Sometimes the most important moments are the ones where absolutely nothing happe
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MemoryDetailScreenPreview() {
+    //MemoryDetailScreen()
 }

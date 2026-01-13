@@ -1,4 +1,4 @@
-package com.example.petal.ui.theme
+package com.example.petal.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

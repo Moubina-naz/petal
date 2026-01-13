@@ -1,4 +1,4 @@
-package com.example.petal
+package com.example.petal.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -20,12 +20,12 @@ fun BottomNavItem(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val color = if (selected) Color(0xFFB07A7A) else Color(0xFFB0AAA3)
+    val color = if (selected) Color(0xFF4A2C3A) else Color(0xFF9E9E9E)
 
     Column(
         modifier = Modifier
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
@@ -35,7 +35,7 @@ fun BottomNavItem(
         )
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             color = color
         )
     }

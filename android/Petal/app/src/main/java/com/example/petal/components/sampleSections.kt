@@ -1,6 +1,9 @@
-package com.example.petal
+package com.example.petal.components
 
 
+import com.example.petal.Memory
+import com.example.petal.MemoryImage
+import com.example.petal.Mood
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -44,7 +47,7 @@ val sampleMemories = listOf(
         serverId = 1,
         title = "Morning Quiet",
         note = "The light hitting the kitchen table was perfect today. Felt a sense of calm ☕",
-        mood = Mood.GOOD,
+        mood = Mood.HAPPY,
         images = listOf(
             MemoryImage(
                 id = 1,
@@ -59,7 +62,7 @@ val sampleMemories = listOf(
         serverId = 2,
         title = "A heavy thought",
         note = "Sometimes I wonder if I'm moving fast enough. Everyone else seems to have it figured out, but I'm still just putting one foot in front of the other. Need to be patient with myself.",
-        mood = Mood.NEUTRAL,
+        mood = Mood.GRATEFUL,
         images = emptyList(),
         createdAt = Instant.now().minusSeconds(28 * 3600) // yesterday evening → YESTERDAY
     ),
@@ -67,7 +70,7 @@ val sampleMemories = listOf(
         serverId = 3,
         title = "Beach Walk",
         note = "Salt air cures everything.",
-        mood = Mood.VERY_GOOD,
+        mood = Mood.EXCITED,
         images = listOf(
             MemoryImage(
                 id = 3,

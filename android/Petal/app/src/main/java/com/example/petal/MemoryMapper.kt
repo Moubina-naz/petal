@@ -28,7 +28,7 @@ object MemoryMapper {
             audioUrl = memoryDto.audio?.takeIf { it.isNotEmpty() },
             musicUrl = memoryDto.musicUrl?.takeIf { it.isNotEmpty() },
             tags = memoryDto.tags,
-            mood = Mood.from(memoryDto.mood),
+            mood = Mood.from(memoryDto.mood) ?: Mood.CALM,
             isFavorite = memoryDto.isFavorite,
             isDeleted = memoryDto.isDeleted,
             revision = memoryDto.revision,

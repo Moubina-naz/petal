@@ -1,6 +1,5 @@
-package com.example.petal.ui.theme
+package com.example.petal.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
