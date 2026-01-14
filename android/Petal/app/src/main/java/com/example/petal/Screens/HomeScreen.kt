@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.petal.MemoryCard
+import com.example.petal.components.MemoryCard
 import com.example.petal.components.SectionHeader
 import com.example.petal.components.sampleSections
 

@@ -1,4 +1,4 @@
-package com.example.petal
+package com.example.petal.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

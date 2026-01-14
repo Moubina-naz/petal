@@ -6,35 +6,35 @@ import java.time.format.DateTimeFormatter
 object MemoryMapper {
 
     private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+
     private fun mapImage(dto: MemoryImageDto): MemoryImage {
         return MemoryImage(
             id = dto.id,
-            memoryId = dto.memoryId,
             imageUrl = dto.image,
             caption = dto.caption,
             order = dto.order,
-            createdAt = OffsetDateTime.parse(dto.createdAt, formatter).toInstant()
+            createdAt = OffsetDateTime.parse(dto.createdAt).toInstant()
         )
     }
 
-    fun map(memoryDto: MemoryDto,images: List<MemoryImageDto>): Memory {
+    fun map(dto: MemoryDto): Memory {
         return Memory(
-            serverId = memoryDto.id,
-            title = memoryDto.title,
-            note = memoryDto.note,
-            location = if (memoryDto.latitude != null && memoryDto.longitude != null) {
-                Location(memoryDto.latitude, memoryDto.longitude)
+            id = dto.id,
+            title = dto.title,
+            note = dto.note,
+            location = if (dto.latitude != null && dto.longitude != null) {
+                Location(dto.latitude, dto.longitude)
             } else null,
-            audioUrl = memoryDto.audio?.takeIf { it.isNotEmpty() },
-            musicUrl = memoryDto.musicUrl?.takeIf { it.isNotEmpty() },
-            tags = memoryDto.tags,
-            mood = Mood.from(memoryDto.mood) ?: Mood.CALM,
-            isFavorite = memoryDto.isFavorite,
-            isDeleted = memoryDto.isDeleted,
-            revision = memoryDto.revision,
-            createdAt = OffsetDateTime.parse(memoryDto.createdAt, formatter).toInstant(),
-            updatedAt = OffsetDateTime.parse(memoryDto.updatedAt, formatter).toInstant(),
+            audioUrl = dto.audio?.takeIf { it.isNotBlank() },
+            musicUrl = dto.musicUrl?.takeIf { it.isNotBlank() },
+            tags = dto.tags,
+            mood = Mood.from(dto.mood),
+            isFavorite = dto.isFavorite,
+            isDeleted = dto.isDeleted,
+            revision = dto.revision,
+            createdAt = OffsetDateTime.parse(dto.createdAt).toInstant(),
+            updatedAt = OffsetDateTime.parse(dto.updatedAt).toInstant(),
+            images = dto.images.map(::mapImage)
         )
     }
-
 }

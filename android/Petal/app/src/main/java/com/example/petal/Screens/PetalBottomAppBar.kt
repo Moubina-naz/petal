@@ -26,12 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.petal.EditMemoryScrn
+import com.example.petal.HomeScrn
+import com.example.petal.MapScrn
 import com.example.petal.components.BottomNavItem
 
 
 @Composable
 fun PetalBottomNavBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(BottomTab.JOURNAL) }
 
@@ -53,14 +58,15 @@ fun PetalBottomNavBar(
                     label = "Journal",
                     icon = Icons.Default.Email,
                     selected = selectedTab == BottomTab.JOURNAL,
-                    onClick = { selectedTab = BottomTab.JOURNAL }
+                    onClick = { navController.navigate(HomeScrn)
+                        selectedTab = BottomTab.JOURNAL }
                 )
 
                 BottomNavItem(
                     label = "Map",
                     icon = Icons.Default.Place,
                     selected = selectedTab == BottomTab.MAP,
-                    onClick = { selectedTab = BottomTab.MAP }
+                    onClick = { navController.navigate(MapScrn)}
                 )
 
                 Spacer(modifier = Modifier.width(48.dp)) // visual gap for FAB
@@ -82,7 +88,7 @@ fun PetalBottomNavBar(
         }
 
         FloatingActionButton(
-            onClick = { /* add memory */ },
+            onClick = { navController.navigate(EditMemoryScrn) },
             containerColor = Color(0xFF4A2C3A),
             modifier = Modifier
                 .align(Alignment.TopEnd)
