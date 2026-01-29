@@ -199,8 +199,10 @@ fun HomeScreen(
                 LazyColumn(
                     modifier = Modifier.padding(innerPadding),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
+                    contentPadding = PaddingValues(
+                        bottom = 96.dp
+                    )
+                ){
                     sections.forEach { section ->
                         item {
                             SectionHeader(section.title)

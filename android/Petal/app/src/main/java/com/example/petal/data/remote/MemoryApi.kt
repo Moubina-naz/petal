@@ -3,11 +3,13 @@ package com.example.petal.data.remote
 import com.example.petal.domain.PaginatedResponse
 import com.example.petal.ui.editMemory.EditMemoryReq
 import com.example.petal.dto.MemoryDto
+import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PATCH
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -58,6 +60,22 @@ interface MemoryApi {
         @Body body: EditMemoryReq,
         @Header ("Authorization")
         token: String = "Bearer ${AuthToken.TOKEN}"
+    )
+
+    @POST("memories/")
+    suspend fun createMemory(
+        @Body body: CreateMemoryReq,
+        @Header("Authorization") token: String = "Token ${AuthToken.TOKEN}"
+    ): MemoryDto
+
+    @Serializable
+    data class CreateMemoryReq(
+        val title: String,
+        val note: String,
+        val mood: Int? = null,
+        val tags: List<String> = emptyList(),
+        val latitude: Double? = null,
+        val longitude: Double? = null
     )
 
 }

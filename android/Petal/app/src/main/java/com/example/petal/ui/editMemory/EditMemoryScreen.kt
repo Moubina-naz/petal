@@ -33,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.NavigationEvent
 import com.example.petal.domain.MemoryImage
+import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun EditMemoryScreen(
@@ -191,12 +194,17 @@ fun EditMemoryScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         //title
-        Text(
-            text = uiState.title,
-            style = MaterialTheme.typography.headlineLarge,
-            color = Color(0xFF3E2F26),
-            modifier = Modifier.clickable { }
-
+        TextField(
+            value = uiState.title,
+            onValueChange = { viewModel.onTitleChange(it) },
+            textStyle = MaterialTheme.typography.headlineLarge,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -230,12 +238,22 @@ fun EditMemoryScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         //Body
-        Text(
-            text = uiState.note.trimIndent(),
-            fontSize = 16.sp,
-            lineHeight = 26.sp,
-            color = Color(0xFF5C5048)
+        TextField(
+            value = uiState.note,
+            onValueChange = { viewModel.onNoteChange(it) },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                lineHeight = 26.sp
+            ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
         )
+
 
         Spacer(modifier = Modifier.height(32.dp))
 

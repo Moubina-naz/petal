@@ -32,6 +32,19 @@ class MemoryRepository(
     suspend fun unfavorite(id: Int) {
         memoryApi.unfavorite(id)
     }
+    suspend fun createMemory(memory: Memory): Memory {
+        val response = memoryApi.createMemory(
+            MemoryApi.CreateMemoryReq(
+                title = memory.title,
+                note = memory.note,
+                mood = memory.mood?.value, // Convert Mood enum to Int
+                tags = memory.tags,
+                latitude = memory.location?.latitude,
+                longitude = memory.location?.longitude
+            )
+        )
+        return MemoryMapper.map(response)
+    }
     suspend fun deleteMemory(id: Int) {
         memoryApi.deleteMemory(id)
     }

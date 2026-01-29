@@ -11,13 +11,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,71 +41,56 @@ import com.example.petal.ui.editMemory.EditMemoryVoyagerScreen
 
 @Composable
 fun PetalBottomNavBar(
-    modifier: Modifier = Modifier,
     selectedTab: BottomTab,
-    onTabSelected: (BottomTab) -> Unit
+    onTabSelected: (BottomTab) -> Unit,
+    onAddClick: () -> Unit
 ) {
-    val navigator = LocalNavigator.currentOrThrow
+    BottomAppBar(
+        containerColor = Color(0xFFF7F4EE)
+    ) {
+        // Just use standard NavigationBarItem - SIMPLER!
+        NavigationBarItem(
+            selected = selectedTab == BottomTab.JOURNAL,
+            onClick = { onTabSelected(BottomTab.JOURNAL) },
+            icon = { Icon(Icons.Default.Home, "Journal") },
+            label = { Text("Journal") }
+        )
 
-    Box(modifier = modifier) {
-        BottomAppBar(
-            containerColor = Color(0xFFF7F4EE),
-            tonalElevation = 0.dp
+        NavigationBarItem(
+            selected = selectedTab == BottomTab.MAP,
+            onClick = { onTabSelected(BottomTab.MAP) },
+            icon = { Icon(Icons.Default.Place, "Map") },
+            label = { Text("Map") }
+        )
+
+        // Add button in the middle
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            ExtendedFloatingActionButton(
+                onClick = onAddClick,
+                containerColor = Color(0xFF4A2C3A),
+                contentColor = Color.White
             ) {
-                BottomNavItem(
-                    label = "Journal",
-                    icon = Icons.Default.Email,
-                    selected = selectedTab == BottomTab.JOURNAL,
-                    onClick = { onTabSelected(BottomTab.JOURNAL) }
-                )
-
-                BottomNavItem(
-                    label = "Map",
-                    icon = Icons.Default.Place,
-                    selected = selectedTab == BottomTab.MAP,
-                    onClick = { onTabSelected(BottomTab.MAP) }
-                )
-
-                Spacer(modifier = Modifier.width(48.dp))
-
-                BottomNavItem(
-                    label = "Calendar",
-                    icon = Icons.Default.Call,
-                    selected = selectedTab == BottomTab.CALENDAR,
-                    onClick = { onTabSelected(BottomTab.CALENDAR) }
-                )
-
-                BottomNavItem(
-                    label = "Profile",
-                    icon = Icons.Default.Person,
-                    selected = selectedTab == BottomTab.PROFILE,
-                    onClick = { onTabSelected(BottomTab.PROFILE) }
-                )
+                Icon(Icons.Default.Add, "Add")
+                Text("Add Memory")
             }
         }
 
-        FloatingActionButton(
-            onClick = {
-                navigator.push(EditMemoryVoyagerScreen())
-            },
-            containerColor = Color(0xFF4A2C3A),
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-24).dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
-                tint = Color.White
-            )
-        }
+        NavigationBarItem(
+            selected = selectedTab == BottomTab.CALENDAR,
+            onClick = { onTabSelected(BottomTab.CALENDAR) },
+            icon = { Icon(Icons.Default.DateRange, "Calendar") },
+            label = { Text("Calendar") }
+        )
+
+        NavigationBarItem(
+            selected = selectedTab == BottomTab.PROFILE,
+            onClick = { onTabSelected(BottomTab.PROFILE) },
+            icon = { Icon(Icons.Default.Person, "Profile") },
+            label = { Text("Profile") }
+        )
     }
 }
 
