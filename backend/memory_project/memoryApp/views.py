@@ -6,66 +6,45 @@ from .models import Memory , MemoryImage
 from .serializers import MemorySerializer ,MemoryImageSerializer
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
 from django.db import models
 from django.db.models import Q
 from math import radians, cos, sin, sqrt, atan2
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def memory_list(request):
     if request.method == 'GET':
-        memories = Memory.objects.filter(user=request.user,is_deleted=False)
+        memories = Memory.objects.filter(
+            user=request.user,
+            is_deleted=False
+        )
 
         search = request.GET.get('search')
         if search:
-           memories = memories.filter(
+            memories = memories.filter(
                 Q(title__icontains=search) |
                 Q(note__icontains=search) |
                 Q(tags__icontains=search)
-        )
+            )
 
         tags = request.GET.get('tags')
         if tags:
-            tag_list = tags.split(',')
-            for tag in tag_list:
+            for tag in tags.split(','):
                 memories = memories.filter(tags__contains=[tag])
-        
+
         mood = request.GET.get('mood')
         if mood:
             memories = memories.filter(mood=mood)
-        
-        favorite = request.GET.get('favorite')
+
+        favorite = request.GET.get('is_favorite')
         if favorite == "true":
             memories = memories.filter(is_favorite=True)
-            
-        media = request.GET.get('media')
-        if media == "photo":
-            memories = memories.filter(photo__isnull=False)
-        elif media == "audio":
-            memories = memories.filter(audio__isnull=False)
 
-        start_date = request.GET.get('start')
-        end_date = request.GET.get('end')
-
-        if start_date:
-            memories = memories.filter(created_at__date__gte=start_date)
-        if end_date:
-            memories = memories.filter(created_at__date__lte=end_date)
-        
-        sort = request.GET.get('sort')
-        if sort == "latest":
-            memories = memories.order_by('-created_at')
-        elif sort == "oldest":
-            memories = memories.order_by('created_at')
-        elif sort == "title":
-            memories = memories.order_by('title')
-
-    
-
+        # ---- LOCATION FILTER (SAFE VERSION) ----
         lat = request.GET.get('lat')
         lng = request.GET.get('lng')
         radius = request.GET.get('radius')
@@ -75,35 +54,35 @@ def memory_list(request):
             lng = float(lng)
             radius = float(radius)
 
-        result = []
-        for mem in memories:
-            if mem.latitude and mem.longitude:
-                dlat = radians(mem.latitude - lat)
-                dlng = radians(mem.longitude - lng)
-                a = sin(dlat/2)**2 + cos(radians(lat)) * cos(radians(mem.latitude)) * sin(dlng/2)**2
-                dist = 6371 * (2 * atan2(sqrt(a), sqrt(1-a)))  # KM
+            filtered = []
+            for mem in memories:
+                if mem.latitude is not None and mem.longitude is not None:
+                    dlat = radians(mem.latitude - lat)
+                    dlng = radians(mem.longitude - lng)
+                    a = sin(dlat/2)**2 + cos(radians(lat)) * cos(radians(mem.latitude)) * sin(dlng/2)**2
+                    dist = 6371 * (2 * atan2(sqrt(a), sqrt(1-a)))
+                    if dist <= radius:
+                        filtered.append(mem)
 
-                if dist <= radius:
-                    result.append(mem)
+            memories = filtered  # ← only set here
 
-        memories = result
+        paginator = PageNumberPagination()
+        paginator.page_size = 20
+        page = paginator.paginate_queryset(memories, request)
 
-        serializer = MemorySerializer(memories, many=True)
-        return Response(serializer.data)
-    
+        serializer = MemorySerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
+    # ---------------- POST ----------------
     elif request.method == 'POST':
         serializer = MemorySerializer(data=request.data)
         if serializer.is_valid():
             memory = serializer.save(user=request.user)
-            
-            image_files = request.FILES.getlist('image_files')
-            for image_file in image_files:
-                MemoryImage.objects.create(memory=memory, image=image_file)
-            
-            memories = memories.prefetch_related('images')
-            serializer = MemorySerializer(memories, many=True)
-            return Response(serializer.data)
+            return Response(
+                MemorySerializer(memory).data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     
 

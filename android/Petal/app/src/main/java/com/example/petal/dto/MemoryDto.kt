@@ -1,5 +1,6 @@
-package com.example.petal
+package com.example.petal.dto
 
+import com.example.petal.dto.MemoryImageDto
 import com.google.gson.annotations.SerializedName
 
 data class MemoryDto(
@@ -36,4 +37,3 @@ data class MemoryDto(
 
     val images: List<MemoryImageDto>
 )
-

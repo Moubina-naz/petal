@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
@@ -26,22 +27,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.example.petal.EditMemoryScrn
-import com.example.petal.HomeScrn
-import com.example.petal.MapScrn
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import com.example.petal.components.BottomNavItem
+import com.example.petal.ui.editMemory.EditMemoryVoyagerScreen
 
 
 @Composable
 fun PetalBottomNavBar(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    selectedTab: BottomTab,
+    onTabSelected: (BottomTab) -> Unit
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(BottomTab.JOURNAL) }
+    val navigator = LocalNavigator.currentOrThrow
 
     Box(modifier = modifier) {
-
         BottomAppBar(
             containerColor = Color(0xFFF7F4EE),
             tonalElevation = 0.dp
@@ -53,46 +54,46 @@ fun PetalBottomNavBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 BottomNavItem(
                     label = "Journal",
                     icon = Icons.Default.Email,
                     selected = selectedTab == BottomTab.JOURNAL,
-                    onClick = { navController.navigate(HomeScrn)
-                        selectedTab = BottomTab.JOURNAL }
+                    onClick = { onTabSelected(BottomTab.JOURNAL) }
                 )
 
                 BottomNavItem(
                     label = "Map",
                     icon = Icons.Default.Place,
                     selected = selectedTab == BottomTab.MAP,
-                    onClick = { navController.navigate(MapScrn)}
+                    onClick = { onTabSelected(BottomTab.MAP) }
                 )
 
-                Spacer(modifier = Modifier.width(48.dp)) // visual gap for FAB
+                Spacer(modifier = Modifier.width(48.dp))
 
                 BottomNavItem(
                     label = "Calendar",
-                    icon = Icons.Default.ShoppingCart,
+                    icon = Icons.Default.Call,
                     selected = selectedTab == BottomTab.CALENDAR,
-                    onClick = { selectedTab = BottomTab.CALENDAR }
+                    onClick = { onTabSelected(BottomTab.CALENDAR) }
                 )
 
                 BottomNavItem(
                     label = "Profile",
                     icon = Icons.Default.Person,
                     selected = selectedTab == BottomTab.PROFILE,
-                    onClick = { selectedTab = BottomTab.PROFILE }
+                    onClick = { onTabSelected(BottomTab.PROFILE) }
                 )
             }
         }
 
         FloatingActionButton(
-            onClick = { navController.navigate(EditMemoryScrn) },
+            onClick = {
+                navigator.push(EditMemoryVoyagerScreen())
+            },
             containerColor = Color(0xFF4A2C3A),
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = (-24).dp, y = (-36).dp)
+                .align(Alignment.TopCenter)
+                .offset(y = (-24).dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -102,8 +103,6 @@ fun PetalBottomNavBar(
         }
     }
 }
-
-
 
 enum class BottomTab {
     JOURNAL, CALENDAR, MAP, PROFILE

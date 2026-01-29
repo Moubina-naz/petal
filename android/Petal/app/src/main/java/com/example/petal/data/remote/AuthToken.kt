@@ -1,0 +1,5 @@
+package com.example.petal.data.remote
+
+object AuthToken {
+    const val TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5NzcxMjYxLCJpYXQiOjE3Njk2ODQ4NjEsImp0aSI6IjRmNWVmNWY5NjI0YzQ3MTliMDAyOTE1Njk0YWM0YzdjIiwidXNlcl9pZCI6IjIifQ.mPC-jzhHxGddM5RKVCxnPH9iIrYQmP31erv_vjY8TQE"
+}

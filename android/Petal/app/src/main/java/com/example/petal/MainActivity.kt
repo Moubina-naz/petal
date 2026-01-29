@@ -1,5 +1,6 @@
 package com.example.petal
 
+import HomeVoyagerScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,8 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.petal.Screens.HomeScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import cafe.adriel.voyager.navigator.Navigator
+import com.example.petal.ui.homeScreen.HomeScreen
 import com.example.petal.theme.PetalTheme
+import com.example.petal.ui.homeScreen.HomeViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +24,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PetalTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                PetalTheme {
+                    Navigator(HomeVoyagerScreen())
                 }
             }
         }

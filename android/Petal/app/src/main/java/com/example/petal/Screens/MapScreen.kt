@@ -21,10 +21,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import com.example.petal.NavigationEvent
 
 @Composable
-fun MapScreen(navController: NavController){
+fun MapScreen(
+    onNavigationEvent: (NavigationEvent) -> Unit = {}
+){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color(0xFFF6F5F2))

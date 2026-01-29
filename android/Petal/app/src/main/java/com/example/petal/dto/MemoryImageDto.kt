@@ -1,4 +1,4 @@
-package com.example.petal
+package com.example.petal.dto
 
 import com.google.gson.annotations.SerializedName
 

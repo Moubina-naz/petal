@@ -3,13 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-
 }
 
 android {
     namespace = "com.example.petal"
     compileSdk = 36
-
 
     defaultConfig {
         applicationId = "com.example.petal"
@@ -41,10 +39,12 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -53,6 +53,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.runtime)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -61,14 +64,29 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation(libs.androidx.navigation.compose)
+    // Navigation - SIMPLE STRING-BASED
+    //implementation(libs.androidx.navigation.compose)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+
+    // Other dependencies
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.coil.compose)
 
+    // Gson and Retrofit
     implementation(libs.gson)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.compose.serialization)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.gson)
+
+    // Kotlin Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    //voyager
+    implementation("cafe.adriel.voyager:voyager-navigator:1.0.1")
+    implementation("cafe.adriel.voyager:voyager-tab-navigator:1.0.1")
+    implementation("cafe.adriel.voyager:voyager-transitions:1.0.1")
+
+
 
 
 }

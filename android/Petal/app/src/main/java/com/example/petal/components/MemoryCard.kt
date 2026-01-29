@@ -1,6 +1,7 @@
 package com.example.petal.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,21 +14,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.petal.Memory
+import com.example.petal.domain.Memory
 
 @Composable
 fun MemoryCard(
-    memory : Memory
+    memory : Memory,
+    onMemoryClick: () -> Unit = {},
+    onFavoriteClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onMemoryClick() }
             .background(
                 color = Color(0xFFF6F2ED),
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp)
     ) {
+
         Text(
             text = memory.title,
             style = MaterialTheme.typography.headlineMedium,

@@ -1,8 +1,7 @@
-package com.example.petal
+package com.example.petal.domain
 
-import android.os.Build
+import com.example.petal.domain.Mood
 import java.time.Instant
-
 
 data class Memory(
     val id: Int,                     // server ID
@@ -20,8 +19,3 @@ data class Memory(
     val updatedAt: Instant,
     val images: List<MemoryImage>
 )
-
-
-
-
-

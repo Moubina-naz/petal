@@ -1,4 +1,4 @@
-package com.example.petal
+package com.example.petal.domain
 
 import java.time.Instant
 

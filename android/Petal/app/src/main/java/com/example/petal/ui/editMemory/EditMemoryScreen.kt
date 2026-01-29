@@ -1,4 +1,4 @@
-package com.example.petal.Screens
+package com.example.petal.ui.editMemory
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,26 +48,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import com.example.petal.NavigationEvent
+import com.example.petal.domain.MemoryImage
 
 @Composable
 fun EditMemoryScreen(
-    navController: NavController
+    viewModel: EditMemoryViewModel,
+    onNavigationEvent: (NavigationEvent) -> Unit = {},
 ) {
     var isFavorite by rememberSaveable { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
-    var title by rememberSaveable { mutableStateOf("Morning Quiet") }
-    var body by rememberSaveable {
-        mutableStateOf(
-            "The light hitting the kitchen table was perfect today. It's funny how a single beam of dust-mote filled sun can change the entire frequency of a morning."
-        )
-    }
 
-    var selectedMood by rememberSaveable { mutableStateOf("Calm") }
+    val uiState by viewModel.uiState.collectAsState()
 
-    val images = remember {
-        mutableStateListOf(1, 2, 3)
-    }
 
     Column(
         modifier = Modifier
@@ -84,16 +78,22 @@ fun EditMemoryScreen(
                 text = "cancel",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF615A57),
-                modifier = Modifier.clickable { /* later */ }
+                modifier = Modifier.clickable {
+                    onNavigationEvent(NavigationEvent.CancelEdit)
+                }
 
             )
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "save",
+                text = if (uiState.isSaving) "saving.." else "save",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF9E6F73),
-                modifier = Modifier.clickable { /* later */ }
+                modifier = Modifier.clickable {
+                    viewModel.save {
+                        onNavigationEvent(NavigationEvent.GoBack)
+                    }
+                }
 
             )
 
@@ -116,7 +116,7 @@ fun EditMemoryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "October 24",
+                        text = uiState.dateLabel,
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
                         color = Color(0xFF9C8F86)
@@ -144,7 +144,7 @@ fun EditMemoryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Location",
+                        text = uiState.locationLabel,
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
                         color = Color(0xFF9C8F86)
@@ -192,7 +192,7 @@ fun EditMemoryScreen(
 
         //title
         Text(
-            text = "Morning Quiet",
+            text = uiState.title,
             style = MaterialTheme.typography.headlineLarge,
             color = Color(0xFF3E2F26),
             modifier = Modifier.clickable { }
@@ -210,11 +210,14 @@ fun EditMemoryScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Text(
-                    text = "✳ Calm",
-                    fontSize = 12.sp,
-                    color = Color(0xFF8A5A5A)
-                )
+
+                uiState.mood?.let { mood ->
+                    Text(
+                        text = "✳ ${mood.label}",
+                        fontSize = 12.sp,
+                        color = Color(0xFF8A5A5A)
+                    )
+                }
 
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
@@ -228,13 +231,7 @@ fun EditMemoryScreen(
 
         //Body
         Text(
-            text = """
-             The light hitting the kitchen table was perfect today. It's funny how a single beam of dust-mote filled sun can change the entire frequency of a morning.
-
-             I sat there for twenty minutes with my coffee, not scrolling, not planning, just watching the way the shadows moved across the worn wood. I felt a sense of calm I haven't felt in weeks—a rare, grounding stillness.
-
-             Sometimes the most important moments are the ones where absolutely nothing happens. Just the steam rising and the soft hum of the refrigerator. I want to remember this feeling when things get loud again.
-             """.trimIndent(),
+            text = uiState.note.trimIndent(),
             fontSize = 16.sp,
             lineHeight = 26.sp,
             color = Color(0xFF5C5048)
@@ -256,7 +253,7 @@ fun EditMemoryScreen(
             modifier = Modifier.heightIn(max = 420.dp)
         ) {
 
-            items(images) { img ->
+            items(uiState.images) { img ->
                 Box(
                     modifier = Modifier
                         .aspectRatio(1f)
@@ -264,7 +261,9 @@ fun EditMemoryScreen(
                         .background(Color(0xFFEDE6DE))
                 ) {
                     IconButton(
-                        onClick = { images.remove(img) },
+                        onClick = {
+                            onNavigationEvent(NavigationEvent.RemoveImage(img.localUri))
+                        },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
@@ -280,7 +279,8 @@ fun EditMemoryScreen(
                 }
             }
 
-            if (images.size < 5) {
+
+            if (uiState.images.size < 5) {
                 item {
                     Box(
                         modifier = Modifier
@@ -291,7 +291,13 @@ fun EditMemoryScreen(
                                 Color(0xFFD6CCC2),
                                 RoundedCornerShape(16.dp)
                             )
-                            .clickable { images.add(images.size + 1) },
+                            .clickable {
+                                viewModel.addImage(
+                                    uri = "content://dummy-image-${uiState.images.size}"
+                                )
+
+                            }
+                        ,
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
