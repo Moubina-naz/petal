@@ -1,5 +1,6 @@
 package com.example.petal.ui.homeScreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,119 +60,116 @@ fun HomeScreen(
     val uiState = viewModel.uiState.collectAsState()
     var searchText by remember { mutableStateOf("") }
 
-    Scaffold(
-        containerColor = Color(0xFFFDF8F4),
-        topBar = {
-            Column(modifier = Modifier
-                .fillMaxWidth().statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp)) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "Petal",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Color(0xFF6B4F3F)
-                        )
+    val tabs = listOf("All", "Favorites", "Photos", "Reflections")
+    var selectedTab by rememberSaveable { mutableStateOf("All") }
 
-                        Spacer(modifier = Modifier.padding(8.dp))
-                        Text(
-                            "Oct 24",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Settings button - removed since no settings screen
-                }
-
-                OutlinedTextField(
-                    value = searchText,
-                    onValueChange = {
-                        searchText = it
-                        viewModel.onSearchChange(it)
-                    },
-                    placeholder = { Text("Search memories...") },
-                    leadingIcon = {
-                        Icon(Icons.Default.Search, null)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF0EDE8),
-                        unfocusedContainerColor = Color(0xFFF0EDE8),
-                        disabledContainerColor = Color(0xFFF0EDE8),
-                        errorContainerColor = Color(0xFFF0EDE8),
-
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        disabledBorderColor = Color.Transparent,
-                        errorBorderColor = Color.Transparent
-                    )
-                )
-
-                val tabs = listOf("All", "Favorites", "Photos", "Reflections")
-                var selectedTab by rememberSaveable { mutableStateOf("All") }
-
-                LazyRow(
-                    modifier = Modifier.padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
-                ) {
-                    items(tabs) { title ->
-                        val isSelected = title == selectedTab
-
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = {
-                                selectedTab = title
-                                viewModel.onFilterChange(
-                                    when (title) {
-                                        "Favorites" -> HomeFilter.FAVORITES
-                                        "Photos" -> HomeFilter.PHOTOS
-                                        "Reflections" -> HomeFilter.REFLECTIONS
-                                        else -> HomeFilter.ALL
-                                    }
-                                )
-                            },
-                            label = {
-                                Text(
-                                    title,
-                                    fontWeight = if (isSelected)
-                                        FontWeight.SemiBold
-                                    else FontWeight.Normal
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = Color.Transparent,
-                                selectedContainerColor = Color.Transparent,
-                                labelColor = Color.Gray,
-                                selectedLabelColor = Color(0xFF6B4F3F)
-                            ),
-                            border = null
-                        )
-                    }
-                }
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    onNavigationEvent(NavigationEvent.OpenAddMemory)
-                },
-                containerColor = Color(0xFF6B4F3F)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFFDF8F4))
+    ) {
+        // TOP BAR SECTION
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Memory")
+                Column {
+                    Text(
+                        text = "Petal",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color(0xFF6B4F3F)
+                    )
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    Text(
+                        "Oct 24",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                // Settings button placeholder
+            }
+
+            // SEARCH FIELD
+            OutlinedTextField(
+                value = searchText,
+                onValueChange = {
+                    searchText = it
+                    viewModel.onSearchChange(it)
+                },
+                placeholder = { Text("Search memories...") },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, null)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFF0EDE8),
+                    unfocusedContainerColor = Color(0xFFF0EDE8),
+                    disabledContainerColor = Color(0xFFF0EDE8),
+                    errorContainerColor = Color(0xFFF0EDE8),
+
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    errorBorderColor = Color.Transparent
+                )
+            )
+
+            // FILTER CHIPS
+            LazyRow(
+                modifier = Modifier.padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(tabs) { title ->
+                    val isSelected = title == selectedTab
+
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            selectedTab = title
+                            viewModel.onFilterChange(
+                                when (title) {
+                                    "Favorites" -> HomeFilter.FAVORITES
+                                    "Photos" -> HomeFilter.PHOTOS
+                                    "Reflections" -> HomeFilter.REFLECTIONS
+                                    else -> HomeFilter.ALL
+                                }
+                            )
+                        },
+                        label = {
+                            Text(
+                                title,
+                                fontWeight = if (isSelected)
+                                    FontWeight.SemiBold
+                                else FontWeight.Normal
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = Color.Transparent,
+                            selectedContainerColor = Color.Transparent,
+                            labelColor = Color.Gray,
+                            selectedLabelColor = Color(0xFF6B4F3F)
+                        ),
+                        border = null
+                    )
+                }
             }
         }
-    ) { innerPadding ->
+
+        // CONTENT SECTION (what was inside Scaffold content)
         when (uiState.value) {
             is HomeUiState.Loading -> {
                 Box(
@@ -197,12 +195,12 @@ fun HomeScreen(
                 val sections = groupMemories(memories)
 
                 LazyColumn(
-                    modifier = Modifier.padding(innerPadding),
+                    modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(
-                        bottom = 96.dp
-                    )
-                ){
+                    contentPadding = PaddingValues(start = 16.dp,
+                        end = 16.dp,
+                        bottom = 96.dp )
+                ) {
                     sections.forEach { section ->
                         item {
                             SectionHeader(section.title)
@@ -224,5 +222,4 @@ fun HomeScreen(
             }
         }
     }
-
 }

@@ -15,40 +15,22 @@ import com.example.petal.ui.homeScreen.HomeViewModel
 import com.example.petal.data.remote.ApiProvider
 
 
-class HomeVoyagerScreen : Screen {
+class HomeVoyagerScreen(private val homeViewModel: HomeViewModel) : Screen {
     override val key = uniqueScreenKey
 
     @Composable
     override fun Content() {
-        val homeViewModel = remember {
-            HomeViewModel(ApiProvider.memoryRepository)
-        }        //val homeViewModel =  remember{HomeViewModel(MemoryRepository())}
         val navigator = LocalNavigator.currentOrThrow
 
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
-                is NavigationEvent.OpenMemoryDetail -> {
-                    navigator.push(MemoryDetailVoyagerScreen(event.memory))
-                }
-                is NavigationEvent.OpenEditMemory -> {
-                    navigator.push(EditMemoryVoyagerScreen(event.memory))
-                }
-                NavigationEvent.OpenAddMemory -> {
-                    navigator.push(EditMemoryVoyagerScreen())
-                }
-                NavigationEvent.OpenMap -> {
-                    navigator.push(MapVoyagerScreen())
-                }
-                NavigationEvent.GoBack -> {
-                    navigator.pop()
-                }
-                is NavigationEvent.ToggleFavorite -> {
-                    // Handle locally in ViewModel
-                    homeViewModel.favorite(event.memory)
-                }
-                else -> {
-                    // Handle other events if needed
-                }
+                is NavigationEvent.OpenMemoryDetail -> navigator.push(MemoryDetailVoyagerScreen(event.memory))
+                is NavigationEvent.OpenEditMemory -> navigator.push(EditMemoryVoyagerScreen(event.memory))
+                NavigationEvent.OpenAddMemory -> navigator.push(EditMemoryVoyagerScreen())
+                NavigationEvent.OpenMap -> navigator.push(MapVoyagerScreen()) // Or switch tabs if Map is a separate tab
+                NavigationEvent.GoBack -> navigator.pop()
+                is NavigationEvent.ToggleFavorite -> homeViewModel.favorite(event.memory)
+                else -> {} // Handle others
             }
         }
 

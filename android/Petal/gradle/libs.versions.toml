@@ -17,6 +17,7 @@ voyager = "1.0.1"
 # Add KSP version
 ksp = "2.0.0-1.0.21"
 runtime = "1.10.1"
+foundation = "1.10.1"
 
 
 [libraries]
@@ -52,6 +53,7 @@ voyager-tab-navigator = { group = "cafe.adriel.voyager", name = "voyager-tab-nav
 voyager-transitions = { group = "cafe.adriel.voyager", name = "voyager-transitions", version.ref = "voyager" }
 voyager-android-viewmodel = { group = "cafe.adriel.voyager", name = "voyager-android-viewmodel", version.ref = "voyager" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

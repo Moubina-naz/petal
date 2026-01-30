@@ -50,7 +50,6 @@ import com.example.petal.NavigationEvent
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemoryDetailScreen(
     viewModel: MemoryDetailViewModel,
@@ -59,163 +58,115 @@ fun MemoryDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
 
-    when (uiState) {
-
-        is MemoryDetailUiState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-
-        is MemoryDetailUiState.Error -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Something went wrong")
-            }
-        }
-
-        is MemoryDetailUiState.Success -> {
-            val memory = (uiState as MemoryDetailUiState.Success).memory
-
-            val dateText = remember(memory.createdAt) {
-                memory.createdAt
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
-                    .format(DateTimeFormatter.ofPattern("MMM dd"))
-            }
-
-            val locationText = memory.location?.let {
-                " · ${it.latitude}, ${it.longitude}"
-            } ?: ""
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFFDF8F4))
-                    .verticalScroll(rememberScrollState())
-                    .statusBarsPadding()
-                    .padding(16.dp)
-            ) {
-
-                // TOP BAR
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFFDF8F4))
+    ) {
+        when (uiState) {
+            is MemoryDetailUiState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    IconButton(onClick = { onNavigationEvent(NavigationEvent.GoBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
+                    CircularProgressIndicator()
+                }
+            }
 
-                    Spacer(modifier = Modifier.weight(1f))
+            is MemoryDetailUiState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Something went wrong")
+                }
+            }
 
-                    IconButton(onClick = { viewModel.toggleFavorite() }) {
-                        Icon(
-                            imageVector =
-                                if (memory.isFavorite)
-                                    Icons.Default.Favorite
-                                else
-                                    Icons.Default.FavoriteBorder,
-                            tint =
-                                if (memory.isFavorite)
-                                    Color(0xFFB07A7A)
-                                else
-                                    Color(0xFF7A6A5E),
-                            contentDescription = "Favorite"
-                        )
-                    }
+            is MemoryDetailUiState.Success -> {
+                val memory = (uiState as MemoryDetailUiState.Success).memory
 
-                    Box {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More")
-                        }
-
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Delete") },
-                                onClick = {
-                                    showMenu = false
-                                    viewModel.deleteMemory {
-                                        onNavigationEvent(NavigationEvent.GoBack)
-                                    }
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Edit") },
-                                onClick = {
-                                    showMenu = false
-                                    onNavigationEvent(NavigationEvent.OpenEditMemory(memory))
-                                }
-                            )
-                        }
-                    }
+                val dateText = remember(memory.createdAt) {
+                    memory.createdAt
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .format(DateTimeFormatter.ofPattern("MMM dd"))
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                val locationText = memory.location?.let {
+                    " · ${it.latitude}, ${it.longitude}"
+                } ?: ""
 
-                // DATE + LOCATION
-                Text(
-                    text = "$dateText$locationText",
-                    fontSize = 12.sp,
-                    letterSpacing = 1.sp,
-                    color = Color(0xFF9C8F86)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // TITLE
-                Text(
-                    text = memory.title,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color(0xFF3E2F26)
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // MOOD
-                memory.mood?.let { mood ->
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = Color(0xFFFCD1D1),
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .statusBarsPadding()
+                        .padding(16.dp)
+                ) {
+                    // TOP BAR
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "✳ ${mood.label}",
-                            fontSize = 12.sp,
-                            color = Color(0xFF8A5A5A)
-                        )
+                        IconButton(onClick = { onNavigationEvent(NavigationEvent.GoBack) }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        IconButton(onClick = { viewModel.toggleFavorite() }) {
+                            Icon(
+                                imageVector =
+                                    if (memory.isFavorite)
+                                        Icons.Default.Favorite
+                                    else
+                                        Icons.Default.FavoriteBorder,
+                                tint =
+                                    if (memory.isFavorite)
+                                        Color(0xFFB07A7A)
+                                    else
+                                        Color(0xFF7A6A5E),
+                                contentDescription = "Favorite"
+                            )
+                        }
+
+                        Box {
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More")
+                            }
+
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Delete") },
+                                    onClick = {
+                                        showMenu = false
+                                        viewModel.deleteMemory {
+                                            onNavigationEvent(NavigationEvent.GoBack)
+                                        }
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Edit") },
+                                    onClick = {
+                                        showMenu = false
+                                        onNavigationEvent(NavigationEvent.OpenEditMemory(memory))
+                                    }
+                                )
+                            }
+                        }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                // BODY
-                Text(
-                    text = memory.note,
-                    fontSize = 16.sp,
-                    lineHeight = 26.sp,
-                    color = Color(0xFF5C5048)
-                )
-
-                // IMAGES
-                if (memory.images.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(32.dp))
-
+                    // DATE + LOCATION
                     Text(
-                        text = "CAPTURED MOMENTS",
+                        text = "$dateText$locationText",
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
                         color = Color(0xFF9C8F86)
@@ -223,20 +174,71 @@ fun MemoryDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.heightIn(max = 420.dp)
-                    ) {
-                        items(memory.images) { image ->
-                            AsyncImage(
-                                model = image.imageUrl,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .clip(RoundedCornerShape(16.dp))
+                    // TITLE
+                    Text(
+                        text = memory.title,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color(0xFF3E2F26)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // MOOD
+                    memory.mood?.let { mood ->
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = Color(0xFFFCD1D1),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "✳ ${mood.label}",
+                                fontSize = 12.sp,
+                                color = Color(0xFF8A5A5A)
                             )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // BODY
+                    Text(
+                        text = memory.note,
+                        fontSize = 16.sp,
+                        lineHeight = 26.sp,
+                        color = Color(0xFF5C5048)
+                    )
+
+                    // IMAGES
+                    if (memory.images.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Text(
+                            text = "CAPTURED MOMENTS",
+                            fontSize = 12.sp,
+                            letterSpacing = 1.sp,
+                            color = Color(0xFF9C8F86)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.heightIn(max = 420.dp)
+                        ) {
+                            items(memory.images) { image ->
+                                AsyncImage(
+                                    model = image.imageUrl,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .aspectRatio(1f)
+                                        .clip(RoundedCornerShape(16.dp))
+                                )
+                            }
                         }
                     }
                 }
@@ -244,7 +246,6 @@ fun MemoryDetailScreen(
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun MemoryDetailScreenPreview() {
