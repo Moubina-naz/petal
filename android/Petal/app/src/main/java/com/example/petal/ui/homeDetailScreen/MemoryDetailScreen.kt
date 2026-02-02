@@ -164,7 +164,7 @@ fun MemoryDetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // DATE + LOCATION
+
                     Text(
                         text = "$dateText$locationText",
                         fontSize = 12.sp,
@@ -174,7 +174,7 @@ fun MemoryDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // TITLE
+
                     Text(
                         text = memory.title,
                         style = MaterialTheme.typography.headlineLarge,
@@ -183,7 +183,6 @@ fun MemoryDetailScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // MOOD
                     memory.mood?.let { mood ->
                         Box(
                             modifier = Modifier
@@ -203,7 +202,7 @@ fun MemoryDetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // BODY
+
                     Text(
                         text = memory.note,
                         fontSize = 16.sp,
@@ -211,7 +210,7 @@ fun MemoryDetailScreen(
                         color = Color(0xFF5C5048)
                     )
 
-                    // IMAGES
+
                     if (memory.images.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(32.dp))
 
@@ -231,13 +230,15 @@ fun MemoryDetailScreen(
                             modifier = Modifier.heightIn(max = 420.dp)
                         ) {
                             items(memory.images) { image ->
-                                AsyncImage(
-                                    model = image.imageUrl,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .aspectRatio(1f)
-                                        .clip(RoundedCornerShape(16.dp))
-                                )
+                                if (image.imageUrl.isNotBlank()) {
+                                    AsyncImage(
+                                        model = image.imageUrl,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .aspectRatio(1f)
+                                            .clip(RoundedCornerShape(16.dp))
+                                    )
+                                }
                             }
                         }
                     }

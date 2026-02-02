@@ -1,3 +1,4 @@
+import django
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -11,6 +12,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.pagination import PageNumberPagination
 from django.db import models
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from math import radians, cos, sin, sqrt, atan2
 
 
@@ -44,7 +48,6 @@ def memory_list(request):
         if favorite == "true":
             memories = memories.filter(is_favorite=True)
 
-        # ---- LOCATION FILTER (SAFE VERSION) ----
         lat = request.GET.get('lat')
         lng = request.GET.get('lng')
         radius = request.GET.get('radius')
@@ -70,18 +73,22 @@ def memory_list(request):
         paginator.page_size = 20
         page = paginator.paginate_queryset(memories, request)
 
-        serializer = MemorySerializer(page, many=True)
+        serializer = MemorySerializer(
+            page,
+            many=True,
+            context={'request': request}  # 🔥 REQUIRED
+      )        
         return paginator.get_paginated_response(serializer.data)
 
-    # ---------------- POST ----------------
     elif request.method == 'POST':
         serializer = MemorySerializer(data=request.data)
         if serializer.is_valid():
             memory = serializer.save(user=request.user)
             return Response(
-                MemorySerializer(memory).data,
+                MemorySerializer(memory, context={'request': request}).data,
                 status=status.HTTP_201_CREATED
             )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     
@@ -95,8 +102,12 @@ def memory_detail(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = MemorySerializer(mem)
-        return Response(serializer.data)
+      serializer = MemorySerializer(
+        mem,
+        context={'request': request}  
+      )
+      return Response(serializer.data)
+
 
     elif request.method == 'PUT':
         serializer = MemorySerializer(mem, data=request.data, partial=True)
@@ -174,30 +185,24 @@ def unfavorite_memory(request,pk):
  
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def add_memory_images(request, pk):
-    """Add images to an existing memory"""
-    try:
-        memory = Memory.objects.get(pk=pk, user=request.user)
-    except Memory.DoesNotExist:
-        return Response({"error": "Memory not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    image_files = request.FILES.getlist('images')
-    if not image_files:
-        return Response({"error": "No images provided"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    created_images = []
-    for image_file in image_files:
-        memory_image = MemoryImage.objects.create(memory=memory, image=image_file)
-        created_images.append(MemoryImageSerializer(memory_image).data)
-    
-    memory.revision += 1
-    memory.save()
-    
-    return Response({
-        "message": f"{len(created_images)} images added successfully",
-        "images": created_images
-    }, status=status.HTTP_201_CREATED)
+    memory = get_object_or_404(Memory, pk=pk, user=request.user)
+
+    files = request.FILES.getlist('image_files')
+
+    if not files:
+        return Response({"error": "No images provided"}, status=400)
+
+    for index, image in enumerate(files):
+        MemoryImage.objects.create(
+            memory=memory,
+            image=image,
+            order=index
+        )
+
+    serializer = MemorySerializer(memory, context={'request': request})
+    return Response(serializer.data, status=201)
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])

@@ -6,6 +6,7 @@ import com.example.petal.domain.MemoryImage
 import com.example.petal.domain.Mood
 import com.example.petal.dto.MemoryDto
 import com.example.petal.dto.MemoryImageDto
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -16,11 +17,13 @@ object MemoryMapper {
     private fun mapImage(dto: MemoryImageDto): MemoryImage {
         return MemoryImage(
             id = dto.id,
-            imageUrl = dto.image,
+            imageUrl = dto.imageUrl
+                ?: throw IllegalStateException("image_url missing from API"),
             caption = dto.caption,
             order = dto.order,
-            createdAt = OffsetDateTime.parse(dto.createdAt).toInstant()
+            createdAt = Instant.parse(dto.createdAt)
         )
+
     }
 
     fun map(dto: MemoryDto): Memory {

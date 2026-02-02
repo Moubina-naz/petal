@@ -4,13 +4,17 @@ import com.example.petal.domain.PaginatedResponse
 import com.example.petal.ui.editMemory.EditMemoryReq
 import com.example.petal.dto.MemoryDto
 import kotlinx.serialization.Serializable
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -61,12 +65,21 @@ interface MemoryApi {
         @Header ("Authorization")
         token: String = "Bearer ${AuthToken.TOKEN}"
     )
-
     @POST("memories/")
-    suspend fun createMemory(
+    suspend fun createMemoryJson(
         @Body body: CreateMemoryReq,
-        @Header("Authorization") token: String = "Token ${AuthToken.TOKEN}"
+        @Header("Authorization") token: String = "Bearer ${AuthToken.TOKEN}"
     ): MemoryDto
+
+    @Multipart
+    @POST("memories/{id}/images/")
+    suspend fun uploadMemoryImages(
+        @Path("id") id: Int,
+        @Part images: List<MultipartBody.Part>,
+        @Header("Authorization") token: String = "Bearer ${AuthToken.TOKEN}"
+    )
+
+
 
     @Serializable
     data class CreateMemoryReq(

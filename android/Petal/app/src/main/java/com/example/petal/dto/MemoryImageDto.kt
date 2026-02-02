@@ -4,7 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 data class MemoryImageDto(
     val id: Int,
-    val image: String,
+
+    @SerializedName("image_url")
+    val imageUrl: String?,
+
     val caption: String?,
     val order: Int,
 
