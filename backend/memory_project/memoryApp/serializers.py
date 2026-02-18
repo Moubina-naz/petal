@@ -4,27 +4,31 @@ from .models import MemoryImage
 
         
 class MemoryImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = MemoryImage
-        fields = ['id', 'image', 'caption', 'order', 'created_at']
+        fields = ['id', 'image_url', 'caption', 'order', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return request.build_absolute_uri(obj.image.url)
+        return obj.image.url
 
 
 class MemorySerializer(serializers.ModelSerializer):
-
     images = MemoryImageSerializer(many=True, read_only=True)
-    image_files = serializers.ListField(
-        child=serializers.ImageField(max_length=100000, allow_empty_file=False, use_url=False),
-        write_only=True,
-        required=False
-    )
+    location_name = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = Memory
         fields = [
-            'id', 'title', 'note', 'latitude', 'longitude',
+            'id', 'title', 'note', 'latitude', 'longitude','location_name',
             'audio', 'music_url', 'tags', 'mood',
-            'is_favorite', 'is_deleted', 'revision',
-            'created_at', 'updated_at', 'images', 'image_files'
+            'is_favorite', 'is_deleted', 'revision','memory_datetime', 
+            'created_at', 'updated_at', 'images'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'revision', 'images']
 

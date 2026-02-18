@@ -15,7 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.petal.ui.editMemory.EditMemoryScreen
 import com.example.petal.ui.homeScreen.HomeScreen
-import com.example.petal.Screens.MapScreen
+import com.example.petal.mapScreen.MapScreen
 import com.example.petal.ui.homeDetailScreen.MemoryDetailScreen
 import com.example.petal.Screens.PetalBottomNavBar
 import com.example.petal.ui.editMemory.EditMemoryViewModel

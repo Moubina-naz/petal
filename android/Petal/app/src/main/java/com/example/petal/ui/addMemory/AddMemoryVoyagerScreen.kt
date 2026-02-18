@@ -9,17 +9,23 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.petal.NavigationEvent
 import com.example.petal.data.remote.ApiProvider
+import com.example.petal.ui.mapScreen.LocationSource
 
-class AddMemoryVoyagerScreen : Screen {
+class AddMemoryVoyagerScreen(
+    private val locationSource: LocationSource = LocationSource.None) : Screen {
     override val key = uniqueScreenKey
 
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        // Get ViewModel using remember (no Koin needed)
-        val viewModel = remember {
-            AddMemoryViewModel(ApiProvider.memoryRepository, context)
+        val viewModel = remember(locationSource) {
+            AddMemoryViewModel(
+                repository = ApiProvider.memoryRepository,
+                context = context,
+                locationSource = locationSource
+            )
         }
+
 
         val navigator = LocalNavigator.currentOrThrow
 
@@ -35,7 +41,19 @@ class AddMemoryVoyagerScreen : Screen {
 
         AddMemoryScreen(
             viewModel = viewModel,
-            onNavigationEvent = onNavigationEvent
+            onNavigationEvent = { event ->
+                when (event) {
+                    NavigationEvent.GoBack -> navigator.pop()
+
+                    NavigationEvent.SaveMemory -> {
+                        viewModel.save {
+                            navigator.pop()
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
         )
     }
 }

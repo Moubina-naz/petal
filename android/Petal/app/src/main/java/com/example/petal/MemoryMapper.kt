@@ -32,7 +32,7 @@ object MemoryMapper {
             title = dto.title,
             note = dto.note,
             location = if (dto.latitude != null && dto.longitude != null) {
-                Location(dto.latitude, dto.longitude)
+                Location(dto.latitude, dto.longitude, name = dto.locationName ?: "Unknown location")
             } else null,
             audioUrl = dto.audio?.takeIf { it.isNotBlank() },
             musicUrl = dto.musicUrl?.takeIf { it.isNotBlank() },
@@ -43,7 +43,9 @@ object MemoryMapper {
             revision = dto.revision,
             createdAt = OffsetDateTime.parse(dto.createdAt).toInstant(),
             updatedAt = OffsetDateTime.parse(dto.updatedAt).toInstant(),
-            images = dto.images.map(::mapImage)
+            images = dto.images.map(::mapImage),
+            memoryDateTime =
+                dto.memoryDateTime?.let { OffsetDateTime.parse(it).toInstant() }
         )
     }
 }

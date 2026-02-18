@@ -8,6 +8,7 @@ data class Memory(
     val title: String,
     val note: String,
     val location: Location?,
+    val memoryDateTime: Instant?,
     val audioUrl: String?,
     val musicUrl: String?,
     val tags: List<String>,

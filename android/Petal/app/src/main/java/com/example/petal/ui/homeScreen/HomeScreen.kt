@@ -186,8 +186,8 @@ fun HomeScreen(
                             items(section.memories) { memory ->
                                 MemoryCard(
                                     memory = memory,
-                                    onMemoryClick = { onNavigationEvent(NavigationEvent.OpenMemoryDetail(memory)) },
-                                    onFavoriteClick = { onNavigationEvent(NavigationEvent.ToggleFavorite(memory)) }
+                                    onMemoryClick = { onNavigationEvent(NavigationEvent.OpenMemoryDetail(memory.id)) },
+                                    onFavoriteClick = { onNavigationEvent(NavigationEvent.ToggleFavorite(memory.id)) }
                                 )
                             }
                         }
@@ -198,7 +198,7 @@ fun HomeScreen(
 
         FloatingActionButton(
             onClick = {
-                onNavigationEvent(NavigationEvent.OpenAddMemory)
+                onNavigationEvent(NavigationEvent.OpenAddMemory())
             },
             containerColor = Color(0xFF6B4F3F),
             modifier = Modifier

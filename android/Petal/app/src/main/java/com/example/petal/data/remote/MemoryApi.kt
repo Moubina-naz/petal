@@ -3,6 +3,8 @@ package com.example.petal.data.remote
 import com.example.petal.domain.PaginatedResponse
 import com.example.petal.ui.editMemory.EditMemoryReq
 import com.example.petal.dto.MemoryDto
+import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -88,7 +90,12 @@ interface MemoryApi {
         val mood: Int? = null,
         val tags: List<String> = emptyList(),
         val latitude: Double? = null,
-        val longitude: Double? = null
+        val longitude: Double? = null,
+
+        @SerializedName("location_name")
+        val locationName: String? = null,
+        @SerializedName("memory_datetime")
+        val memoryDateTime: String? = null,
     )
 
 }

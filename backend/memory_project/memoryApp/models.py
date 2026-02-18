@@ -3,11 +3,16 @@ from django.contrib.auth.models import User
 from .validators import validate_image_size, validate_image_extension, validate_audio_size, validate_audio_extension
 
 MOOD= [
-    (1, "Very Bad"),
-    (2, "Bad"),
-    (3, "Neutral"),
-    (4, "Good"),
-    (5, "Very Good")
+    (1, "CALM"),
+    (2, "HAPPY"),
+    (3, "SAD"),
+    (4, "ANXIOUS"),
+    (5, "EXCITED"),
+    (6,"REFLECTIVE"),
+    (7,"GRATEFUL"),
+    (8,"ANGRY"),
+    (9,"LONELY"),
+    (10,"CONTENT"),
 ]
 
 class Memory(models.Model):
@@ -17,9 +22,10 @@ class Memory(models.Model):
 
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
-
+    location_name = models.CharField(blank=True,null=True,default="Unknown location")
     #photo = models.ImageField(upload_to='photos/', blank=True, null=True)
-    audio = models.FileField(upload_to='audio/', blank=True, null=True,
+    audio = models.FileField(upload_to='audio/', 
+                             blank=True, null=True,
                              validators=[validate_audio_size, validate_audio_extension] )
     music_url = models.URLField(blank=True)
 
@@ -29,6 +35,7 @@ class Memory(models.Model):
     is_deleted = models.BooleanField(default=False)
     revision = models.IntegerField(default=1)
 
+    memory_datetime = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

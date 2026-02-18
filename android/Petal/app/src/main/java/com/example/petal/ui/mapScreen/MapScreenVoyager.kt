@@ -1,10 +1,11 @@
-package com.example.petal.Screens
+package com.example.petal.ui.mapScreen
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.petal.NavigationEvent
+import com.example.petal.ui.addMemory.AddMemoryVoyagerScreen
 import com.example.petal.ui.homeDetailScreen.MemoryDetailVoyagerScreen
 
 class MapVoyagerScreen : Screen {
@@ -16,9 +17,19 @@ class MapVoyagerScreen : Screen {
 
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
-                is NavigationEvent.OpenMemoryDetail -> {
-                    navigator.push(MemoryDetailVoyagerScreen(event.memory))
+                is NavigationEvent.OpenAddMemoryWithLocation -> {
+                    navigator.push(
+                        AddMemoryVoyagerScreen(
+                            locationSource = LocationSource.Selected(
+                                latitude = event.latitude,
+                                longitude = event.longitude,
+                                name = event.name
+                            )
+                        )
+                    )
+
                 }
+
                 NavigationEvent.GoBack -> {
                     navigator.pop()
                 }

@@ -1,26 +1,34 @@
 package com.example.petal
 
 import com.example.petal.domain.Memory
+import com.example.petal.ui.mapScreen.LocationSource
 
 sealed class NavigationEvent {
+
     data object GoBack : NavigationEvent()
 
-    // Screen navigation
-    data class OpenMemoryDetail(val memory: Memory) : NavigationEvent()
-    data class OpenEditMemory(val memory: Memory? = null) : NavigationEvent()
-    data object OpenAddMemory : NavigationEvent()
+    // navigation
+    data class OpenMemoryDetail(val memoryId: Int) : NavigationEvent()
+    data class OpenEditMemory(val memoryId: Int) : NavigationEvent()
+    data class OpenAddMemory(
+        val locationSource: LocationSource = LocationSource.None
+    ) : NavigationEvent()
+
     data object OpenMap : NavigationEvent()
 
-    // Bottom navigation
-    data object NavigateToJournal : NavigationEvent()
-    data object NavigateToMap : NavigationEvent()
-    data object NavigateToCalendar : NavigationEvent()
-    data object NavigateToProfile : NavigationEvent()
-    // Memory actions
-    data class ToggleFavorite(val memory: Memory) : NavigationEvent()
-    data class DeleteMemory(val memory: Memory) : NavigationEvent()
+    data class OpenAddMemoryWithLocation(
+        val latitude: Double,
+        val longitude: Double,
+        val name: String?
+    ) : NavigationEvent()
 
-    // Edit Memory actions
+
+
+    // Memory
+    data class ToggleFavorite(val memoryId: Int) : NavigationEvent()
+    data class DeleteMemory(val memoryId: Int) : NavigationEvent()
+
+    // Edit Memory
     data object SaveMemory : NavigationEvent()
     data object CancelEdit : NavigationEvent()
     data class RemoveImage(val imageId: String) : NavigationEvent()

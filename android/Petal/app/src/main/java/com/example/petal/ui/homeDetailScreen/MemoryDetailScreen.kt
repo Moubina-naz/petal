@@ -1,6 +1,7 @@
 package com.example.petal.ui.homeDetailScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,8 +47,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.example.petal.NavigationEvent
+import com.example.petal.ui.addMemory.MemoryImageGalleryScreen
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -57,6 +62,10 @@ fun MemoryDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
+
+    var showViewer by remember { mutableStateOf(false) }
+    var startIndex by remember { mutableStateOf(0) }
+
 
     Column(
         modifier = Modifier
@@ -85,16 +94,18 @@ fun MemoryDetailScreen(
             is MemoryDetailUiState.Success -> {
                 val memory = (uiState as MemoryDetailUiState.Success).memory
 
-                val dateText = remember(memory.createdAt) {
-                    memory.createdAt
+                val displayInstant = memory.memoryDateTime ?: memory.createdAt
+
+                val dateText = remember(displayInstant) {
+                    displayInstant
                         .atZone(ZoneId.systemDefault())
-                        .toLocalDate()
-                        .format(DateTimeFormatter.ofPattern("MMM dd"))
+                        .format(DateTimeFormatter.ofPattern("MMM dd • hh:mm a"))
                 }
 
-                val locationText = memory.location?.let {
-                    " · ${it.latitude}, ${it.longitude}"
-                } ?: ""
+                val locationText = remember(memory.location?.name) {
+                    memory.location?.name ?: "Unknown location"
+                }
+
 
                 Column(
                     modifier = Modifier
@@ -155,7 +166,9 @@ fun MemoryDetailScreen(
                                     text = { Text("Edit") },
                                     onClick = {
                                         showMenu = false
-                                        onNavigationEvent(NavigationEvent.OpenEditMemory(memory))
+                                        onNavigationEvent(
+                                            NavigationEvent.OpenEditMemory(memory.id)
+                                        )
                                     }
                                 )
                             }
@@ -166,11 +179,12 @@ fun MemoryDetailScreen(
 
 
                     Text(
-                        text = "$dateText$locationText",
+                        text = "$dateText · $locationText",
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
                         color = Color(0xFF9C8F86)
                     )
+
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -237,10 +251,29 @@ fun MemoryDetailScreen(
                                         modifier = Modifier
                                             .aspectRatio(1f)
                                             .clip(RoundedCornerShape(16.dp))
+                                            .clickable {
+                                                startIndex = memory.images.indexOf(image)
+                                                showViewer = true
+                                            }
                                     )
+
                                 }
                             }
                         }
+                        if (showViewer) {
+                            val navigator = LocalNavigator.currentOrThrow
+
+                            LaunchedEffect(startIndex) {
+                                navigator.push(
+                                    MemoryImageGalleryScreen(
+                                        images = memory.images.map { it.imageUrl },
+                                        initialIndex = startIndex
+                                    )
+                                )
+                                showViewer = false
+                            }
+                        }
+
                     }
                 }
             }

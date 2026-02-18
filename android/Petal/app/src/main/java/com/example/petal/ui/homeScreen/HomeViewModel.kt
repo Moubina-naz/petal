@@ -53,24 +53,21 @@ class HomeViewModel(
         }
     }
 
-    fun favorite(memory: Memory) {
+    fun favoriteById(memoryId: Int) {
         viewModelScope.launch {
             try {
-                if (memory.isFavorite)
-                    memoryRepository.unfavorite(memory.id)
-                else
-                    memoryRepository.favorite(memory.id)
+                memoryRepository.favorite(memoryId)
                 loadMemories()
-            }
-            catch(e: Exception) {
+            } catch (e: Exception) {
                 _uiState.value = HomeUiState.Error(
-                    e.message ?: "Unable to load memories"
+                    e.message ?: "Unable to update favorite"
                 )
             }
         }
-        fun refresh(){
+    }
+
+    fun refresh(){
             loadMemories()
         }
         }
 
-}

@@ -14,36 +14,43 @@ import com.example.petal.domain.Memory
 import com.example.petal.ui.editMemory.EditMemoryVoyagerScreen
 
 class MemoryDetailVoyagerScreen(
-    private val memory: Memory,
+    private val memoryId: Int
 ) : Screen {
+
     override val key = uniqueScreenKey
 
     @Composable
     override fun Content() {
-        val viewModel= remember{MemoryDetailViewModel(ApiProvider.memoryRepository)}
+        val viewModel = remember {
+            MemoryDetailViewModel(ApiProvider.memoryRepository)
+        }
 
-        LaunchedEffect(memory) {
-            viewModel.initialize(memory.id)
+        LaunchedEffect(memoryId) {
+            viewModel.initialize(memoryId)
         }
 
         val navigator = LocalNavigator.currentOrThrow
 
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
-                NavigationEvent.GoBack -> {
-                    navigator.pop()
-                }
+                NavigationEvent.GoBack -> navigator.pop()
+
                 is NavigationEvent.OpenEditMemory -> {
-                    navigator.push(EditMemoryVoyagerScreen(event.memory ?: memory))
+                    navigator.push(
+                        EditMemoryVoyagerScreen(event.memoryId)
+                    )
                 }
+
                 is NavigationEvent.DeleteMemory -> {
                     viewModel.deleteMemory {
                         navigator.pop()
                     }
                 }
+
                 is NavigationEvent.ToggleFavorite -> {
                     viewModel.toggleFavorite()
                 }
+
                 else -> {}
             }
         }

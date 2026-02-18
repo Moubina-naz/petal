@@ -12,6 +12,12 @@ data class MemoryDto(
     val latitude: Double?,
     val longitude: Double?,
 
+    @SerializedName("location_name")
+    val locationName: String?,
+
+    @SerializedName("memory_datetime")
+    val memoryDateTime: String?,
+
     val audio: String?,
 
     @SerializedName("music_url")

@@ -55,7 +55,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.foundation)
-
+    implementation("androidx.compose.material:material-icons-extended:1.7.0")
+    implementation(libs.play.services.location)
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -91,7 +92,10 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    //google maps
 
-
+    implementation("com.google.maps.android:maps-compose:8.1.0")
+    implementation("com.google.android.gms:play-services-maps:20.0.0")
+    implementation("org.maplibre.gl:android-sdk:12.3.1")
 
 }

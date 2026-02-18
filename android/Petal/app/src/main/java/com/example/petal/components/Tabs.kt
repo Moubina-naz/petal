@@ -10,18 +10,15 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.example.petal.NavigationEvent
-import com.example.petal.Screens.MapScreen
+import com.example.petal.ui.mapScreen.MapScreen
 import com.example.petal.data.remote.ApiProvider
-import com.example.petal.ui.editMemory.EditMemoryVoyagerScreen
-import com.example.petal.ui.homeDetailScreen.MemoryDetailVoyagerScreen
 import com.example.petal.ui.homeScreen.HomeViewModel
-import com.example.petal.ui.homeScreen.HomeScreen
+import com.example.petal.ui.mapScreen.MapViewModel
+import com.example.petal.ui.mapScreen.MapVoyagerScreen
 
 object JournalTab : Tab {
     override val options: TabOptions
@@ -40,7 +37,7 @@ object JournalTab : Tab {
     @Composable
     override fun Content() {
         val homeViewModel = remember { HomeViewModel(ApiProvider.memoryRepository) }
-        Navigator(HomeVoyagerScreen(homeViewModel))
+        Navigator(HomeVoyagerScreen())
     }
 }
 
@@ -60,7 +57,8 @@ object MapTab : Tab {
 
     @Composable
     override fun Content() {
-        MapScreen()
+        val mapViewModel = remember { MapViewModel(ApiProvider.memoryRepository) }
+        Navigator(MapVoyagerScreen())
     }
 }
 

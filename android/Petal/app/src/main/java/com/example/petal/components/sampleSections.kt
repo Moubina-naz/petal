@@ -24,7 +24,10 @@ fun groupMemories(memories: List<Memory>): List<MemorySection> {
     val olderList = mutableListOf<Memory>()
 
     for (memory in memories) {
-        val memoryDate = memory.createdAt
+
+        val instant = memory.memoryDateTime ?: memory.createdAt
+
+        val memoryDate = instant
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
 
@@ -32,9 +35,10 @@ fun groupMemories(memories: List<Memory>): List<MemorySection> {
             memoryDate == today -> todayList.add(memory)
             memoryDate == yesterday -> yesterdayList.add(memory)
             memoryDate.isAfter(weekAgo) -> lastWeekList.add(memory)
-            else -> olderList.add(memory) // 👈 THIS WAS MISSING
+            else -> olderList.add(memory)
         }
     }
+
 
     return buildList {
         if (todayList.isNotEmpty()) add(MemorySection("TODAY", todayList))
@@ -46,4 +50,3 @@ fun groupMemories(memories: List<Memory>): List<MemorySection> {
 
 
 
-//val sampleSections = groupMemories(sampleMemories)

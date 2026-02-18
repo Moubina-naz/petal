@@ -1,5 +1,8 @@
 package com.example.petal.ui.editMemory
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -47,12 +51,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.NavigationEvent
 import com.example.petal.domain.MemoryImage
 import androidx.compose.ui.text.TextStyle
+import coil.compose.AsyncImage
+import com.example.petal.components.FullScreenImageViewer
 
 @Composable
 fun EditMemoryScreen(
@@ -63,6 +70,16 @@ fun EditMemoryScreen(
     var showMenu by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val pickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5)
+    ) { uris ->
+        uris.forEach { uri ->
+            viewModel.addImage(uri.toString())
+        }
+    }
+
+    var showViewer by remember { mutableStateOf(false) }
+    var startIndex by remember { mutableStateOf(0) }
 
 
     Column(
@@ -147,7 +164,7 @@ fun EditMemoryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = uiState.locationLabel,
+                        text = uiState.locationName,
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
                         color = Color(0xFF9C8F86)
@@ -237,7 +254,6 @@ fun EditMemoryScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        //Body
         TextField(
             value = uiState.note,
             onValueChange = { viewModel.onNoteChange(it) },
@@ -271,16 +287,30 @@ fun EditMemoryScreen(
             modifier = Modifier.heightIn(max = 420.dp)
         ) {
 
-            items(uiState.images) { img ->
+            itemsIndexed(uiState.images) { index, img ->
                 Box(
                     modifier = Modifier
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
                         .background(Color(0xFFEDE6DE))
                 ) {
+                    AsyncImage(
+                        model = img.localUri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                startIndex = index
+                                showViewer = true
+                            }
+                    )
+
+
                     IconButton(
                         onClick = {
-                            onNavigationEvent(NavigationEvent.RemoveImage(img.localUri))
+                            onNavigationEvent(
+                                NavigationEvent.RemoveImage(img.localUri))
                         },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -310,8 +340,8 @@ fun EditMemoryScreen(
                                 RoundedCornerShape(16.dp)
                             )
                             .clickable {
-                                viewModel.addImage(
-                                    uri = "content://dummy-image-${uiState.images.size}"
+                                pickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
 
                             }
@@ -330,6 +360,14 @@ fun EditMemoryScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
     }
+    if (showViewer) {
+        FullScreenImageViewer(
+            images = uiState.images.map { it.localUri },
+            startIndex = startIndex,
+            onDismiss = { showViewer = false }
+        )
+    }
+
 }
 @Preview
 @Composable

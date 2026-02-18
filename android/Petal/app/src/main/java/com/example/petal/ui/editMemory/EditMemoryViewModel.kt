@@ -1,8 +1,11 @@
 package com.example.petal.ui.editMemory
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.petal.MemoryRepository
+import com.example.petal.domain.Location
 import com.example.petal.domain.Memory
 import com.example.petal.domain.MemoryImage
 import com.example.petal.domain.Mood
@@ -11,12 +14,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
 class EditMemoryViewModel(
     private val repository: MemoryRepository,
+    private val context: Context
 
 ) : ViewModel() {
 
@@ -26,62 +33,54 @@ class EditMemoryViewModel(
 
     fun initialize(memoryId: String) {
         this.memoryId = memoryId
-        if (memoryId.isNotEmpty()) {
-            loadMemory()
-        } else {
-            // Initialize for NEW memory
-            _uiState.value = EditMemoryUiState(
-                dateLabel = Instant.now()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
-                    .format(DateTimeFormatter.ofPattern("MMMM dd")),
-                locationLabel = "Location"
-            )
-        }
+        loadMemory()
     }
 
-    init {
-        // Only load if memoryId is not empty (editing existing memory)
-        if (memoryId.isNotEmpty()) {
-            loadMemory()
-        } else {
-            // Initialize for NEW memory
-            _uiState.value = EditMemoryUiState(
-                dateLabel = Instant.now()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate()
-                    .format(DateTimeFormatter.ofPattern("MMMM dd")),
-                locationLabel = "Location"
-            )
-        }
-    }
+
     private fun loadMemory() {
         viewModelScope.launch {
-            val memoryIdInt = memoryId.toIntOrNull()
-            if (memoryIdInt != null) {
-                val memory = repository.getMemory(memoryIdInt)
 
-                _uiState.value = EditMemoryUiState(
-                    title = memory.title,
-                    note = memory.note,
-                    mood = memory.mood,
-                    tags = memory.tags,
-                    dateLabel = memory.createdAt
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate()
-                        .format(DateTimeFormatter.ofPattern("MMMM dd")),
-                    locationLabel = memory.location?.name ?: "Location",
-                    images = memory.images.mapIndexed { index, img ->
-                        EditableImage(
-                            localUri = img.imageUrl,
-                            caption = img.caption,
-                            order = index
-                        )
-                    }
-                )
-            }
+            val id = memoryId.toIntOrNull() ?: return@launch
+            val memory = repository.getMemory(id)
+
+            val instant = memory.memoryDateTime ?: memory.createdAt
+
+            val zoned = instant.atZone(ZoneId.systemDefault())
+
+            _uiState.value = EditMemoryUiState(
+                title = memory.title,
+                note = memory.note,
+                mood = memory.mood,
+                tags = memory.tags,
+
+                locationName = memory.location?.name ?: "Unknown location",
+                latitude = memory.location?.latitude,
+                longitude = memory.location?.longitude,
+
+                selectedDate = zoned.toLocalDate(),
+                selectedTime = zoned.toLocalTime(),
+
+                images = memory.images.mapIndexed { index, img ->
+                    EditableImage(
+                        localUri = img.imageUrl,
+                        caption = img.caption,
+                        order = index
+                    )
+                }
+            )
         }
     }
+    fun onLocationNameChange(value: String) {
+        _uiState.update { it.copy(locationName = value) }
+    }
+    fun onDateSelected(date: LocalDate) {
+        _uiState.update { it.copy(selectedDate = date) }
+    }
+
+    fun onTimeSelected(time: LocalTime) {
+        _uiState.update { it.copy(selectedTime = time) }
+    }
+
     fun onTitleChange(value: String) {
         _uiState.update { it.copy(title = value) }
     }
@@ -126,39 +125,56 @@ class EditMemoryViewModel(
 
     fun save(onDone: () -> Unit) {
         viewModelScope.launch {
+
             _uiState.update { it.copy(isSaving = true) }
 
             val state = _uiState.value
-            val memoryIdInt = memoryId.toIntOrNull()
+            val id = memoryId.toIntOrNull() ?: return@launch
 
-            if (memoryIdInt != null) {
-                // UPDATE existing memory
-                repository.updateMemory(
-                    id = memoryIdInt,
-                    memory = Memory(
-                        id = memoryIdInt,
-                        title = state.title,
-                        note = state.note,
-                        mood = state.mood,
-                        tags = state.tags,
-                        location = null,
-                        audioUrl = null,
-                        musicUrl = null,
-                        isFavorite = false,
-                        isDeleted = false,
-                        revision = 0,
-                        createdAt = Instant.now(),
-                        updatedAt = Instant.now(),
-                        images = emptyList()
+            // ✅ Build memory datetime
+            val memoryInstant =
+                LocalDateTime.of(state.selectedDate, state.selectedTime)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+
+            // ✅ Build location object
+            val location =
+                if (state.latitude != null && state.longitude != null) {
+                    Location(
+                        latitude = state.latitude,
+                        longitude = state.longitude,
+                        name = state.locationName
                     )
-                )
-            } else {
-                // CREATE new memory
+                } else null
 
-                _uiState.update { it.copy(isSaving = false) }
+            repository.updateMemory(
+                id = id,
+                title = state.title,
+                note = state.note,
+                mood = state.mood,
+                tags = state.tags,
+                location = location,
+                memoryDateTime = memoryInstant
+            )
+
+            // Upload new images
+            val newImages = state.images
+                .map { it.localUri }
+                .filter { it.startsWith("content://") }
+                .map { Uri.parse(it) }
+
+            if (newImages.isNotEmpty()) {
+                repository.uploadMemoryImages(
+                    context = context,
+                    memoryId = id,
+                    imageUris = newImages
+                )
             }
 
+            _uiState.update { it.copy(isSaving = false) }
             onDone()
         }
     }
+
+
 }
