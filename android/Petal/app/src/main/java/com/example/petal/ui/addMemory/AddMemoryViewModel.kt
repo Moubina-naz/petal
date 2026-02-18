@@ -48,24 +48,43 @@ class AddMemoryViewModel(
                 _location.value = Location(
                     latitude = locationSource.latitude,
                     longitude = locationSource.longitude,
-                    name = locationSource.name ?: "Unknown location"
+                    name = locationSource.name
                 )
+
                 _uiState.update {
-                    it.copy(location = locationSource.name ?: "Unknown location")
+                    it.copy(location = locationSource.name.orEmpty())
                 }
             }
 
             LocationSource.None -> {
                 _location.value = null
                 _uiState.update {
-                    it.copy(location = "Unknown location")
+                    it.copy(location = "")
                 }
             }
 
-
             LocationSource.Current -> {
+                // Not used directly here
                 _location.value = null
+                _uiState.update {
+                    it.copy(location = "")
+                }
             }
+        }
+    }
+
+    fun clearLocation() {
+        _location.value = null
+        _uiState.update {
+            it.copy(location = "")
+        }
+    }
+
+    fun setLocation(latitude: Double, longitude: Double, name: String) {
+        _location.value = Location(latitude, longitude, name)
+
+        _uiState.update {
+            it.copy(location = name)
         }
     }
 
@@ -119,13 +138,7 @@ class AddMemoryViewModel(
         }
     }
 
-    fun onLocationChange(value: String) {
 
-        _uiState.update { it.copy(location = value) }
-        _location.update { loc ->
-            loc?.copy(name = value)
-        }
-    }
 
 
     fun save(onDone: () -> Unit) {

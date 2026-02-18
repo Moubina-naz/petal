@@ -93,9 +93,11 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     //google maps
-
+    implementation("com.google.android.libraries.places:places:3.5.0")
     implementation("com.google.maps.android:maps-compose:8.1.0")
     implementation("com.google.android.gms:play-services-maps:20.0.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.libraries.places:places:3.5.0")
     implementation("org.maplibre.gl:android-sdk:12.3.1")
 
 }

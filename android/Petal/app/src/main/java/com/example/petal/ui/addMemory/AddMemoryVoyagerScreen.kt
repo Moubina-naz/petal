@@ -10,6 +10,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.petal.NavigationEvent
 import com.example.petal.data.remote.ApiProvider
 import com.example.petal.ui.mapScreen.LocationSource
+import com.example.petal.ui.mapScreen.MapVoyagerScreen
 
 class AddMemoryVoyagerScreen(
     private val locationSource: LocationSource = LocationSource.None) : Screen {
@@ -35,6 +36,7 @@ class AddMemoryVoyagerScreen(
                 NavigationEvent.SaveMemory -> {
                     viewModel.save { navigator.pop() }
                 }
+
                 else -> {}
             }
         }

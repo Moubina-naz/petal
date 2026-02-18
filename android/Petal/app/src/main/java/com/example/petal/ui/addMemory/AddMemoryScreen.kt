@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PieChartOutline
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
@@ -69,6 +70,7 @@ fun AddMemoryScreen(
     var showViewer by remember { mutableStateOf(false) }
     var startIndex by remember { mutableStateOf(0) }
     val navigator = LocalNavigator.currentOrThrow
+    var showLocationSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -200,12 +202,46 @@ fun AddMemoryScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
-            value = uiState.location,
-            onValueChange = viewModel::onLocationChange,
-            label = { Text("Location name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onNavigationEvent(NavigationEvent.OpenMap)
+                }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = Color(0xFF615A57)
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            Text(
+                text = if (uiState.location.isBlank())
+                    "Add location"
+                else uiState.location,
+                fontSize = 14.sp,
+                color = Color(0xFF615A57),
+                modifier = Modifier.weight(1f)
+            )
+
+            if (uiState.location.isNotBlank()) {
+                IconButton(onClick = { viewModel.clearLocation() }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Remove location",
+                        tint = Color.Gray
+                    )
+                }
+            }
+        }
+
+
 
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -330,6 +366,51 @@ fun AddMemoryScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
     }
+
+    if (showLocationSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showLocationSheet = false }
+        ) {
+            Text(
+                text = "Use Current Location",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        // later: GPS
+                        viewModel.setLocation(
+                            latitude = 30.0,
+                            longitude = 78.0,
+                            name = "Current Location"
+                        )
+                        showLocationSheet = false
+                    }
+                    .padding(16.dp)
+            )
+
+            Text(
+                text = "Pick from Map",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        // navigate to map screen later
+                        showLocationSheet = false
+                    }
+                    .padding(16.dp)
+            )
+
+            Text(
+                text = "Remove Location",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        viewModel.clearLocation()
+                        showLocationSheet = false
+                    }
+                    .padding(16.dp)
+            )
+        }
+    }
+
     if (showViewer) {
         FullScreenImageViewer(
             images = uiState.images.map { it.localUri },
