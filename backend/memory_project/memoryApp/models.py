@@ -22,7 +22,7 @@ class Memory(models.Model):
 
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
-    location_name = models.CharField(blank=True,null=True,default="Unknown location")
+    location_name = models.CharField(blank=True,null=True,default="Unknown location" , max_length=555)
     #photo = models.ImageField(upload_to='photos/', blank=True, null=True)
     audio = models.FileField(upload_to='audio/', 
                              blank=True, null=True,
