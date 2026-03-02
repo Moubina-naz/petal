@@ -30,19 +30,36 @@ import java.util.Locale
 import android.location.Geocoder
 import android.location.Address
 import androidx.compose.foundation.clickable
+import com.google.android.gms.maps.CameraUpdateFactory
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
-    onNavigationEvent: (NavigationEvent) -> Unit,
-) {
+    mode: MapMode,
+    locationSource: LocationSource,
+    onLocationPicked: (Double, Double, String?) -> Unit,
+    onDismiss: () -> Unit
+){
     val viewModel = remember { MapViewModel(ApiProvider.memoryRepository) }
+    LaunchedEffect(locationSource) {
+        if (locationSource is LocationSource.Selected) {
+            viewModel.onMapClick(
+                locationSource.latitude,
+                locationSource.longitude,
+                locationSource.name ?: "Selected Location"
+            )
+        }
+    }
+
+
     val uiState by viewModel.uiState.collectAsState()
     val selectedLocation by viewModel.selectedLocation.collectAsState()
 
     val locationPermissionsState = rememberMultiplePermissionsState(
         listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
     )
+    var isMapLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (!locationPermissionsState.allPermissionsGranted) {
@@ -58,15 +75,40 @@ fun MapScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(30.3165, 78.0322), 12f)
+        position = CameraPosition.fromLatLngZoom(LatLng(20.5937, 78.9629), 5f) // Central India
     }
 
-    LaunchedEffect(locationPermissionsState.allPermissionsGranted) {
-        if (locationPermissionsState.allPermissionsGranted) {
-            getCurrentLocation(fusedLocationClient, context) { latLng ->
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
-                val name = getPlaceNameFromLatLng(latLng, context)
-                viewModel.onMapClick(latLng.latitude, latLng.longitude, name)
+    LaunchedEffect(selectedLocation, isMapLoaded) {
+        val pin = selectedLocation ?: return@LaunchedEffect
+        if (!isMapLoaded) return@LaunchedEffect
+
+        val latLng = LatLng(pin.latitude, pin.longitude)
+
+        cameraPositionState.animate(
+            CameraUpdateFactory.newLatLngZoom(
+                latLng,
+                if (pin.memories.isEmpty()) 12f else 10f
+            )
+        )
+    }
+
+
+    LaunchedEffect(locationPermissionsState.allPermissionsGranted, isMapLoaded) {
+        if (
+            isMapLoaded &&
+            selectedLocation == null &&
+            locationPermissionsState.allPermissionsGranted
+        ) {
+            delay(300L)  // small delay to let LaunchedEffect(locationSource) in MapVoyagerScreen run
+
+            if (selectedLocation == null) {  // re-check after delay
+                getCurrentLocation(fusedLocationClient, context) { latLng ->
+                    coroutineScope.launch {
+                        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+                        val name = getPlaceNameFromLatLng(latLng, context)
+                        viewModel.onMapClick(latLng.latitude, latLng.longitude, name)
+                    }
+                }
             }
         }
     }
@@ -89,6 +131,9 @@ fun MapScreen(
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
+                    onMapLoaded = {
+                        isMapLoaded = true
+                    },
                     onMapClick = { latLng ->
                         coroutineScope.launch {
                             val name = reverseGeocode(latLng, context)
@@ -182,23 +227,41 @@ fun MapScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                Button(
-                    onClick = {
-                        onNavigationEvent(
-                            NavigationEvent.OpenAddMemoryWithLocation(
-                                pin.latitude,
-                                pin.longitude,
-                                pin.name
-                            )
-                        )
-                        viewModel.clearSelection()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
-                ) {
-                    Text("+ Add Memory", color = Color.White)
+                if (mode == MapMode.CREATE_MEMORY) {
+
+                    Button(
+                        onClick = {
+                            onLocationPicked(pin.latitude, pin.longitude, pin.name)
+                            viewModel.clearSelection()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("+ Add Memory")
+                    }
+
+                } else {
+
+                    Button(
+                        onClick = {
+                            onLocationPicked(pin.latitude, pin.longitude, pin.name)
+                            viewModel.clearSelection()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Save Location")
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.clearSelection()
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Dismiss")
+                    }
                 }
 
                 Spacer(Modifier.height(32.dp))

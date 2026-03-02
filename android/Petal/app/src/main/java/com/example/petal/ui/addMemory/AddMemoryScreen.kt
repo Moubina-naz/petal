@@ -130,8 +130,9 @@ fun AddMemoryScreen(
                 .toInstant()
                 .toEpochMilli()
 
-            val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
-
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = initialMillis
+            )
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
@@ -178,10 +179,12 @@ fun AddMemoryScreen(
         )
 
         if (showTimePicker) {
-            val timePickerState = rememberTimePickerState(
+            val timePickerState = TimePickerState(
                 initialHour = uiState.selectedTime.hour,
-                initialMinute = uiState.selectedTime.minute
+                initialMinute = uiState.selectedTime.minute,
+                is24Hour = false
             )
+
 
             AlertDialog(
                 onDismissRequest = { showTimePicker = false },
@@ -222,9 +225,7 @@ fun AddMemoryScreen(
             Spacer(Modifier.width(12.dp))
 
             Text(
-                text = if (uiState.location.isBlank())
-                    "Add location"
-                else uiState.location,
+                text = uiState.location.ifBlank { "Add location" },
                 fontSize = 14.sp,
                 color = Color(0xFF615A57),
                 modifier = Modifier.weight(1f)

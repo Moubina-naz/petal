@@ -25,7 +25,7 @@ def memory_list(request):
         memories = Memory.objects.filter(
             user=request.user,
             is_deleted=False
-        )
+        ).order_by('-memory_datetime')
 
         search = request.GET.get('search')
         if search:

@@ -25,60 +25,40 @@ interface MemoryApi {
 
     @GET("memories/")
     suspend fun getMemories(
-        @Header("Authorization")
-        token: String = "Bearer ${AuthToken.TOKEN}",
         @Query("search") search: String? = null,
         @Query("tags") tags: String? = null,
         @Query("mood") mood: Int? = null,
-        @Query("is_favorite") isFavorite: Boolean? = null,
+        @Query("is_favorite") isFavorite: Boolean? = null
     ): PaginatedResponse<MemoryDto>
 
     @GET("memories/{id}/")
-    suspend fun getMemory(
-        @Path("id") id: Int,
-        @Header("Authorization")
-        token: String = "Bearer ${AuthToken.TOKEN}"
-
-    ): MemoryDto
+    suspend fun getMemory(@Path("id") id: Int): MemoryDto
 
     @PATCH("memories/{id}/favorite/")
-    suspend fun favorite(
-        @Path("id") id: Int,
-        @Header("Authorization")
-        token: String = "Bearer ${AuthToken.TOKEN}"
-    )
+    suspend fun favorite(@Path("id") id: Int)
 
     @PATCH("memories/{id}/unfavorite/")
-    suspend fun unfavorite(
-        @Path("id") id: Int,
-        @Header("Authorization")
-        token: String = "Bearer ${AuthToken.TOKEN}"
-    )
+    suspend fun unfavorite(@Path("id") id: Int)
+
     @DELETE("memories/{id}/")
-    suspend fun deleteMemory(
-        @Path("id") id: Int,
-        @Header("Authorization")
-        token: String = "Bearer ${AuthToken.TOKEN}"
-    )
+    suspend fun deleteMemory(@Path("id") id: Int)
+
     @PUT("memories/{id}/")
     suspend fun updateMemory(
         @Path("id") id: Int,
-        @Body body: EditMemoryReq,
-        @Header ("Authorization")
-        token: String = "Bearer ${AuthToken.TOKEN}"
+        @Body body: EditMemoryReq
     )
+
     @POST("memories/")
     suspend fun createMemoryJson(
-        @Body body: CreateMemoryReq,
-        @Header("Authorization") token: String = "Bearer ${AuthToken.TOKEN}"
+        @Body body: MemoryApi.CreateMemoryReq   // ← use the inner class
     ): MemoryDto
 
     @Multipart
     @POST("memories/{id}/images/")
     suspend fun uploadMemoryImages(
         @Path("id") id: Int,
-        @Part images: List<MultipartBody.Part>,
-        @Header("Authorization") token: String = "Bearer ${AuthToken.TOKEN}"
+        @Part images: List<MultipartBody.Part>
     )
 
 
@@ -92,10 +72,12 @@ interface MemoryApi {
         val latitude: Double? = null,
         val longitude: Double? = null,
 
-        @SerializedName("location_name")
-        val locationName: String? = null,
-        @SerializedName("memory_datetime")
+        @SerializedName("memory_datetime")   // ← Correct for Gson
         val memoryDateTime: String? = null,
+
+        @SerializedName("location_name")     // ← Correct for Gson
+        val locationName: String? = null
+
     )
 
 }

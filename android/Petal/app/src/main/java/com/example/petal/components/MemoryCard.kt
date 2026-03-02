@@ -46,7 +46,6 @@ fun MemoryCard(
             .padding(16.dp)
     ) {
 
-        // ✅ Title
         Text(
             text = memory.title,
             style = MaterialTheme.typography.headlineMedium,
@@ -55,7 +54,6 @@ fun MemoryCard(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // ✅ Subtitle (date + time + location)
         Text(
             text = subtitle,
             style = MaterialTheme.typography.labelMedium,
@@ -64,7 +62,6 @@ fun MemoryCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // ✅ Note preview
         Text(
             text = memory.note,
             style = MaterialTheme.typography.bodyMedium,

@@ -13,12 +13,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.example.petal.Screens.PetalBottomNavBar
 import com.example.petal.components.JournalTab
 import com.example.petal.theme.PetalTheme
+import com.example.petal.ui.Auth.LoginVoyagerScreen
+import com.example.petal.ui.Auth.SignupVoyagerScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,23 +30,33 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PetalTheme {
-                TabNavigator(JournalTab) { // Start on Journal tab
-                    val tabNavigator = LocalTabNavigator.current
+                Navigator(LoginVoyagerScreen()) { navigator ->
 
-                    Scaffold(
-                        bottomBar = {
-                            PetalBottomNavBar()
-                        },
-                        floatingActionButton = {},
-                        floatingActionButtonPosition = FabPosition.End // or Center if you want it centered
-                    ) { innerPadding ->
-                        // This renders the current tab's content (with nested navigator for Journal)
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
-                            CurrentTab()
+                    when (navigator.lastItem) {
+
+                        is LoginVoyagerScreen,
+                        is SignupVoyagerScreen -> {
+                            CurrentScreen()
+                        }
+
+                        else -> {
+                            TabNavigator(JournalTab) {
+                                val tabNavigator = LocalTabNavigator.current
+
+                                Scaffold(
+                                    bottomBar = { PetalBottomNavBar() },
+                                    floatingActionButton = {},
+                                    floatingActionButtonPosition = FabPosition.End
+                                ) { innerPadding ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(innerPadding)
+                                    ) {
+                                        CurrentTab()
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -27,9 +27,7 @@ SECRET_KEY = 'django-insecure-&dy+1k3c4pa3)(o7op2sd^6qi%*q7bqgqj^%z$u#s0_599bcq4
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    '192.168.29.175',]
+    '*']
 
 
 # Application definition
@@ -112,7 +110,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20, 
+    'PAGE_SIZE': 1000, 
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.AnonRateThrottle',

@@ -31,14 +31,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,9 +71,17 @@ import androidx.compose.ui.unit.sp
 import com.example.petal.NavigationEvent
 import com.example.petal.domain.MemoryImage
 import androidx.compose.ui.text.TextStyle
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.example.petal.components.FullScreenImageViewer
+import com.example.petal.components.MoodDropdown
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditMemoryScreen(
     viewModel: EditMemoryViewModel,
@@ -80,6 +101,10 @@ fun EditMemoryScreen(
 
     var showViewer by remember { mutableStateOf(false) }
     var startIndex by remember { mutableStateOf(0) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    val navigator = LocalNavigator.currentOrThrow
 
 
     Column(
@@ -98,7 +123,9 @@ fun EditMemoryScreen(
                 text = "cancel",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF615A57),
-                modifier = Modifier.clickable {
+                modifier = Modifier.clickable(
+                    enabled = !uiState.isSaving
+                ){
                     onNavigationEvent(NavigationEvent.CancelEdit)
                 }
 
@@ -109,10 +136,8 @@ fun EditMemoryScreen(
                 text = if (uiState.isSaving) "saving.." else "save",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF9E6F73),
-                modifier = Modifier.clickable {
-                    viewModel.save {
-                        onNavigationEvent(NavigationEvent.GoBack)
-                    }
+                modifier = Modifier.clickable(enabled = !uiState.isSaving) {
+                    onNavigationEvent(NavigationEvent.SaveMemory)
                 }
 
             )
@@ -120,97 +145,143 @@ fun EditMemoryScreen(
 
         }
         Spacer(modifier = Modifier.height(32.dp))
-        Row(modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = Color(0xFFECEEFF),
-                        shape = RoundedCornerShape(18.dp)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = uiState.dateLabel,
-                        fontSize = 12.sp,
-                        letterSpacing = 1.sp,
-                        color = Color(0xFF9C8F86)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
+        OutlinedTextField(
+            value = uiState.selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Date") },
+            trailingIcon = {
+                IconButton(onClick = { showDatePicker = true }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        tint = Color(0xFF9E6F73),
-                        modifier = Modifier.size(16.dp)
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Select date",
+                        tint = Color(0xFF615A57)
                     )
                 }
-            }
+            },
+            modifier = Modifier.fillMaxWidth(),
 
-            Spacer(modifier = Modifier.width(16.dp))
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = Color(0xFFECEEFF),
-                        shape = RoundedCornerShape(18.dp)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = uiState.locationName,
-                        fontSize = 12.sp,
-                        letterSpacing = 1.sp,
-                        color = Color(0xFF9C8F86)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null,
-                        tint = Color(0xFF9E6F73),
-                        modifier = Modifier.size(16.dp)
-                    )
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color(0xFF3A3330),
+                unfocusedTextColor = Color(0xFF3A3330)
+            )
+        )
+
+        if (showDatePicker) {
+            val initialMillis = uiState.selectedDate
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
+
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = initialMillis
+            )
+
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val selected = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                            viewModel.onDateSelected(selected)
+                        }
+                        showDatePicker = false
+                    }) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
                 }
+            ) {
+                DatePicker(state = datePickerState)
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
-            modifier = Modifier
-                .background(
-                    color = Color(0xFFFCD1D1),
-                    shape = RoundedCornerShape(18.dp)
-                )
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Time",
-                    fontSize = 12.sp,
-                    letterSpacing = 1.sp,
-                    color = Color(0xFF9C8F86)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = null,
-                    tint = Color(0xFF9E6F73),
-                    modifier = Modifier.size(16.dp)
-                )
-            }
+        // Time field (clickable, read-only)
+        OutlinedTextField(
+            value = uiState.selectedTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Time") },
+            trailingIcon = {
+                IconButton(onClick = { showTimePicker = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Schedule,
+                        contentDescription = "Select time",
+                        tint = Color(0xFF615A57)
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color(0xFF3A3330),
+                unfocusedTextColor = Color(0xFF3A3330)
+            )
+        )
+
+        if (showTimePicker) {
+            val timePickerState = rememberTimePickerState(
+                initialHour = uiState.selectedTime.hour,
+                initialMinute = uiState.selectedTime.minute,
+                is24Hour = false
+            )
+
+            AlertDialog(
+                onDismissRequest = { showTimePicker = false },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.onTimeSelected(
+                            LocalTime.of(timePickerState.hour, timePickerState.minute)
+                        )
+                        showTimePicker = false
+                    }) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+                },
+                text = { TimePicker(state = timePickerState) }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onNavigationEvent(NavigationEvent.OpenMap)
+                }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = Color(0xFF615A57)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = uiState.locationName.ifBlank { "Add/Edit location" },
+                fontSize = 16.sp,
+                color = Color(0xFF3A3330),
+                modifier = Modifier.weight(1f)
+            )
+            if (uiState.locationName.isNotBlank()) {
+                IconButton(onClick = {
+                    viewModel.onLocationNameChange("")
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear location",
+                        tint = Color.Gray
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.width(24.dp))
 
-        //title
         TextField(
             value = uiState.title,
             onValueChange = { viewModel.onTitleChange(it) },
@@ -225,32 +296,10 @@ fun EditMemoryScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        //mood
-        Box(modifier = Modifier
-            .background(
-                color = Color(0xFFFCD1D1),
-                shape = RoundedCornerShape(16.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ){
-
-                uiState.mood?.let { mood ->
-                    Text(
-                        text = "✳ ${mood.label}",
-                        fontSize = 12.sp,
-                        color = Color(0xFF8A5A5A)
-                    )
-                }
-
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "down",
-                    tint = Color(0xFF)
-                )
-            }
-        }
+        MoodDropdown(
+            selectedMood = uiState.mood,
+            onMoodSelected = { viewModel.onMoodSelected(it) }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -367,8 +416,8 @@ fun EditMemoryScreen(
             onDismiss = { showViewer = false }
         )
     }
-
 }
+
 @Preview
 @Composable
 fun EditMemoryScreenPreview(){

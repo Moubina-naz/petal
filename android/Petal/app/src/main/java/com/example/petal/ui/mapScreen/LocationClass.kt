@@ -1,6 +1,8 @@
 package com.example.petal.ui.mapScreen
 
-sealed class LocationSource {
+import java.io.Serializable
+
+sealed class LocationSource : Serializable {
 
     data class Selected(
         val latitude: Double,

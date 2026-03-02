@@ -11,8 +11,10 @@ import com.example.petal.domain.Memory
 import com.example.petal.domain.Mood
 import com.example.petal.ui.editMemory.EditableImage
 import com.example.petal.ui.mapScreen.LocationSource
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -22,6 +24,13 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+
+
+
+sealed interface SaveEffect {
+    data object NavigateBack : SaveEffect
+    data class Error(val message: String) : SaveEffect
+}
 class AddMemoryViewModel(
     private val repository: MemoryRepository,
     private val context: Context,
@@ -40,6 +49,8 @@ class AddMemoryViewModel(
     private val timeFormatter =
         DateTimeFormatter.ofPattern("hh:mm a")
 
+    private val _saveEffects = Channel<SaveEffect>(Channel.BUFFERED)
+    val saveEffects = _saveEffects.receiveAsFlow()
 
     init {
         when (locationSource) {
@@ -138,15 +149,23 @@ class AddMemoryViewModel(
         }
     }
 
+    fun onLocationChange(value: String) {
+
+        _uiState.update { it.copy(location = value) }
+        _location.update { loc ->
+            loc?.copy(name = value)
+        }
+    }
 
 
-
-    fun save(onDone: () -> Unit) {
+    fun save() {
         viewModelScope.launch {
             println("=== SAVE DEBUG START ===")
             println("UI location text: '${uiState.value.location}'")                    // what the text field shows
             println("ViewModel _location.value?.name: '${_location.value?.name}'")      // what VM thinks the name is
             println("Location object before save: ${_location.value}")                   // full object
+            println("USER PICKED TIME = ${uiState.value.selectedTime}")
+            println("USER PICKED DATE = ${uiState.value.selectedDate}")
 
             _uiState.update { it.copy(isSaving = true, error = null) }
             val date = uiState.value.selectedDate
@@ -157,12 +176,15 @@ class AddMemoryViewModel(
                     .atZone(ZoneId.systemDefault())
                     .toInstant()
 
+
+
             try {
 
                 if (state.title.isBlank()) {
                     _uiState.update {
                         it.copy(isSaving = false, error = "Title is required")
                     }
+                    _saveEffects.trySend(SaveEffect.Error("Title is required"))
                     return@launch
                 }
 
@@ -187,6 +209,7 @@ class AddMemoryViewModel(
                 val created = repository.createMemory(memory)
                 println("After creation - server returned location_name: '${created.location?.name}'")
                 println("=== SAVE DEBUG END ===")
+
                 repository.uploadMemoryImages(
                     context = context,
                     memoryId = created.id,
@@ -194,27 +217,25 @@ class AddMemoryViewModel(
                 )
 
                 _uiState.update { it.copy(isSaving = false) }
-                onDone()
+                _saveEffects.trySend(SaveEffect.NavigateBack)
 
             } catch (e: Exception) {
-                if (e is retrofit2.HttpException) {
-                    val errorBody = e.response()?.errorBody()?.string()
-                    Log.e("API_ERROR", "Code=${e.code()} body=$errorBody")
-                    _uiState.update {
-                        it.copy(
-                            isSaving = false,
-                            error = errorBody ?: "HTTP ${e.code()}"
-                        )
+                val errorMsg = when (e) {
+                    is retrofit2.HttpException -> {
+                        val body = e.response()?.errorBody()?.string()
+                        Log.e("API_ERROR", "Code=${e.code()} body=$body")
+                        body ?: "HTTP ${e.code()}"
                     }
-                } else {
-                    Log.e("API_ERROR", e.stackTraceToString())
-                    _uiState.update {
-                        it.copy(isSaving = false, error = e.message)
+                    else -> {
+                        Log.e("API_ERROR", e.stackTraceToString())
+                        e.message ?: "Unknown error"
                     }
                 }
-            }
 
+                _uiState.update { it.copy(isSaving = false, error = errorMsg) }
+                _saveEffects.trySend(SaveEffect.Error(errorMsg))
+            }
         }
-        }
+    }
     }
 

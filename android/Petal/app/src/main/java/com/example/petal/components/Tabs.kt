@@ -19,6 +19,7 @@ import com.example.petal.data.remote.ApiProvider
 import com.example.petal.ui.homeScreen.HomeViewModel
 import com.example.petal.ui.mapScreen.MapViewModel
 import com.example.petal.ui.mapScreen.MapVoyagerScreen
+import com.example.petal.ui.profile.ProfileVoyagerScreen
 
 object JournalTab : Tab {
     override val options: TabOptions
@@ -83,6 +84,7 @@ object CalendarTab : Tab {
 }
 
 object ProfileTab : Tab {
+
     override val options: TabOptions
         @Composable
         get() {
@@ -98,6 +100,6 @@ object ProfileTab : Tab {
 
     @Composable
     override fun Content() {
-        Text("Profile Screen")  // replace with real content
+        Navigator(ProfileVoyagerScreen())
     }
 }

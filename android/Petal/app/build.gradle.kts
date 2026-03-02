@@ -17,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["MAPS_API_KEY"] =
+            project.findProperty("MAPS_API_KEY") as String? ?: ""
     }
 
     buildTypes {
@@ -69,7 +72,7 @@ dependencies {
     // Navigation - SIMPLE STRING-BASED
     //implementation(libs.androidx.navigation.compose)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Other dependencies
     implementation(libs.kotlinx.coroutines.android)
