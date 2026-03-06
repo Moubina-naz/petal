@@ -13,11 +13,12 @@ class MemoryImageSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         url = obj.image.url
+        print(f"IMAGE URL GENERATED: {url}")
         if url.startswith('http'):
-           return url
+            return url
         request = self.context.get('request')
         if request is not None:
-           return request.build_absolute_uri(url)
+            return request.build_absolute_uri(url)
         return url
 
 class MemorySerializer(serializers.ModelSerializer):
