@@ -43,12 +43,13 @@ class Memory(models.Model):
         return f"{self.title} - {self.user.username}"
     
 
+from cloudinary.models import CloudinaryField
+
 class MemoryImage(models.Model):
     memory = models.ForeignKey(Memory, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to='memory_photos/',
-                              validators=[validate_image_size, validate_image_extension] )
+    image = CloudinaryField('image')  # ← replace ImageField with this
     caption = models.CharField(max_length=255, blank=True, null=True)
-    order = models.IntegerField(default=0)  
+    order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
