@@ -12,11 +12,13 @@ class MemoryImageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def get_image_url(self, obj):
+        url = obj.image.url
+        if url.startswith('http'):
+           return url
         request = self.context.get('request')
         if request is not None:
-            return request.build_absolute_uri(obj.image.url)
-        return obj.image.url
-
+           return request.build_absolute_uri(url)
+        return url
 
 class MemorySerializer(serializers.ModelSerializer):
     images = MemoryImageSerializer(many=True, read_only=True)
