@@ -25,11 +25,14 @@ class MemoryDetailViewModel(
         viewModelScope.launch {
             try{
                 val memory = repository.getMemory(currentMemoryId)
+
+                // ADD THIS
+                println("MEMORY IMAGES COUNT: ${memory.images.size}")
+                memory.images.forEach { println("IMAGE URL: ${it.imageUrl}") }
+
                 _uiState.value = MemoryDetailUiState.Success(memory)
             } catch(e: Exception){
-                _uiState.value = MemoryDetailUiState.Error(
-                    e.message ?: "Unable to load memory"
-                )
+                _uiState.value = MemoryDetailUiState.Error(e.message ?: "Unable to load memory")
             }
         }
     }

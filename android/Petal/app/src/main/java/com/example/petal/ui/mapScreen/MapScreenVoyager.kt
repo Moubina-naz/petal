@@ -30,19 +30,18 @@ class MapVoyagerScreen(
             mode = mode,
             locationSource = locationSource,
             onLocationPicked = { lat, lon, name ->
-                val selectedSource = LocationSource.Selected(lat, lon, name)
                 when (mode) {
                     MapMode.CREATE_MEMORY, MapMode.PICK_LOCATION -> {
-                        navigator.replace(
-                            AddMemoryVoyagerScreen(locationSource = selectedSource)
-                        )
+                        LocationPickerResult.pickedLocation.value =
+                            LocationSource.Selected(lat, lon, name)
+                        navigator.pop()  // now pop back to the existing AddMemoryVoyagerScreen
                     }
                     MapMode.EDIT_LOCATION -> {
                         if (memoryId != null) {
                             navigator.replace(
                                 EditMemoryVoyagerScreen(
                                     memoryId = memoryId,
-                                    locationSource = selectedSource
+                                    locationSource = LocationSource.Selected(lat, lon, name)
                                 )
                             )
                         } else {

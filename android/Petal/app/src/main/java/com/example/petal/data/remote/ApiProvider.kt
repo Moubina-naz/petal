@@ -28,7 +28,7 @@ object ApiProvider {
             .build()
 
         retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.29.175:8000/api/")
+            .baseUrl("https://petal-production.up.railway.app/api/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

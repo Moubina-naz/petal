@@ -156,3 +156,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+MEDIA_URL = 'https://petal-production.up.railway.app/media/'

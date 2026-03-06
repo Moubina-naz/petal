@@ -12,7 +12,6 @@ class AuthInterceptor(
 
         val path = request.url.encodedPath
 
-        // ❌ Do NOT attach token for login/register
         if (path.contains("/login") || path.contains("/register")) {
             return chain.proceed(request)
         }

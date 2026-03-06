@@ -71,10 +71,10 @@ class AuthRepository(
                     refresh != null && refresh.isNotBlank()
                 ) {
                     tokenManager.saveTokens(access, refresh, username)
-                    Result.success(Unit)
+                    return Result.success(Unit)
+                } else {
+                    return Result.failure(Exception("Tokens missing in response"))
                 }
-
-                Result.success(Unit)
             } else {
                 val errorMessage = response.errorBody()?.string()
                     ?.takeIf { it.isNotBlank() }

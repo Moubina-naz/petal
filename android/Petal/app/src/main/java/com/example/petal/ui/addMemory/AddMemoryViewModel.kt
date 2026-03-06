@@ -23,7 +23,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.rememberScreenModel
 
 
 
@@ -35,7 +36,7 @@ class AddMemoryViewModel(
     private val repository: MemoryRepository,
     private val context: Context,
     private val locationSource: LocationSource
-) : ViewModel() {
+) : ViewModel(), ScreenModel {
 
     private val _location = MutableStateFlow<Location?>(null)
     val location: StateFlow<Location?> = _location
@@ -61,10 +62,7 @@ class AddMemoryViewModel(
                     longitude = locationSource.longitude,
                     name = locationSource.name
                 )
-
-                _uiState.update {
-                    it.copy(location = locationSource.name.orEmpty())
-                }
+                _uiState.update { it.copy(location = locationSource.name.orEmpty()) }
             }
 
             LocationSource.None -> {
