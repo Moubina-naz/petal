@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('memories/', views.memory_list, name='memory-list'),
+    path('memories/by-month/', views.memories_by_month, name='memories-by-month'),
+
     path('memories/<int:pk>/', views.memory_detail, name='memory-detail'),
     path('memories/<int:pk>/images/', views.add_memory_images, name='add-memory-images'),
     path('memories/<int:memory_pk>/images/<int:image_pk>/', views.delete_memory_image, name='delete-memory-image'),
