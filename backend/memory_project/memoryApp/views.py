@@ -91,7 +91,35 @@ def memory_list(request):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    
+from django.utils.timezone import make_aware
+from datetime import datetime
+import calendar
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def memories_by_month(request):
+    year = int(request.GET.get('year', datetime.now().year))
+    month = int(request.GET.get('month', datetime.now().month))
+
+    # Get first and last day of the month
+    first_day = make_aware(datetime(year, month, 1))
+    last_day = make_aware(datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59))
+
+    memories = Memory.objects.prefetch_related('images').filter(
+        user=request.user,
+        is_deleted=False,
+        memory_datetime__range=(first_day, last_day)
+    )
+
+    # Group by day
+    result = {}
+    for memory in memories:
+        day = memory.memory_datetime.day
+        if day not in result:
+            result[day] = []
+        result[day].append(MemorySerializer(memory, context={'request': request}).data)
+
+    return Response(result)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
