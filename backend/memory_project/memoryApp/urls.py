@@ -13,4 +13,6 @@ urlpatterns = [
     path('login/', views.user_login, name='user-login'), 
     path('memories/<int:pk>/favorite/', views.favorite_memory, name='favourite-memory'),
     path('memories/<int:pk>/unfavorite/', views.unfavorite_memory, name='unfavourite-memory'),
+    path('profile/', views.user_profile, name='user-profile'),
+    path('profile/change-password/', views.change_password, name='change-password'),
 ]

@@ -101,7 +101,6 @@ def memories_by_month(request):
     year = int(request.GET.get('year', datetime.now().year))
     month = int(request.GET.get('month', datetime.now().month))
 
-    # Get first and last day of the month
     first_day = make_aware(datetime(year, month, 1))
     last_day = make_aware(datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59))
 
@@ -142,7 +141,6 @@ def memory_detail(request, pk):
         if serializer.is_valid():
             updated_memory = serializer.save(revision=mem.revision + 1)
             
-            # Handle new image uploads during update
             image_files = request.FILES.getlist('image_files')
             for image_file in image_files:
                 MemoryImage.objects.create(memory=updated_memory, image=image_file)
@@ -156,6 +154,55 @@ def memory_detail(request, pk):
         mem.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    if request.method == 'GET':
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        })
+    elif request.method == 'PATCH':
+        username = request.data.get('username')
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+
+        if username and username != user.username:
+            if User.objects.filter(username=username).exists():
+                return Response({'error': 'Username already taken'}, status=400)
+            user.username = username
+        if email: user.email = email
+        if first_name is not None: user.first_name = first_name
+        if last_name is not None: user.last_name = last_name
+        user.save()
+
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+
+    if not user.check_password(old_password):
+        return Response({'error': 'Wrong current password'}, status=400)
+    
+    user.set_password(new_password)
+    user.save()
+    return Response({'message': 'Password changed successfully'})
 
 @api_view(['POST'])
 def user_register(request): 
