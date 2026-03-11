@@ -1,19 +1,24 @@
 package com.example.petal.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.petal.domain.Memory
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -25,49 +30,206 @@ fun MemoryCard(
     onFavoriteClick: () -> Unit = {},
 ) {
     val instant = memory.memoryDateTime ?: memory.createdAt
+    val timeText = instant
+        .atZone(ZoneId.systemDefault())
+        .format(DateTimeFormatter.ofPattern("hh:mm a"))
 
-    val subtitle = buildString {
-        append(
-            instant.atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofPattern("MMM dd • hh:mm a"))
-        )
-        append(" · ")
-        append(memory.location?.name ?: "Unknown location")
-    }
+    val firstImage = memory.images
+        .firstOrNull { it.imageUrl.contains("cloudinary") }
+        ?.imageUrl
+    val hasImage = firstImage != null
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(0.dp))
+            .background(Color(0xFFFffffff))
+            .border(1.dp, Color(0xFF313131), RoundedCornerShape(0.dp))
             .clickable { onMemoryClick() }
-            .background(
-                color = Color(0xFFF6F2ED),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(16.dp)
     ) {
+        if (hasImage) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AsyncImage(
+                    model = firstImage,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
 
-        Text(
-            text = memory.title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color(0xFF4E3A2F)
-        )
+                Spacer(modifier = Modifier.width(12.dp))
 
-        Spacer(modifier = Modifier.height(6.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = memory.title,
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF3B2314)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (memory.isFavorite) {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = Color(0xFFCC6666),
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clickable { onFavoriteClick() }
+                            )
+                        }
+                    }
 
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.labelMedium,
-            color = Color(0xFF9C8F86)
-        )
+                    Spacer(modifier = Modifier.height(6.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+                    if (memory.note.isNotBlank()) {
+                        Text(
+                            text = memory.note,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color(0xFF9C8F86),
+                                fontSize = 14.sp
+                            ),
+                            maxLines = 2
+                        )
+                    }
+                }
 
-        Text(
-            text = memory.note,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF7A6A5E),
-            maxLines = 2
-        )
+                Spacer(modifier = Modifier.width(8.dp))
+
+            }
+
+        } else {
+            //no image in memory
+
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = memory.title,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = Color(0xFF3B2314)
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = timeText,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = Color(0xFF8e8e8e),
+                                fontSize = 11.sp
+                            )
+                        )
+                        if (memory.isFavorite) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = Color(0xFFCC6666),
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .clickable { onFavoriteClick() }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Note
+                if (memory.note.isNotBlank()) {
+                    Text(
+                        text = memory.note,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color(0xFF8e8e8e),
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp
+                        ),
+                        maxLines = 4
+                    )
+                }
+
+                // Mood
+                val hasMoodOrTags = memory.mood != null || memory.tags.isNotEmpty()
+                if (hasMoodOrTags) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        //mood
+                        memory.mood?.let { mood ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                modifier = Modifier
+                                    .background(
+                                        color = Color(0xFFEAF4EE),
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                // Green dot
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .background(Color(0xFF6BAE82), CircleShape)
+                                )
+                                Text(
+                                    text = mood.label.uppercase(),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF4A8C62),
+                                    letterSpacing = 0.6.sp
+                                )
+                            }
+                        }
+
+                        // tags
+                        memory.tags.take(2).forEach { tag ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                modifier = Modifier
+                                    .background(
+                                        color = Color(0xFFEEE8E0),
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .background(Color(0xFFB09A88), CircleShape)
+                                )
+                                Text(
+                                    text = tag.uppercase(),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF8B7060),
+                                    letterSpacing = 0.6.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-

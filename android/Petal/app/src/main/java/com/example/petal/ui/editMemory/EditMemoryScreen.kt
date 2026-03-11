@@ -3,12 +3,14 @@ package com.example.petal.ui.editMemory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -37,12 +39,15 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -105,7 +110,8 @@ fun EditMemoryScreen(
     var showTimePicker by remember { mutableStateOf(false) }
 
     val navigator = LocalNavigator.currentOrThrow
-
+    val bg = Color(0xFFFf9f8f3)
+    val black = Color(0xFF2d2d2d)
 
     Column(
         modifier = Modifier
@@ -119,53 +125,66 @@ fun EditMemoryScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "cancel",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF615A57),
-                modifier = Modifier.clickable(
-                    enabled = !uiState.isSaving
-                ){
-                    onNavigationEvent(NavigationEvent.CancelEdit)
-                }
+            OutlinedButton(
+                onClick = { onNavigationEvent(NavigationEvent.GoBack) },
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.dp, black),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = black
+                ),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+            }
 
-            )
             Spacer(modifier = Modifier.weight(1f))
 
-            Text(
-                text = if (uiState.isSaving) "saving.." else "save",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF9E6F73),
-                modifier = Modifier.clickable(enabled = !uiState.isSaving) {
-                    onNavigationEvent(NavigationEvent.SaveMemory)
-                }
-
-            )
-
-
+            Button(
+                onClick = { onNavigationEvent(NavigationEvent.SaveMemory) },
+                enabled = !uiState.isSaving,
+                shape = RoundedCornerShape(20.dp),
+                border= BorderStroke(1.dp, black),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFd36b54),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(0xFFD6CCC2),
+                    disabledContentColor = Color.White
+                ),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = if (uiState.isSaving) "Saving..." else "Save",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
         Spacer(modifier = Modifier.height(32.dp))
-        OutlinedTextField(
-            value = uiState.selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Date") },
-            trailingIcon = {
-                IconButton(onClick = { showDatePicker = true }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Select date",
-                        tint = Color(0xFF615A57)
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
 
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color(0xFF3A3330),
-                unfocusedTextColor = Color(0xFF3A3330)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = "Date",
+                tint = black,
+                modifier = Modifier.size(20.dp)
             )
-        )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = uiState.selectedDate
+                    .format(DateTimeFormatter.ofPattern("MMMM d, yyyy").withLocale(java.util.Locale.US))
+                    .uppercase(),
+                fontSize = 14.sp,
+                letterSpacing = 1.2.sp,
+                color = black,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+            )
+        }
 
         if (showDatePicker) {
             val initialMillis = uiState.selectedDate
@@ -198,29 +217,33 @@ fun EditMemoryScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         // Time field (clickable, read-only)
-        OutlinedTextField(
-            value = uiState.selectedTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Time") },
-            trailingIcon = {
-                IconButton(onClick = { showTimePicker = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Schedule,
-                        contentDescription = "Select time",
-                        tint = Color(0xFF615A57)
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color(0xFF3A3330),
-                unfocusedTextColor = Color(0xFF3A3330)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showTimePicker = true }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Schedule,
+                contentDescription = "Time",
+                tint = black,
+                modifier = Modifier.size(20.dp)
             )
-        )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = uiState.selectedTime
+                    .format(DateTimeFormatter.ofPattern("hh:mm a"))
+                    .uppercase(),
+                fontSize = 14.sp,
+                letterSpacing = 1.2.sp,
+                color = black,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+            )
+        }
 
         if (showTimePicker) {
             val timePickerState = rememberTimePickerState(
@@ -246,28 +269,33 @@ fun EditMemoryScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(2.dp))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
                     onNavigationEvent(NavigationEvent.OpenMap)
                 }
-                .padding(vertical = 12.dp),
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
+        )  {
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = null,
-                tint = Color(0xFF615A57)
+                tint = black
             )
-            Spacer(modifier = Modifier.width(12.dp))
+
+            Spacer(Modifier.width(12.dp))
+
             Text(
-                text = uiState.locationName.ifBlank { "Add/Edit location" },
-                fontSize = 16.sp,
-                color = Color(0xFF3A3330),
+                text = uiState.locationName.ifBlank { "Add location" },
+                fontSize = 14.sp,
+                color = black,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
+
             if (uiState.locationName.isNotBlank()) {
                 IconButton(onClick = {
                     viewModel.onLocationNameChange("")
@@ -296,6 +324,7 @@ fun EditMemoryScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
+        //MOOD
         MoodDropdown(
             selectedMood = uiState.mood,
             onMoodSelected = { viewModel.onMoodSelected(it) }
@@ -323,11 +352,13 @@ fun EditMemoryScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "CAPTURED MOMENTS",
-            fontSize = 12.sp,
+            text = "Captured Moments",
+            fontSize = 16.sp,
             letterSpacing = 1.sp,
             color = Color(0xFF9C8F86)
         )
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -380,28 +411,29 @@ fun EditMemoryScreen(
             if (uiState.images.size < 5) {
                 item {
                     Box(
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp))
-                            .border(
-                                1.dp,
-                                Color(0xFFD6CCC2),
-                                RoundedCornerShape(16.dp)
-                            )
-                            .clickable {
-                                pickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-
-                            }
-                        ,
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add image",
-                            tint = Color(0xFFB0AAA3)
-                        )
+
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(16.dp))
+                                .clickable {
+                                    pickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = null,
+                                tint = black,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     }
                 }
             }

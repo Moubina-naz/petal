@@ -2,6 +2,7 @@ package com.example.petal.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -36,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.domain.Mood
@@ -49,28 +53,34 @@ fun MoodDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Box {
-        // The field that opens the menu
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .wrapContentWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFFEDE6DE))
+                .background(Color(0xFFfffdf9))
+                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
                 .clickable { expanded = true }
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = selectedMood?.icon ?: Icons.Default.Add,
-                    contentDescription = null,
-                    tint = Color(0xFF615A57),
-                    modifier = Modifier.size(18.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .background(Color(0xFFfffdf9), CircleShape),
+                    contentAlignment = Alignment.Center
+                ){
+                    Icon(
+                        imageVector = selectedMood?.icon ?: Icons.Default.Add,
+                        contentDescription = null,
+                        tint = selectedMood?.color?: Color(0xFF615A57),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = selectedMood?.label ?: "How are you feeling?",
+                    text = selectedMood?.label ?: "Mood?",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 14.sp,
                         color = Color(0xFF615A57)
@@ -79,13 +89,17 @@ fun MoodDropdown(
             }
         }
 
-        // ── Real DropdownMenu ──
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            containerColor = Color.Transparent,
+            shadowElevation = 0.dp,
+            offset = DpOffset(x = 0.dp, y = 8.dp),
             modifier = Modifier
-                .width(320.dp)           // adjust as needed
-                .background(Color(0xFFFDF8F4))
+                .width(180.dp)
+                .heightIn(max = 210.dp)
+                .background(Color(0xFFfffdf9))
+                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
         ) {
             Mood.values().forEach { mood ->
                 val isSelected = mood == selectedMood
@@ -106,7 +120,7 @@ fun MoodDropdown(
                                 Icon(
                                     imageVector = mood.icon,
                                     contentDescription = null,
-                                    tint = Color(0xFF615A57),
+                                    tint = mood.color,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -135,7 +149,7 @@ fun MoodDropdown(
                     },
                     colors = MenuDefaults.itemColors(
                         textColor = Color(0xFF3A3330),
-                        leadingIconColor = Color(0xFF615A57)
+                        leadingIconColor = mood.color
                     )
                 )
             }
@@ -195,7 +209,7 @@ fun MoodDropdown(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = Color(0xFF3A3330),
+                        tint =  mood.color,
                         modifier = Modifier.size(20.dp)
                     )
                 }

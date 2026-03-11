@@ -10,9 +10,10 @@ import com.example.petal.ui.mapScreen.MapVoyagerScreen
 import com.example.petal.data.remote.ApiProvider
 import com.example.petal.ui.editMemory.EditMemoryVoyagerScreen
 import com.example.petal.ui.homeDetailScreen.MemoryDetailVoyagerScreen
-import com.example.petal.ui.homeScreen.HomeScreen
 import com.example.petal.ui.homeScreen.HomeViewModel
 import com.example.petal.ui.addMemory.AddMemoryVoyagerScreen
+import com.example.petal.ui.homeScreen.HomeScreen
+import com.example.petal.ui.settings.SettingsVoyagerScreen
 
 
 class HomeVoyagerScreen : Screen {
@@ -42,7 +43,8 @@ class HomeVoyagerScreen : Screen {
                     navigator.push(
                         EditMemoryVoyagerScreen(event.memoryId)
                     )
-
+                is NavigationEvent.OpenSettings ->
+                    navigator.push(SettingsVoyagerScreen())
                 is NavigationEvent.OpenAddMemory ->
                     navigator.push(AddMemoryVoyagerScreen())
 

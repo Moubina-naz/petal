@@ -13,9 +13,8 @@ sealed class NavigationEvent {
     data class OpenAddMemory(
         val locationSource: LocationSource = LocationSource.None
     ) : NavigationEvent()
-
     data object OpenMap : NavigationEvent()
-
+    data object OpenSettings : NavigationEvent()
     data class OpenAddMemoryWithLocation(
         val latitude: Double,
         val longitude: Double,

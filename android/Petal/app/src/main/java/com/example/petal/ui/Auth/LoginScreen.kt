@@ -18,7 +18,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.petal.ui.Auth.AuthUiState
 import com.example.petal.ui.Auth.AuthViewModel
 import com.example.petal.ui.Auth.SignupScreen
-import com.example.petal.ui.homeScreen.HomeScreen
 
 @Composable
 fun LoginScreen(

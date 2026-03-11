@@ -54,6 +54,12 @@ interface MemoryApi {
         @Body body: MemoryApi.CreateMemoryReq   // ← use the inner class
     ): MemoryDto
 
+    @GET("memories/by-month/")
+    suspend fun getMemoriesByMonth(
+        @Query("year") year: Int,
+        @Query("month") month: Int
+    ): Map<String, List<MemoryDto>>
+
     @Multipart
     @POST("memories/{id}/images/")
     suspend fun uploadMemoryImages(
@@ -80,4 +86,32 @@ interface MemoryApi {
 
     )
 
+    data class UserProfileDto(
+        val id: Int,
+        val username: String,
+        val email: String,
+        @SerializedName("first_name") val firstName: String,
+        @SerializedName("last_name") val lastName: String
+    )
+
+    data class UpdateProfileReq(
+        val username: String? = null,
+        val email: String? = null,
+        @SerializedName("first_name") val firstName: String? = null,
+        @SerializedName("last_name") val lastName: String? = null
+    )
+
+    data class ChangePasswordReq(
+        @SerializedName("old_password") val oldPassword: String,
+        @SerializedName("new_password") val newPassword: String
+    )
+
+    @GET("profile/")
+    suspend fun getProfile(): UserProfileDto
+
+    @PATCH("profile/")
+    suspend fun updateProfile(@Body body: UpdateProfileReq): UserProfileDto
+
+    @POST("profile/change-password/")
+    suspend fun changePassword(@Body body: ChangePasswordReq)
 }

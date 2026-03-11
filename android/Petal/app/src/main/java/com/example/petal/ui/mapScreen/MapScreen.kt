@@ -30,7 +30,19 @@ import java.util.Locale
 import android.location.Geocoder
 import android.location.Address
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.zIndex
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
@@ -51,7 +63,20 @@ fun MapScreen(
             )
         }
     }
+    val context = LocalContext.current
 
+    val placesClient = remember {
+        if (Places.isInitialized()) {
+            android.util.Log.d("PLACES_INIT", "Client created OK")
+            Places.createClient(context)
+        } else {
+            android.util.Log.e("PLACES_INIT", "NOT initialized - client is null")
+            null
+        }
+    }
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val searchResults by viewModel.searchResults.collectAsState()
+    var isSearchActive by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
     val selectedLocation by viewModel.selectedLocation.collectAsState()
@@ -67,7 +92,6 @@ fun MapScreen(
         }
     }
 
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -112,7 +136,14 @@ fun MapScreen(
             }
         }
     }
+    val focusRequester = remember { FocusRequester() }
 
+// Add this LaunchedEffect
+    LaunchedEffect(isSearchActive) {
+        if (isSearchActive) {
+            focusRequester.requestFocus()
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         when (uiState) {
             is MapUiState.Loading -> {
@@ -182,16 +213,156 @@ fun MapScreen(
             }
         }
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
+                .zIndex(1f)
+
         ) {
-            Text("Petal", style = MaterialTheme.typography.titleLarge, color = Color(0xFF3E2F26))
-            IconButton(onClick = { /* TODO search */ }) {
-                Icon(Icons.Default.Search, contentDescription = "Search")
+            if (isSearchActive) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it, placesClient) },
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    placeholder = { Text("Search places...") },
+                    leadingIcon = {
+                        IconButton(onClick = {
+                            isSearchActive = false
+                            viewModel.clearSearch()
+                        }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = { viewModel.onSearchQueryChange("", placesClient) }) {
+                                Icon(Icons.Default.Close, contentDescription = "Clear")
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(28.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent
+                    ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            val top = searchResults.firstOrNull()
+                            if (top != null) {
+                                val placeFields = listOf(
+                                    com.google.android.libraries.places.api.model.Place.Field.LAT_LNG,
+                                    com.google.android.libraries.places.api.model.Place.Field.NAME,
+                                    com.google.android.libraries.places.api.model.Place.Field.ADDRESS
+                                )
+                                val fetchRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest
+                                    .newInstance(top.placeId, placeFields)
+                                placesClient?.fetchPlace(fetchRequest)
+                                    ?.addOnSuccessListener { response ->
+                                        val place = response.place
+                                        val latLng = place.latLng
+                                        if (latLng != null) {
+                                            coroutineScope.launch {
+                                                cameraPositionState.animate(
+                                                    CameraUpdateFactory.newLatLngZoom(latLng, 14f)
+                                                )
+                                                viewModel.onMapClick(latLng.latitude, latLng.longitude, place.name ?: place.address)
+                                                isSearchActive = false
+                                                viewModel.clearSearch()
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+                    )
+
+
+
+                    )
+
+                if (searchResults.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(8.dp)
+                    ) {
+                        Column {
+                            searchResults.take(5).forEach { prediction ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            val placeFields = listOf(
+                                                com.google.android.libraries.places.api.model.Place.Field.LAT_LNG,
+                                                com.google.android.libraries.places.api.model.Place.Field.NAME,
+                                                com.google.android.libraries.places.api.model.Place.Field.ADDRESS
+                                            )
+                                            val fetchRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest
+                                                .newInstance(prediction.placeId, placeFields)
+
+                                            placesClient?.fetchPlace(fetchRequest)
+                                                ?.addOnSuccessListener { response ->
+                                                    val place = response.place
+                                                    val latLng = place.latLng
+                                                    if (latLng != null) {
+                                                        coroutineScope.launch {
+                                                            cameraPositionState.animate(
+                                                                CameraUpdateFactory.newLatLngZoom(latLng, 14f)
+                                                            )
+                                                            viewModel.onMapClick(
+                                                                latLng.latitude,
+                                                                latLng.longitude,
+                                                                place.name ?: place.address
+                                                            )
+                                                            isSearchActive = false
+                                                            viewModel.clearSearch()
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.LocationOn,
+                                        contentDescription = null,
+                                        tint = Color(0xFF9E6F73),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = prediction.getPrimaryText(null).toString(),
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 14.sp
+                                        )
+                                        Text(
+                                            text = prediction.getSecondaryText(null).toString(),
+                                            fontSize = 12.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                                if (prediction != searchResults.last()) HorizontalDivider()
+                            }
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Petal", style = MaterialTheme.typography.titleLarge, color = Color(0xFF3E2F26))
+                    IconButton(onClick = { isSearchActive = true }) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
+                }
             }
         }
     }

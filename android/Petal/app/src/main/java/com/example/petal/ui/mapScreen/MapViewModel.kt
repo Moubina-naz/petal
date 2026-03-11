@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.petal.MemoryRepository
 import com.example.petal.domain.Memory
 import com.example.petal.ui.homeScreen.HomeFilter
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -48,7 +51,6 @@ class MapViewModel (
     }
 
     fun onMapClick(lat: Double, lng: Double, name: String?) {
-        // When clicking empty area → create "virtual" pin with 0 memories
         _selectedLocation.value = LocationPin(
             latitude = lat,
             longitude = lng,
@@ -87,7 +89,39 @@ class MapViewModel (
     fun clearPin() {
         _selectedPin.value = null
     }
+    private val _searchResults = MutableStateFlow<List<AutocompletePrediction>>(emptyList())
+    val searchResults: StateFlow<List<AutocompletePrediction>> = _searchResults
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    fun onSearchQueryChange(query: String, placesClient: PlacesClient?) {
+        _searchQuery.value = query  // ← moved to top
+
+        if (query.isBlank()) {
+            _searchResults.value = emptyList()
+            return
+        }
+
+        if (placesClient == null) return
+
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setQuery(query)
+            .build()
+
+        placesClient.findAutocompletePredictions(request)
+            .addOnSuccessListener { response ->
+                _searchResults.value = response.autocompletePredictions
+            }
+            .addOnFailureListener {
+                _searchResults.value = emptyList()
+            }
+    }
+
+    fun clearSearch() {
+        _searchQuery.value = ""
+        _searchResults.value = emptyList()
+    }
     fun getPins(): List<LocationPin> {
         val state = uiState.value
         if (state !is MapUiState.Success) return emptyList()

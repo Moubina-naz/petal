@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -71,11 +72,13 @@ fun AddMemoryScreen(
     var startIndex by remember { mutableStateOf(0) }
     val navigator = LocalNavigator.currentOrThrow
     var showLocationSheet by remember { mutableStateOf(false) }
+    val bg = Color(0xFFFf9f8f3)
+    val black = Color(0xFF2d2d2d)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFDF8F4))
+            .background(bg)
             .verticalScroll(rememberScrollState())
             .statusBarsPadding()
             .padding(16.dp)
@@ -84,45 +87,68 @@ fun AddMemoryScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Cancel",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF615A57),
-                modifier = Modifier.clickable { onNavigationEvent(NavigationEvent.GoBack) })
+            OutlinedButton(
+                onClick = { onNavigationEvent(NavigationEvent.GoBack) },
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.dp, black),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = black
+                ),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
-            Text(text = if (uiState.isSaving) "Saving..." else "Save",
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (uiState.isSaving) Color.Gray else Color(0xFF9E6F73),
-                modifier = Modifier.clickable(enabled = !uiState.isSaving) {
-                    onNavigationEvent(NavigationEvent.SaveMemory)
-                }
-            )
+            Button(
+                onClick = { onNavigationEvent(NavigationEvent.SaveMemory) },
+                enabled = !uiState.isSaving,
+                shape = RoundedCornerShape(20.dp),
+                border= BorderStroke(1.dp, black),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFd36b54),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(0xFFD6CCC2),
+                    disabledContentColor = Color.White
+                ),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = if (uiState.isSaving) "Saving..." else "Save",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
 
          Spacer(modifier = Modifier.height(12.dp))
 
-
-        OutlinedTextField(
-            value = uiState.selectedDate.format(DateTimeFormatter.ofPattern("MMMM d, yyyy").withLocale(java.util.Locale.US)),
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Date") },
-            trailingIcon = {
-                IconButton(onClick = { showDatePicker = true }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Select date",
-                        tint = Color(0xFF615A57)
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color(0xFF3A3330),
-                unfocusedTextColor = Color(0xFF3A3330)
+             //date
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = "Date",
+                tint = black,
+                modifier = Modifier.size(20.dp)
             )
-        )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = uiState.selectedDate
+                    .format(DateTimeFormatter.ofPattern("MMMM d, yyyy").withLocale(java.util.Locale.US))
+                    .uppercase(),
+                fontSize = 14.sp,
+                letterSpacing = 1.2.sp,
+                color = black,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+            )
+        }
 
         if (showDatePicker) {
             val initialMillis = uiState.selectedDate
@@ -154,29 +180,33 @@ fun AddMemoryScreen(
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(2.dp))
 
-        // Time
-        OutlinedTextField(
-            value = uiState.selectedTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Time") },
-            trailingIcon = {
-                IconButton(onClick = { showTimePicker = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Schedule,
-                        contentDescription = "Select time",
-                        tint = Color(0xFF615A57)
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color(0xFF3A3330),
-                unfocusedTextColor = Color(0xFF3A3330)
+        // time
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showTimePicker = true }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Schedule,
+                contentDescription = "Time",
+                tint = black,
+                modifier = Modifier.size(20.dp)
             )
-        )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = uiState.selectedTime
+                    .format(DateTimeFormatter.ofPattern("hh:mm a"))
+                    .uppercase(),
+                fontSize = 14.sp,
+                letterSpacing = 1.2.sp,
+                color = black,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+            )
+        }
 
         if (showTimePicker) {
             val timePickerState = TimePickerState(
@@ -203,9 +233,9 @@ fun AddMemoryScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
-
+        //location
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,7 +249,7 @@ fun AddMemoryScreen(
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = null,
-                tint = Color(0xFF615A57)
+                tint = black
             )
 
             Spacer(Modifier.width(12.dp))
@@ -227,7 +257,8 @@ fun AddMemoryScreen(
             Text(
                 text = uiState.location.ifBlank { "Add location" },
                 fontSize = 14.sp,
-                color = Color(0xFF615A57),
+                color = black,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
 
@@ -251,20 +282,21 @@ fun AddMemoryScreen(
         BasicTextField(
             value = uiState.title,
             onValueChange = viewModel::onTitleChange,
-            textStyle = MaterialTheme.typography.headlineLarge.copy(color = Color(0xFF3A3330)),
+            textStyle = MaterialTheme.typography.headlineLarge.copy(color = black),
             modifier = Modifier.fillMaxWidth(),
             decorationBox = { inner ->
                 if (uiState.title.isEmpty()) {
-                    Text("Add a Title...", style = MaterialTheme.typography.headlineLarge, color = Color(0xFFB0AAA3))
+                    Text("Add a Title...", style = MaterialTheme.typography.headlineLarge, color = Color(0xFF6b7280))
                 }
                 inner()
             }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        var moodExpanded by remember { mutableStateOf(false) }
 
-        // Mood button
+        // MOOD
+
+        var moodExpanded by remember { mutableStateOf(false) }
         MoodDropdown(
             selectedMood = uiState.mood,
             onMoodSelected = { viewModel.onMoodSelected(it) }
@@ -282,7 +314,7 @@ fun AddMemoryScreen(
             modifier = Modifier.fillMaxWidth(),
             decorationBox = { inner ->
                 if (uiState.note.isEmpty()) {
-                    Text("Start writing your memory...", fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFFB0AAA3))
+                    Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFFB0AAA3))
                 }
                 inner()
             }
@@ -290,7 +322,7 @@ fun AddMemoryScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Show error if save failed
+
         uiState.error?.let { error ->
             Text(
                 text = error,
@@ -298,10 +330,10 @@ fun AddMemoryScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
-
+        //IMAGES
         Text(
-            text = "CAPTURED MOMENTS",
-            fontSize = 12.sp,
+            text = "Captured Moments",
+            fontSize = 16.sp,
             letterSpacing = 1.sp,
             color = Color(0xFF9C8F86)
         )
@@ -309,7 +341,7 @@ fun AddMemoryScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(3),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.heightIn(max = 420.dp)
@@ -346,20 +378,31 @@ fun AddMemoryScreen(
             }
 
             if (uiState.images.size < 5) {
+
                 item {
                     Box(
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(16.dp))
-                            .border(2.dp, Color(0xFFD6CCC2), RoundedCornerShape(16.dp))
-                            .clickable {
-                                pickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            },
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
                     ) {
-                        Icon(Icons.Default.Add, null, tint = Color(0xFFB0AAA3))
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(16.dp))
+                                .clickable {
+                                    pickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = null,
+                                tint = black,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     }
                 }
             }

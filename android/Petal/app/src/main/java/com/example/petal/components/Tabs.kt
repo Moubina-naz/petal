@@ -16,6 +16,7 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.example.petal.ui.mapScreen.MapScreen
 import com.example.petal.data.remote.ApiProvider
+import com.example.petal.ui.calendarScreen.CalendarVoyagerScreen
 import com.example.petal.ui.homeScreen.HomeViewModel
 import com.example.petal.ui.mapScreen.MapViewModel
 import com.example.petal.ui.mapScreen.MapVoyagerScreen
@@ -67,7 +68,7 @@ object CalendarTab : Tab {
     override val options: TabOptions
         @Composable
         get() {
-            val iconPainter = rememberVectorPainter(Icons.Default.DateRange)  // or whatever icon you want
+            val iconPainter = rememberVectorPainter(Icons.Default.DateRange)
             return remember {
                 TabOptions(
                     index = 2u,
@@ -79,7 +80,7 @@ object CalendarTab : Tab {
 
     @Composable
     override fun Content() {
-        Text("Calendar Screen")  // replace with real content
+        Navigator(CalendarVoyagerScreen())
     }
 }
 

@@ -5,158 +5,144 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit = {},
-    onEditProfile: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onBack: () -> Unit,
+    onEditProfile: () -> Unit,
+    onLogOut: () -> Unit
 ) {
-
-    var darkMode by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    val bg = Color(0xFFF7F3EE)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F3EE))
-            .padding(20.dp)
+            .background(bg)
+            .statusBarsPadding()
     ) {
-
-        Spacer(modifier = Modifier.height(10.dp))
-
+        // Top bar
         Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
-
             Text(
                 text = "Settings",
-                fontSize = 26.sp
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF2F2F2F)
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "Account",
-            color = Color.Gray,
-            fontSize = 14.sp
+        // Account section
+        SettingsSectionHeader("Account")
+
+        SettingsItem(
+            icon = Icons.Default.Person,
+            title = "Edit Profile",
+            onClick = onEditProfile
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .clickable { onEditProfile() }
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(Icons.Default.Person, contentDescription = null)
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-                text = "Edit Profile",
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(Icons.Default.DarkMode, contentDescription = null)
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-                text = "Dark Mode",
-                modifier = Modifier.weight(1f)
-            )
-
-            Switch(
-                checked = darkMode,
-                onCheckedChange = { darkMode = it }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(28.dp))
-
-        Text(
-            text = "Security",
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .clickable { }
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(Icons.Default.Lock, contentDescription = null)
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-                text = "Lock App",
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
+        // Log out button
         Button(
-            onClick = { onLogout() },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFD96C4F)
-            )
+            onClick = { showLogoutDialog = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCC6B4F))
         ) {
-
-            Icon(Icons.Default.Logout, contentDescription = null)
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text("LOG OUT")
+            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color.White)
+            Spacer(Modifier.width(8.dp))
+            Text("LOG OUT", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = "PETAL v2.4.0 • FOCUS ON WHAT MATTERS",
-            color = Color.Gray,
+            text = "PETAL • FOCUS ON WHAT MATTERS",
             fontSize = 11.sp,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            color = Color.Gray,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 24.dp)
         )
+    }
+
+    // Logout confirmation dialog
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Log Out") },
+            text = { Text("Are you sure you want to log out?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showLogoutDialog = false
+                    onLogOut()
+                }) {
+                    Text("Log Out", color = Color(0xFFCC6B4F), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun SettingsSectionHeader(title: String) {
+    Text(
+        text = title,
+        fontSize = 12.sp,
+        color = Color.Gray,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
+private fun SettingsItem(
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .background(Color.White, RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = Color(0xFF6B4F3F))
+        Spacer(Modifier.width(12.dp))
+        Text(title, modifier = Modifier.weight(1f), color = Color(0xFF2F2F2F))
+        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.LightGray)
     }
 }

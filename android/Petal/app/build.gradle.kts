@@ -1,10 +1,15 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
-
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
 android {
     namespace = "com.example.petal"
     compileSdk = 36
@@ -18,8 +23,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders["MAPS_API_KEY"] =
-            project.findProperty("MAPS_API_KEY") as String? ?: ""
+        val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -60,6 +66,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation(libs.play.services.location)
+    implementation(libs.androidx.foundation)
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -103,4 +110,5 @@ dependencies {
     implementation("com.google.android.libraries.places:places:3.5.0")
     implementation("org.maplibre.gl:android-sdk:12.3.1")
     implementation("cafe.adriel.voyager:voyager-screenmodel:1.0.0")
+    implementation("com.google.android.libraries.places:places:3.3.0")
 }

@@ -7,7 +7,7 @@ enum class HomeFilter (
     ){
     ALL,
     FAVORITES(isFavorite = true),
-    PHOTOS(tag = "photo"),
+    PHOTOS,
     REFLECTIONS(tag = "reflection")
 
 }

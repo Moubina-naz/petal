@@ -1,6 +1,7 @@
 package com.example.petal.ui.homeDetailScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -22,6 +24,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
@@ -66,12 +71,13 @@ fun MemoryDetailScreen(
 
     var showViewer by remember { mutableStateOf(false) }
     var startIndex by remember { mutableStateOf(0) }
-
+    val bg = Color(0xFFFf9f8f3)
+    val black = Color(0xFF2d2d2d)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFDF8F4))
+            .background(Color(0xFFf9f8f3))
     ) {
         when (uiState) {
             is MemoryDetailUiState.Loading -> {
@@ -104,7 +110,7 @@ fun MemoryDetailScreen(
                 }
 
                 val locationText = remember(memory.location?.name) {
-                    memory.location?.name ?: "Unknown location"
+                    memory.location?.name ?: "Unknown Location"
                 }
 
 
@@ -122,7 +128,7 @@ fun MemoryDetailScreen(
                     ) {
                         IconButton(onClick = { onNavigationEvent(NavigationEvent.GoBack) }) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                imageVector = Icons.Filled.ArrowBackIosNew,
                                 contentDescription = "Back"
                             )
                         }
@@ -138,9 +144,9 @@ fun MemoryDetailScreen(
                                         Icons.Default.FavoriteBorder,
                                 tint =
                                     if (memory.isFavorite)
-                                        Color(0xFFB07A7A)
+                                        Color(0xFFCC6666)
                                     else
-                                        Color(0xFF7A6A5E),
+                                        black,
                                 contentDescription = "Favorite"
                             )
                         }
@@ -179,15 +185,30 @@ fun MemoryDetailScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
 
-                    Text(
-                        text = "$dateText · $locationText",
-                        fontSize = 12.sp,
-                        letterSpacing = 1.sp,
-                        color = Color(0xFF9C8F86)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Box(
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(1.dp)
+                                .background(Color(0xFFC65D5D))
+                        )
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Text(
+                            text = "$dateText • $locationText",
+                            fontSize = 14.sp,
+                            letterSpacing = 1.sp,
+
+                            color = black
+                        )
+                    }
 
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
 
                     Text(
@@ -196,26 +217,26 @@ fun MemoryDetailScreen(
                         color = Color(0xFF3E2F26)
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     memory.mood?.let { mood ->
                         Box(
                             modifier = Modifier
                                 .background(
-                                    color = Color(0xFFFCD1D1),
-                                    shape = RoundedCornerShape(16.dp)
-                                )
+                                    color = Color(0xFFf9f8f3),
+                                    shape = RoundedCornerShape(20.dp)
+                                ).border(1.dp, black, RoundedCornerShape(20.dp))
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = "✳ ${mood.label}",
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 color = Color(0xFF8A5A5A)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
 
                     Text(
@@ -227,7 +248,7 @@ fun MemoryDetailScreen(
 
 
                     if (memory.images.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(28.dp))
 
                         Text(
                             text = "CAPTURED MOMENTS",

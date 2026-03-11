@@ -24,11 +24,15 @@ import com.example.petal.theme.PetalTheme
 import com.example.petal.ui.Auth.LoginVoyagerScreen
 import com.example.petal.ui.Auth.SignupVoyagerScreen
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
+
+
             PetalTheme {
                 Navigator(LoginVoyagerScreen()) { navigator ->
 

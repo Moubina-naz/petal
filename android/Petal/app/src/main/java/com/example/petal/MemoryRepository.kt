@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.example.petal.data.remote.MemoryApi
+import com.example.petal.data.remote.MemoryApi.*
 import com.example.petal.domain.Location
 import com.example.petal.domain.Memory
 import com.example.petal.domain.Mood
@@ -62,7 +63,7 @@ class MemoryRepository(
         println("REPO: latitude = ${memory.location?.latitude}, longitude = ${memory.location?.longitude}")
 
         val response = memoryApi.createMemoryJson(
-            MemoryApi.CreateMemoryReq(
+            CreateMemoryReq(
                 title = memory.title,
                 note = memory.note,
                 mood = memory.mood?.value,
@@ -74,7 +75,7 @@ class MemoryRepository(
             )
         )
         println("REPO: Server responded with location_name = '${response.locationName ?: "NULL"}'")
-        val req = MemoryApi.CreateMemoryReq(
+        val req = CreateMemoryReq(
             title = memory.title,
             note = memory.note,
             mood = memory.mood?.value,
@@ -94,6 +95,11 @@ class MemoryRepository(
         return MemoryMapper.map(response)
     }
 
+    suspend fun getProfile() = memoryApi.getProfile()
+    suspend fun updateProfile(username: String?, email: String?, firstName: String?, lastName: String?) =
+        memoryApi.updateProfile(UpdateProfileReq(username, email, firstName, lastName))
+    suspend fun changePassword(oldPassword: String, newPassword: String) =
+        memoryApi.changePassword(ChangePasswordReq(oldPassword, newPassword))
 
     suspend fun uploadMemoryImages(
         context: Context,
@@ -119,6 +125,12 @@ class MemoryRepository(
         } finally {
             compressedFiles.forEach { it.delete() }  // always cleans up, even on failure
         }
+    }
+
+    suspend fun getMemoriesByMonth(year: Int, month: Int): Map<Int, List<Memory>> {
+        val response = memoryApi.getMemoriesByMonth(year, month)
+        return response.mapKeys { it.key.toInt() }
+            .mapValues { entry -> entry.value.map(MemoryMapper::map) }
     }
 
     suspend fun deleteMemory(id: Int) {

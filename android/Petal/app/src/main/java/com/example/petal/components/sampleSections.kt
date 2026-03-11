@@ -24,26 +24,23 @@ fun groupMemories(memories: List<Memory>): List<MemorySection> {
     val olderList = mutableListOf<Memory>()
 
     for (memory in memories) {
-
         val instant = memory.memoryDateTime ?: memory.createdAt
-
         val memoryDate = instant
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
 
         when {
-            memoryDate == today -> todayList.add(memory)
+            !memoryDate.isBefore(today) -> todayList.add(memory)  // today or future
             memoryDate == yesterday -> yesterdayList.add(memory)
             memoryDate.isAfter(weekAgo) -> lastWeekList.add(memory)
             else -> olderList.add(memory)
         }
     }
 
-
     return buildList {
         if (todayList.isNotEmpty()) add(MemorySection("TODAY", todayList))
         if (yesterdayList.isNotEmpty()) add(MemorySection("YESTERDAY", yesterdayList))
-        if (lastWeekList.isNotEmpty()) add(MemorySection("LAST WEEK", lastWeekList))
+        if (lastWeekList.isNotEmpty()) add(MemorySection("EARLIER THIS WEEK", lastWeekList))
         if (olderList.isNotEmpty()) add(MemorySection("OLDER", olderList))
     }
 }
