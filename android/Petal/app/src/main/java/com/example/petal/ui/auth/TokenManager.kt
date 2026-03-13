@@ -1,4 +1,4 @@
-package com.example.petal.ui.Auth
+package com.example.petal.ui.auth
 
 import android.content.Context
 import androidx.datastore.core.DataStore

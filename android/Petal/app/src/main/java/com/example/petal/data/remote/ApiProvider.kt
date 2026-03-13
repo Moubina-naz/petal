@@ -6,10 +6,10 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlinx.coroutines.runBlocking
-import com.example.petal.ui.Auth.AuthApi
-import com.example.petal.ui.Auth.AuthInterceptor
-import com.example.petal.ui.Auth.AuthRepository
-import com.example.petal.ui.Auth.TokenManager
+import com.example.petal.ui.auth.AuthApi
+import com.example.petal.ui.auth.AuthInterceptor
+import com.example.petal.ui.auth.AuthRepository
+import com.example.petal.ui.auth.TokenManager
 
 object ApiProvider {
 

@@ -31,7 +31,15 @@ class MapVoyagerScreen(
             locationSource = locationSource,
             onLocationPicked = { lat, lon, name ->
                 when (mode) {
-                    MapMode.CREATE_MEMORY, MapMode.PICK_LOCATION -> {
+                    MapMode.CREATE_MEMORY->{
+                        navigator.push(
+                            AddMemoryVoyagerScreen(
+                                locationSource = LocationSource.Selected(lat, lon, name)
+                            )
+                        )
+                    }
+
+                    MapMode.PICK_LOCATION -> {
                         LocationPickerResult.pickedLocation.value =
                             LocationSource.Selected(lat, lon, name)
                         navigator.pop()  // now pop back to the existing AddMemoryVoyagerScreen

@@ -9,21 +9,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
-import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.example.petal.Screens.PetalBottomNavBar
 import com.example.petal.components.JournalTab
+import com.example.petal.data.remote.ApiProvider
 import com.example.petal.theme.PetalTheme
-import com.example.petal.ui.Auth.LoginVoyagerScreen
-import com.example.petal.ui.Auth.SignupVoyagerScreen
-
+import com.example.petal.ui.auth.LoginVoyagerScreen
+import com.example.petal.ui.auth.SignUpVoyagerScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,34 +28,40 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-
-
             PetalTheme {
-                Navigator(LoginVoyagerScreen()) { navigator ->
 
-                    when (navigator.lastItem) {
+                // null = still checking, true = logged in, false = not logged in
+                var isLoggedIn by remember { mutableStateOf<Boolean?>(null) }
+                var splashDone by remember { mutableStateOf(false) }
 
-                        is LoginVoyagerScreen,
-                        is SignupVoyagerScreen -> {
-                            CurrentScreen()
-                        }
+                // Check session once on launch (fast DataStore read)
+                LaunchedEffect(Unit) {
+                    isLoggedIn = ApiProvider.authRepository.isLoggedIn()
+                }
 
-                        else -> {
-                            TabNavigator(JournalTab) {
-                                val tabNavigator = LocalTabNavigator.current
+                // Wait for BOTH splash animation AND session check before moving on
+                val ready = splashDone && isLoggedIn != null
 
-                                Scaffold(
-                                    bottomBar = { PetalBottomNavBar() },
-                                    floatingActionButton = {},
-                                    floatingActionButtonPosition = FabPosition.End
-                                ) { innerPadding ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(innerPadding)
-                                    ) {
-                                        CurrentTab()
-                                    }
+                if (!ready) {
+                    // Always show splash while either is still pending
+                    PetalSplashScreen(
+                        onFinished = { splashDone = true }
+                    )
+                } else if (isLoggedIn == true) {
+                    // Already logged in → go straight to home
+                    HomeScaffold()
+                } else {
+                    // Not logged in → normal login flow
+                    Navigator(LoginVoyagerScreen()) { navigator ->
+                        when (navigator.lastItem) {
+                            is LoginVoyagerScreen,
+                            is SignUpVoyagerScreen -> CurrentScreen()
+                            else -> {
+                                val sessionKey = remember(navigator.lastItem) {
+                                    System.currentTimeMillis()
+                                }
+                                key(sessionKey) {
+                                    HomeScaffold()
                                 }
                             }
                         }
@@ -70,17 +73,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PetalTheme {
-        Greeting("Android")
+private fun HomeScaffold() {
+    TabNavigator(JournalTab) {
+        Scaffold(
+            bottomBar = { PetalBottomNavBar() },
+            floatingActionButton = {},
+            floatingActionButtonPosition = FabPosition.End
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                CurrentTab()
+            }
+        }
     }
 }
+
+

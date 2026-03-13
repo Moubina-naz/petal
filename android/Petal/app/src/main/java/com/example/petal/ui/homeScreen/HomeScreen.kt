@@ -79,16 +79,7 @@ fun HomeScreen(
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color(0xFF2d2d2d)
                     )
-                    Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(
-                        onClick = {
-                            onNavigationEvent(NavigationEvent.OpenSettings)
-                        },
-                    ) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings",
-                            tint = Color(0xFF2B1A10), modifier = Modifier.size(18.dp))
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))

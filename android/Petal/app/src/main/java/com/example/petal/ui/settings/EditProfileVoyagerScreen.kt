@@ -17,6 +17,28 @@ class EditProfileVoyagerScreen : Screen {
 
         EditProfileScreen(
             viewModel = viewModel,
+            onBack = { navigator.pop() },
+            onChangePassword = {
+                navigator.push(ChangePasswordVoyagerScreen(viewModel))
+            }
+        )
+    }
+}
+class ChangePasswordVoyagerScreen(
+    private val viewModel: EditProfileViewModel
+
+) : Screen {
+
+    override val key = "ChangePasswordScreen"
+
+    @Composable
+    override fun Content() {
+
+        val navigator = LocalNavigator.currentOrThrow
+        //val viewModel = remember { EditProfileViewModel(ApiProvider.memoryRepository) }
+
+        ChangePasswordScreen(
+            viewModel = viewModel,
             onBack = { navigator.pop() }
         )
     }

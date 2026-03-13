@@ -1,6 +1,7 @@
 package com.example.petal.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -116,17 +117,18 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsSectionHeader(title: String) {
+fun SettingsSectionHeader(title: String) {
     Text(
         text = title,
-        fontSize = 12.sp,
+        fontSize = 14.sp,
+        style = MaterialTheme.typography.headlineMedium,
         color = Color.Gray,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier.padding( vertical = 8.dp)
     )
 }
 
 @Composable
-private fun SettingsItem(
+fun SettingsItem(
     icon: ImageVector,
     title: String,
     onClick: () -> Unit
@@ -134,15 +136,19 @@ private fun SettingsItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .padding(horizontal = 4.dp)
+            .background(Color.White)
+            .border(1.dp, Color(0xFF2d2d2d))
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = Color(0xFF6B4F3F))
         Spacer(Modifier.width(12.dp))
-        Text(title, modifier = Modifier.weight(1f), color = Color(0xFF2F2F2F))
+        Text(title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f),
+            color = Color(0xFF2F2F2F))
         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.LightGray)
     }
 }

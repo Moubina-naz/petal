@@ -5,10 +5,10 @@ import androidx.compose.runtime.remember
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.petal.data.remote.ApiProvider
-import com.example.petal.ui.Auth.TokenManager
+import com.example.petal.ui.auth.TokenManager
 import androidx.compose.ui.platform.LocalContext
-import com.example.petal.ui.Auth.LoginVoyagerScreen
+import com.example.petal.components.TabNavigatorStore
+import com.example.petal.ui.auth.LoginVoyagerScreen
 import kotlinx.coroutines.launch
 
 class SettingsVoyagerScreen : Screen {
@@ -20,14 +20,20 @@ class SettingsVoyagerScreen : Screen {
         val context = LocalContext.current
         val tokenManager = remember { TokenManager(context) }
 
+        // Walk up to the root navigator (above all tabs)
+        val rootNavigator = generateSequence(navigator) { it.parent }
+            .last()
+
         SettingsScreen(
             onBack = { navigator.pop() },
             onEditProfile = { navigator.push(EditProfileVoyagerScreen()) },
             onLogOut = {
                 kotlinx.coroutines.MainScope().launch {
                     tokenManager.clearTokens()
-                    navigator.popUntilRoot()
-                    navigator.replace(LoginVoyagerScreen())
+                    TabNavigatorStore.clear()
+
+                    // Use ROOT navigator, not the tab-scoped one
+                    rootNavigator.replaceAll(LoginVoyagerScreen())
                 }
             }
         )

@@ -1,14 +1,14 @@
-package com.example.petal.ui.Auth
+package com.example.petal.ui.auth
 
-import HomeVoyagerScreen
+import com.example.petal.ui.homeScreen.HomeVoyagerScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-
-class SignupVoyagerScreen : Screen {
+class LoginVoyagerScreen : Screen {
 
     override val key = uniqueScreenKey
 
@@ -16,18 +16,16 @@ class SignupVoyagerScreen : Screen {
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
-
         val viewModel = remember {
             AuthViewModel()
         }
-
-        SignupScreen(
+        LoginScreen(
             viewModel = viewModel,
-            onSignupSuccess = {
-                navigator.replace(HomeVoyagerScreen())
+            onLoginSuccess = {
+                navigator.replaceAll(HomeVoyagerScreen())
             },
-            onBackClick = {
-                navigator.pop()
+            onSignupClick = {
+                navigator.push(SignUpVoyagerScreen())
             }
         )
     }

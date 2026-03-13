@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation(libs.play.services.location)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.compose.ui.text)
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.petal.MemoryRepository
 import com.example.petal.domain.Memory
 import com.example.petal.domain.Mood
-import com.example.petal.ui.Auth.TokenManager
+import com.example.petal.ui.auth.TokenManager
 import com.example.petal.ui.homeScreen.HomeFilter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,10 +26,20 @@ class ProfileViewModel(
     init {
         loadProfileData()
     }
-
+    fun refresh() {
+        loadProfileData()
+    }
     private fun loadProfileData() {
         viewModelScope.launch {
-            val username = tokenManager.getUsername() ?: "User"  // fallback only
+            val profile = try {
+                repository.getProfile()
+            } catch (e: Exception) {
+                null
+            }
+
+            val username = profile?.username
+                ?: tokenManager.getUsername()
+                ?: "User"
 
             val memories = repository.getMemories(
                 search = null,
@@ -39,7 +49,7 @@ class ProfileViewModel(
             val totalMemories = memories.size
             val totalPhotos = memories.sumOf { it.images.size }
             val totalVoice = memories.count { it.audioUrl != null }
-            val dominantMood = calculateDominantMood(memories)
+            val dominantMood :Mood? = calculateDominantMood(memories)
             val streak = calculateStreak(memories)
 
             _uiState.value = ProfileUiState(
@@ -54,7 +64,7 @@ class ProfileViewModel(
         }
     }
 
-    private fun calculateDominantMood(memories: List<Memory>): String {
+    private fun calculateDominantMood(memories: List<Memory>): Mood? {
         val moodCounts = mutableMapOf<Mood, Int>()
 
         memories.forEach { memory ->
@@ -63,8 +73,8 @@ class ProfileViewModel(
             }
         }
 
-        val dominant = moodCounts.maxByOrNull { it.value }?.key
-        return dominant?.name ?: "None"
+        return moodCounts.maxByOrNull { it.value }?.key
+
     }
 
     private fun calculateStreak(memories: List<Memory>): Int {

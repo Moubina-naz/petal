@@ -44,13 +44,13 @@ fun MemoryCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(0.dp))
             .background(Color(0xFFFffffff))
-            .border(1.dp, Color(0xFF313131), RoundedCornerShape(0.dp))
+            .border(1.dp, Color(0xFFB4B4B4), RoundedCornerShape(0.dp))
             .clickable { onMemoryClick() }
     ) {
         if (hasImage) {
             Row(
                 modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 AsyncImage(
                     model = firstImage,
@@ -90,9 +90,8 @@ fun MemoryCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(6.dp))
-
                     if (memory.note.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = memory.note,
                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -102,10 +101,72 @@ fun MemoryCard(
                             maxLines = 2
                         )
                     }
+
+                    // ── Mood + tags (same as no-image branch) ──
+                    val hasMoodOrTags = memory.mood != null || memory.tags.isNotEmpty()
+                    if (hasMoodOrTags) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            memory.mood?.let { mood ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                    modifier = Modifier
+                                        .background(
+                                            color = mood.color.copy(alpha = 0.08f),
+                                            shape = RoundedCornerShape(20.dp)
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = mood.icon,
+                                        contentDescription = mood.label,
+                                        tint = mood.color,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Text(
+                                        text = mood.label.uppercase(),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = mood.color,
+                                        letterSpacing = 0.6.sp
+                                    )
+                                }
+                            }
+
+                            memory.tags.take(2).forEach { tag ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                    modifier = Modifier
+                                        .background(
+                                            color = Color(0xFFEEE8E0),
+                                            shape = RoundedCornerShape(20.dp)
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(6.dp)
+                                            .background(Color(0xFFB09A88), CircleShape)
+                                    )
+                                    Text(
+                                        text = tag.uppercase(),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF8B7060),
+                                        letterSpacing = 0.6.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
-
             }
 
         } else {
@@ -173,35 +234,35 @@ fun MemoryCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //mood
+                        // Mood
                         memory.mood?.let { mood ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                                 modifier = Modifier
                                     .background(
-                                        color = Color(0xFFEAF4EE),
+                                        color = mood.color.copy(alpha = 0.08f),
                                         shape = RoundedCornerShape(20.dp)
                                     )
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
-                                // Green dot
-                                Box(
-                                    modifier = Modifier
-                                        .size(6.dp)
-                                        .background(Color(0xFF6BAE82), CircleShape)
+                                Icon(
+                                    imageVector = mood.icon,
+                                    contentDescription = mood.label,
+                                    tint = mood.color,
+                                    modifier = Modifier.size(13.dp)
                                 )
                                 Text(
                                     text = mood.label.uppercase(),
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF4A8C62),
+                                    color = mood.color,
                                     letterSpacing = 0.6.sp
                                 )
                             }
                         }
 
-                        // tags
+                        // Tags (unchanged)
                         memory.tags.take(2).forEach { tag ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,

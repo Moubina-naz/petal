@@ -20,8 +20,7 @@ class AddMemoryVoyagerScreen(
     private val locationSource: LocationSource = LocationSource.None
 ) : Screen {
 
-    override val key = "AddMemoryScreen"
-
+    override val key = uniqueScreenKey
     @Composable
     override fun Content() {
         val context = LocalContext.current

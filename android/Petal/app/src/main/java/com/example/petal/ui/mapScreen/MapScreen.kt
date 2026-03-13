@@ -41,6 +41,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
+import com.example.petal.DarkGreen
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.delay
@@ -370,7 +371,8 @@ fun MapScreen(
     selectedLocation?.let { pin ->
         ModalBottomSheet(
             onDismissRequest = { viewModel.clearSelection() },
-            sheetState = sheetState
+            sheetState = sheetState,
+            containerColor = Color(0xFFFf9f7f2)
         ) {
             Column(
                 modifier = Modifier
@@ -388,7 +390,8 @@ fun MapScreen(
 
                 Text(
                     text = pin.name ?: "Selected Location",
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.Black
                 )
                 Text(
                     "Lat: ${"%.6f".format(pin.latitude)}, Lon: ${"%.6f".format(pin.longitude)}",
@@ -405,9 +408,16 @@ fun MapScreen(
                             onLocationPicked(pin.latitude, pin.longitude, pin.name)
                             viewModel.clearSelection()
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .height(52.dp)
+                            .width(200.dp)
+                            ,
+                        shape    = RoundedCornerShape(4.dp),
+                        colors   = ButtonDefaults.buttonColors(containerColor = DarkGreen)
                     ) {
-                        Text("+ Add Memory")
+                        Text("Add Memory"
+                        ,color = Color.White
+                        )
                     }
 
                 } else {
@@ -417,9 +427,16 @@ fun MapScreen(
                             onLocationPicked(pin.latitude, pin.longitude, pin.name)
                             viewModel.clearSelection()
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .height(52.dp)
+                            .width(200.dp)
+                        ,
+                        shape    = RoundedCornerShape(4.dp),
+                        colors   = ButtonDefaults.buttonColors(containerColor = DarkGreen)
                     ) {
-                        Text("Save Location")
+                        Text("Save Location",
+                            color = Color.White
+                            )
                     }
 
                     Spacer(Modifier.height(12.dp))
@@ -437,7 +454,8 @@ fun MapScreen(
 
                 Spacer(Modifier.height(32.dp))
 
-                Text("MEMORIES NEARBY", style = MaterialTheme.typography.titleSmall)
+                Text("MEMORIES NEARBY", style = MaterialTheme.typography.titleSmall
+                , color = Color.Black)
                 Spacer(Modifier.height(12.dp))
 
                 if (pin.memories.isEmpty()) {

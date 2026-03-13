@@ -11,7 +11,10 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.petal.data.remote.ApiProvider
-import com.example.petal.ui.Auth.TokenManager
+import com.example.petal.ui.auth.LoginVoyagerScreen
+import com.example.petal.ui.auth.TokenManager
+import com.example.petal.ui.settings.EditProfileVoyagerScreen
+import kotlinx.coroutines.launch
 
 class ProfileVoyagerScreen : Screen {
 
@@ -21,6 +24,7 @@ class ProfileVoyagerScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
+        val tokenManager = remember { TokenManager(context) }
 
         val viewModel = remember {
             ProfileViewModel(
@@ -28,16 +32,23 @@ class ProfileVoyagerScreen : Screen {
                 tokenManager = TokenManager(context)           // ← now properly created
             )
         }
-
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
         val state by viewModel.uiState.collectAsState()
 
 
         ProfileScreen(
             viewModel = viewModel,
             onBack = { navigator.pop() },
-            onSettings = {
-                // TODO: later navigate to settings
-                // navigator.push(SettingsVoyagerScreen())
+            onEditProfile = { navigator.push(EditProfileVoyagerScreen()) },
+
+            onLogOut = {
+                kotlinx.coroutines.MainScope().launch {
+                    tokenManager.clearTokens()
+                    navigator.popUntilRoot()
+                    navigator.replace(LoginVoyagerScreen())
+                }
             }
         )
     }

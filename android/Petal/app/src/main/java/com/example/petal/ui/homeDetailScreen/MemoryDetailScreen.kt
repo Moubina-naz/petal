@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -219,19 +220,30 @@ fun MemoryDetailScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+
+                    //MOOOOD
                     memory.mood?.let { mood ->
-                        Box(
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             modifier = Modifier
                                 .background(
                                     color = Color(0xFFf9f8f3),
                                     shape = RoundedCornerShape(20.dp)
-                                ).border(1.dp, black, RoundedCornerShape(20.dp))
+                                )
+                                .border(1.dp, black, RoundedCornerShape(20.dp))
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
+                            Icon(
+                                imageVector = mood.icon,
+                                contentDescription = mood.label,
+                                tint = mood.color,
+                                modifier = Modifier.size(15.dp)
+                            )
                             Text(
-                                text = "✳ ${mood.label}",
+                                text = mood.label,
                                 fontSize = 14.sp,
-                                color = Color(0xFF8A5A5A)
+                                color = black
                             )
                         }
                     }

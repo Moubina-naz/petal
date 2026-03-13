@@ -1,4 +1,4 @@
-package com.example.petal.ui.Auth
+package com.example.petal.ui.auth
 
 import com.example.petal.domain.AuthResponse
 import com.example.petal.domain.LoginReq
