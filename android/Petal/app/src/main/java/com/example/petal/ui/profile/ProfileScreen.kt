@@ -33,9 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petal.components.ErrorSnackbar
 import com.example.petal.domain.Mood
 import com.example.petal.ui.settings.SettingsItem
 import com.example.petal.ui.settings.SettingsSectionHeader
@@ -71,7 +73,8 @@ fun ProfileScreen(
                 fontSize = 32.sp,
                 style = MaterialTheme.typography.headlineLarge,
                 color = Color(0xFF2d2d2d) ,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Normal,
+                //fontFamily = FontFamily.Serif,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
@@ -181,7 +184,10 @@ fun ProfileScreen(
                 }
             )
         }
-
+        val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
+        errorMessage?.let {
+            ErrorSnackbar(message = it, onDismiss = { viewModel.clearError() })
+        }
         }
     }
 

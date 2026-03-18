@@ -41,6 +41,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.example.petal.NavigationEvent
+import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
 import com.example.petal.domain.Mood
@@ -279,18 +280,26 @@ fun AddMemoryScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Title
-        BasicTextField(
-            value = uiState.title,
-            onValueChange = viewModel::onTitleChange,
-            textStyle = MaterialTheme.typography.headlineLarge.copy(color = black),
-            modifier = Modifier.fillMaxWidth(),
-            decorationBox = { inner ->
-                if (uiState.title.isEmpty()) {
-                    Text("Add a Title...", style = MaterialTheme.typography.headlineLarge, color = Color(0xFF6b7280))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            BasicTextField(
+                value = uiState.title,
+                onValueChange = { if (it.length <= 100) viewModel.onTitleChange(it) },
+                textStyle = MaterialTheme.typography.headlineLarge.copy(color = black),
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { inner ->
+                    if (uiState.title.isEmpty()) {
+                        Text("Add a Title...", style = MaterialTheme.typography.headlineLarge, color = Color(0xFF6b7280))
+                    }
+                    inner()
                 }
-                inner()
-            }
-        )
+            )
+            Text(
+                "${uiState.title.length}/100",
+                fontSize = 11.sp,
+                color = Color.Gray,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -307,27 +316,34 @@ fun AddMemoryScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Note
-        BasicTextField(
-            value = uiState.note,
-            onValueChange = viewModel::onNoteChange,
-            textStyle = TextStyle(fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFF3A3330)),
-            modifier = Modifier.fillMaxWidth(),
-            decorationBox = { inner ->
-                if (uiState.note.isEmpty()) {
-                    Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFFB0AAA3))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            BasicTextField(
+                value = uiState.note,
+                onValueChange = { if (it.length <= 10000) viewModel.onNoteChange(it) },
+                textStyle = TextStyle(fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFF3A3330)),
+                modifier = Modifier.fillMaxWidth(),
+                decorationBox = { inner ->
+                    if (uiState.note.isEmpty()) {
+                        Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFFB0AAA3))
+                    }
+                    inner()
                 }
-                inner()
-            }
-        )
+            )
+            Text(
+                "${uiState.note.length}/10000",
+                fontSize = 11.sp,
+                color = Color.Gray,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
 
         uiState.error?.let { error ->
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(vertical = 8.dp)
+            ErrorSnackbar (
+                message   = error,
+                onDismiss = { viewModel.clearError() }
             )
         }
         //IMAGES

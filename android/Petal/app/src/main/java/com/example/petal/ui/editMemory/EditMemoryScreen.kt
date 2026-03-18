@@ -79,6 +79,7 @@ import androidx.compose.ui.text.TextStyle
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
+import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
 import java.time.Instant
@@ -113,333 +114,346 @@ fun EditMemoryScreen(
     val bg = Color(0xFFFf9f8f3)
     val black = Color(0xFF2d2d2d)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFDF8F4))
-            .verticalScroll(rememberScrollState())
-            .statusBarsPadding()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    Box(modifier = Modifier
+        .fillMaxSize())
+    {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFFDF8F4))
+                .verticalScroll(rememberScrollState())
+                .statusBarsPadding()
+                .padding(16.dp)
         ) {
-            OutlinedButton(
-                onClick = { onNavigationEvent(NavigationEvent.GoBack) },
-                shape = RoundedCornerShape(20.dp),
-                border = BorderStroke(1.dp, black),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = black
-                ),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+                OutlinedButton(
+                    onClick = { onNavigationEvent(NavigationEvent.GoBack) },
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, black),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = black
+                    ),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = { onNavigationEvent(NavigationEvent.SaveMemory) },
+                    enabled = !uiState.isSaving,
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, black),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFd36b54),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color(0xFFD6CCC2),
+                        disabledContentColor = Color.White
+                    ),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = if (uiState.isSaving) "Saving..." else "Save",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = { onNavigationEvent(NavigationEvent.SaveMemory) },
-                enabled = !uiState.isSaving,
-                shape = RoundedCornerShape(20.dp),
-                border= BorderStroke(1.dp, black),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFd36b54),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFD6CCC2),
-                    disabledContentColor = Color.White
-                ),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showDatePicker = true }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Date",
+                    tint = black,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = if (uiState.isSaving) "Saving..." else "Save",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = uiState.selectedDate
+                        .format(
+                            DateTimeFormatter.ofPattern("MMMM d, yyyy")
+                                .withLocale(java.util.Locale.US)
+                        )
+                        .uppercase(),
+                    fontSize = 14.sp,
+                    letterSpacing = 1.2.sp,
+                    color = black,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )
             }
-        }
-        Spacer(modifier = Modifier.height(32.dp))
 
+            if (showDatePicker) {
+                val initialMillis = uiState.selectedDate
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.DateRange,
-                contentDescription = "Date",
-                tint = black,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = uiState.selectedDate
-                    .format(DateTimeFormatter.ofPattern("MMMM d, yyyy").withLocale(java.util.Locale.US))
-                    .uppercase(),
-                fontSize = 14.sp,
-                letterSpacing = 1.2.sp,
-                color = black,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-            )
-        }
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = initialMillis
+                )
 
-        if (showDatePicker) {
-            val initialMillis = uiState.selectedDate
-                .atStartOfDay(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli()
-
-            val datePickerState = rememberDatePickerState(
-                initialSelectedDateMillis = initialMillis
-            )
-
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val selected = Instant.ofEpochMilli(millis)
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
-                            viewModel.onDateSelected(selected)
-                        }
-                        showDatePicker = false
-                    }) { Text("OK") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-                }
-            ) {
-                DatePicker(state = datePickerState)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        // Time field (clickable, read-only)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showTimePicker = true }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Schedule,
-                contentDescription = "Time",
-                tint = black,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = uiState.selectedTime
-                    .format(DateTimeFormatter.ofPattern("hh:mm a"))
-                    .uppercase(),
-                fontSize = 14.sp,
-                letterSpacing = 1.2.sp,
-                color = black,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-            )
-        }
-
-        if (showTimePicker) {
-            val timePickerState = rememberTimePickerState(
-                initialHour = uiState.selectedTime.hour,
-                initialMinute = uiState.selectedTime.minute,
-                is24Hour = false
-            )
-
-            AlertDialog(
-                onDismissRequest = { showTimePicker = false },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.onTimeSelected(
-                            LocalTime.of(timePickerState.hour, timePickerState.minute)
-                        )
-                        showTimePicker = false
-                    }) { Text("OK") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
-                },
-                text = { TimePicker(state = timePickerState) }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onNavigationEvent(NavigationEvent.OpenMap)
-                }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        )  {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = null,
-                tint = black
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            Text(
-                text = uiState.locationName.ifBlank { "Add location" },
-                fontSize = 14.sp,
-                color = black,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                modifier = Modifier.weight(1f)
-            )
-
-            if (uiState.locationName.isNotBlank()) {
-                IconButton(onClick = {
-                    viewModel.onLocationNameChange("")
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Clear location",
-                        tint = Color.Gray
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.width(24.dp))
-
-        TextField(
-            value = uiState.title,
-            onValueChange = { viewModel.onTitleChange(it) },
-            textStyle = MaterialTheme.typography.headlineLarge,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        //MOOD
-        MoodDropdown(
-            selectedMood = uiState.mood,
-            onMoodSelected = { viewModel.onMoodSelected(it) }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        TextField(
-            value = uiState.note,
-            onValueChange = { viewModel.onNoteChange(it) },
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 26.sp
-            ),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
-        )
-
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = "Captured Moments",
-            fontSize = 16.sp,
-            letterSpacing = 1.sp,
-            color = Color(0xFF9C8F86)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.heightIn(max = 420.dp)
-        ) {
-
-            itemsIndexed(uiState.images) { index, img ->
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFEDE6DE))
-                ) {
-                    AsyncImage(
-                        model = img.localUri,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                startIndex = index
-                                showViewer = true
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val selected = Instant.ofEpochMilli(millis)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                                viewModel.onDateSelected(selected)
                             }
-                    )
+                            showDatePicker = false
+                        }) { Text("OK") }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
 
+            Spacer(modifier = Modifier.height(2.dp))
 
-                    IconButton(
-                        onClick = {
-                            onNavigationEvent(
-                                NavigationEvent.RemoveImage(img.localUri))
-                        },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(6.dp)
-                            .size(24.dp)
-                            .background(Color.White, RoundedCornerShape(50))
-                    ) {
+            // Time field (clickable, read-only)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showTimePicker = true }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Schedule,
+                    contentDescription = "Time",
+                    tint = black,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = uiState.selectedTime
+                        .format(DateTimeFormatter.ofPattern("hh:mm a"))
+                        .uppercase(),
+                    fontSize = 14.sp,
+                    letterSpacing = 1.2.sp,
+                    color = black,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                )
+            }
+
+            if (showTimePicker) {
+                val timePickerState = rememberTimePickerState(
+                    initialHour = uiState.selectedTime.hour,
+                    initialMinute = uiState.selectedTime.minute,
+                    is24Hour = false
+                )
+
+                AlertDialog(
+                    onDismissRequest = { showTimePicker = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.onTimeSelected(
+                                LocalTime.of(timePickerState.hour, timePickerState.minute)
+                            )
+                            showTimePicker = false
+                        }) { Text("OK") }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+                    },
+                    text = { TimePicker(state = timePickerState) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onNavigationEvent(NavigationEvent.OpenMap)
+                    }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = black
+                )
+
+                Spacer(Modifier.width(12.dp))
+
+                Text(
+                    text = uiState.locationName.ifBlank { "Add location" },
+                    fontSize = 14.sp,
+                    color = black,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (uiState.locationName.isNotBlank()) {
+                    IconButton(onClick = {
+                        viewModel.onLocationNameChange("")
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Remove",
-                            modifier = Modifier.size(14.dp)
+                            contentDescription = "Clear location",
+                            tint = Color.Gray
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.width(24.dp))
+
+            TextField(
+                value = uiState.title,
+                onValueChange = { viewModel.onTitleChange(it) },
+                textStyle = MaterialTheme.typography.headlineLarge,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            //MOOD
+            MoodDropdown(
+                selectedMood = uiState.mood,
+                onMoodSelected = { viewModel.onMoodSelected(it) }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            TextField(
+                value = uiState.note,
+                onValueChange = { viewModel.onNoteChange(it) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    lineHeight = 26.sp
+                ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                )
+            )
 
 
-            if (uiState.images.size < 5) {
-                item {
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Captured Moments",
+                fontSize = 16.sp,
+                letterSpacing = 1.sp,
+                color = Color(0xFF9C8F86)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.heightIn(max = 420.dp)
+            ) {
+
+                itemsIndexed(uiState.images) { index, img ->
                     Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFFEDE6DE))
                     ) {
-
-                        Box(
+                        AsyncImage(
+                            model = img.localUri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .size(52.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(16.dp))
+                                .fillMaxSize()
                                 .clickable {
-                                    pickerLauncher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                    )
-                                },
-                            contentAlignment = Alignment.Center
+                                    startIndex = index
+                                    showViewer = true
+                                }
+                        )
+
+
+                        IconButton(
+                            onClick = {
+                                onNavigationEvent(
+                                    NavigationEvent.RemoveImage(img.localUri)
+                                )
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(6.dp)
+                                .size(24.dp)
+                                .background(Color.White, RoundedCornerShape(50))
                         ) {
                             Icon(
-                                Icons.Default.Add,
-                                contentDescription = null,
-                                tint = black,
-                                modifier = Modifier.size(22.dp)
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Remove",
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+
+                if (uiState.images.size < 5) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+
+                            Box(
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(16.dp))
+                                    .clickable {
+                                        pickerLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = null,
+                                    tint = black,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+        val errorMessage by viewModel.errorMessage.collectAsState(initial = null)
+        errorMessage?.let {
+            ErrorSnackbar(message = it, onDismiss = { viewModel.clearError() })
+        }
     }
     if (showViewer) {
         FullScreenImageViewer(

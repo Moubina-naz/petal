@@ -117,35 +117,7 @@ fun PetalSplashScreen(onFinished: () -> Unit = {}) {
             )
         }
 
-        // Bottom section
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 48.dp)
-                .alpha(bottomAlpha)
-        ) {
-            // Three dots
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                repeat(3) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(4.dp)
-                            .background(
-                                color = DarkGreen.copy(alpha = if (index == 1) 0.5f else 0.25f),
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
-                    )
-                }
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-
-        }
     }
 }
 
@@ -160,14 +132,14 @@ fun drawPetalShape(scope: DrawScope) {
 
         moveTo(tipX, tipY)
         cubicTo(
-            w * 1.2f, h * 0.25f,   // right control point (wider right lean)
+            w * 1.2f, h * 0.25f,
             w * 1.05f, h * 0.75f,
-            w / 2f, h              // base stays centered
+            w / 2f, h
         )
         cubicTo(
-            w * -0.05f, h * 0.75f, // left side pulled in slightly
-            w * 0.15f, h * 0.25f,  // left control pulled right (asymmetry)
-            tipX, tipY             // back to shifted tip
+            w * -0.05f, h * 0.75f,
+            w * 0.15f, h * 0.25f,
+            tipX, tipY
         )
         close()
     }

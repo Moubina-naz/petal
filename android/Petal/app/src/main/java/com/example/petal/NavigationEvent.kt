@@ -7,7 +7,6 @@ sealed class NavigationEvent {
 
     data object GoBack : NavigationEvent()
 
-    // navigation
     data class OpenMemoryDetail(val memoryId: Int) : NavigationEvent()
     data class OpenEditMemory(val memoryId: Int) : NavigationEvent()
     data class OpenAddMemory(

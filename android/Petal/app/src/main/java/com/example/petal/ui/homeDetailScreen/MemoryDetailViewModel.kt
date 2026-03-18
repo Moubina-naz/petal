@@ -15,12 +15,17 @@ class MemoryDetailViewModel(
     private val _uiState = MutableStateFlow<MemoryDetailUiState>(MemoryDetailUiState.Loading)
     val uiState: StateFlow<MemoryDetailUiState> = _uiState
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
     fun initialize(memoryId: Int) {
         currentMemoryId = memoryId
         loadMemory()
     }
 
-
+    fun clearError() {
+        _errorMessage.value = null
+    }
     private fun loadMemory(){
         viewModelScope.launch {
             try{
@@ -37,23 +42,26 @@ class MemoryDetailViewModel(
         }
     }
     fun toggleFavorite() {
-        val current = (_uiState.value as? MemoryDetailUiState.Success)?.memory
-            ?: return
-
+        val current = (_uiState.value as? MemoryDetailUiState.Success)?.memory ?: return
         viewModelScope.launch {
-            if (current.isFavorite)
-                repository.unfavorite(current.id)
-            else
-                repository.favorite(current.id)
-
-            loadMemory()
+            try {
+                if (current.isFavorite) repository.unfavorite(current.id)
+                else repository.favorite(current.id)
+                loadMemory()
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Something went wrong"
+            }
         }
     }
 
     fun deleteMemory(onDeleted: () -> Unit) {
         viewModelScope.launch {
-            repository.deleteMemory(currentMemoryId)
-            onDeleted()
+            try {
+                repository.deleteMemory(currentMemoryId)
+                onDeleted()
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Failed to delete"
+            }
         }
     }
 }

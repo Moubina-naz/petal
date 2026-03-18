@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class MapViewModel (
+class MapViewModel(
     private val repository: MemoryRepository
 ) : ViewModel() {
 
@@ -21,47 +21,44 @@ class MapViewModel (
 
     private val _selectedLocation = MutableStateFlow<LocationPin?>(null)
     val selectedLocation: StateFlow<LocationPin?> = _selectedLocation
-    private val _selectedPin = MutableStateFlow<LocationPin?>(null)
 
+    private val _selectedPin = MutableStateFlow<LocationPin?>(null)
     val selectedPin: StateFlow<LocationPin?> = _selectedPin
 
-    init {
-        loadMemories()
-    }
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun clearError() { _errorMessage.value = null }
+
+    private val _searchResults = MutableStateFlow<List<AutocompletePrediction>>(emptyList())
+    val searchResults: StateFlow<List<AutocompletePrediction>> = _searchResults
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    init { loadMemories() }
 
     fun loadMemories() {
         viewModelScope.launch {
             try {
-                val memories = repository.getMemories(
-                    search = null,
-                    filter = HomeFilter.ALL
-                )
-
-                val locatedMemories = memories.filter {
-                    it.location != null
-                }
-
-                _uiState.value = MapUiState.Success(locatedMemories)
+                val memories = repository.getMemories(search = null, filter = HomeFilter.ALL)
+                _uiState.value = MapUiState.Success(memories.filter { it.location != null })
             } catch (e: Exception) {
-                _uiState.value = MapUiState.Error(
-                    e.message ?: "Failed to load map"
-                )
+                _uiState.value = MapUiState.Error(e.message ?: "Failed to load map")
             }
         }
     }
 
     fun onMapClick(lat: Double, lng: Double, name: String?) {
         _selectedLocation.value = LocationPin(
-            latitude = lat,
+            latitude  = lat,
             longitude = lng,
-            name = name,
-            memories = emptyList()
+            name      = name,
+            memories  = emptyList()
         )
     }
 
-    fun onPinClick(pin: LocationPin) {
-        _selectedLocation.value = pin   // already has memories
-    }
+    fun onPinClick(pin: LocationPin) { _selectedLocation.value = pin }
 
     fun onMarkerClick(memory: Memory) {
         _selectedLocation.value = LocationPin(
@@ -71,32 +68,17 @@ class MapViewModel (
         )
     }
 
-    fun clearSelection() {
-        _selectedLocation.value = null
-    }
+    fun clearSelection() { _selectedLocation.value = null }
+    fun clearPin() { _selectedPin.value = null }
 
     fun groupedMemories(): Map<String, List<Memory>> {
         val state = _uiState.value
         if (state !is MapUiState.Success) return emptyMap()
-
-        return state.memories.groupBy { memory ->
-            val loc = memory.location!!
-            "${loc.latitude},${loc.longitude}"
-        }
+        return state.memories.groupBy { "${it.location!!.latitude},${it.location!!.longitude}" }
     }
-
-
-    fun clearPin() {
-        _selectedPin.value = null
-    }
-    private val _searchResults = MutableStateFlow<List<AutocompletePrediction>>(emptyList())
-    val searchResults: StateFlow<List<AutocompletePrediction>> = _searchResults
-
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery
 
     fun onSearchQueryChange(query: String, placesClient: PlacesClient?) {
-        _searchQuery.value = query  // ← moved to top
+        _searchQuery.value = query
 
         if (query.isBlank()) {
             _searchResults.value = emptyList()
@@ -113,8 +95,9 @@ class MapViewModel (
             .addOnSuccessListener { response ->
                 _searchResults.value = response.autocompletePredictions
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 _searchResults.value = emptyList()
+                _errorMessage.value = e.message ?: "Search failed"
             }
     }
 
@@ -122,6 +105,7 @@ class MapViewModel (
         _searchQuery.value = ""
         _searchResults.value = emptyList()
     }
+
     fun getPins(): List<LocationPin> {
         val state = uiState.value
         if (state !is MapUiState.Success) return emptyList()
@@ -130,21 +114,14 @@ class MapViewModel (
             .filter { it.location != null }
             .groupBy { "${it.location!!.latitude},${it.location!!.longitude}" }
             .map { (_, memoriesAtLoc) ->
-
                 val first = memoriesAtLoc.first()
                 val loc = first.location!!
-
-                // Use a meaningful location name — prefer the stored one if available
-                val locationName = first.location?.name
-                    ?: "Unknown place"
-
                 LocationPin(
-                    latitude = loc.latitude,
+                    latitude  = loc.latitude,
                     longitude = loc.longitude,
-                    name = locationName,
-                    memories = memoriesAtLoc
+                    name      = first.location?.name ?: "Unknown place",
+                    memories  = memoriesAtLoc
                 )
             }
     }
-
 }

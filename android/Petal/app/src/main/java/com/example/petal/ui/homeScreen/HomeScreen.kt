@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import coil.compose.AsyncImage
+import com.example.petal.components.ErrorSnackbar
 
 @Composable
 fun HomeScreen(
@@ -46,6 +47,7 @@ fun HomeScreen(
     val tabs = listOf("All Moments", "Favourites", "Photos")
     var selectedTab by rememberSaveable { mutableStateOf("All Moments") }
     val focusManager = LocalFocusManager.current
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val bg = Color(0xFFFf9f7f2)
     val black = Color(0xFF2d2d2d)
@@ -77,6 +79,7 @@ fun HomeScreen(
                     Text(
                         text = "Petal",
                         style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Normal,
                         color = Color(0xFF2d2d2d)
                     )
 
@@ -265,6 +268,7 @@ fun HomeScreen(
             }
         }
 
+
         FloatingActionButton(
             onClick = { onNavigationEvent(NavigationEvent.OpenAddMemory()) },
             containerColor = Color(0xFFd36b54),
@@ -276,6 +280,9 @@ fun HomeScreen(
                 .border(1.dp, black, CircleShape)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Add Memory", tint = Color.White)
+        }
+        errorMessage?.let {
+            ErrorSnackbar(message = it, onDismiss = { viewModel.clearError() })
         }
     }
 }

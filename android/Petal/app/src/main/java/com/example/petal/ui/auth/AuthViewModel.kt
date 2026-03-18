@@ -39,7 +39,9 @@ class AuthViewModel : ViewModel() {
             )
         }
     }
-
+    fun resetState() {
+        _uiState.value = AuthUiState.Idle
+    }
     suspend fun isLoggedIn(): Boolean {
         return repo.isLoggedIn()
     }

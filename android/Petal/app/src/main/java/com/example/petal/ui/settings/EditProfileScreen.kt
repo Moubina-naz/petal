@@ -57,11 +57,12 @@ fun EditProfileScreen(
                 Icon(Icons.Filled.ArrowBackIosNew, contentDescription = null)
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(8.dp))
 
             Text(
                 "Edit Profile",
                 fontSize = 22.sp,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.SemiBold
             )
 

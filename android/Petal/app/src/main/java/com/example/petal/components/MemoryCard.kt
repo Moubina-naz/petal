@@ -85,7 +85,7 @@ fun MemoryCard(
                                 tint = Color(0xFFCC6666),
                                 modifier = Modifier
                                     .size(16.dp)
-                                    .clickable { onFavoriteClick() }
+
                             )
                         }
                     }

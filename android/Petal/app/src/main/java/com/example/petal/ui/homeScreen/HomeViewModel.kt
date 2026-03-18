@@ -12,16 +12,20 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val memoryRepository: MemoryRepository
-): ViewModel(){
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     private var currentSearch: String? = null
     private var currentFilter: HomeFilter = HomeFilter.ALL
 
-    val uiState : StateFlow<HomeUiState> = _uiState
-    init{
-        loadMemories()
-    }
+    val uiState: StateFlow<HomeUiState> = _uiState
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun clearError() { _errorMessage.value = null }
+
+    init { loadMemories() }
 
     fun onSearchChange(search: String) {
         currentSearch = search
@@ -33,23 +37,18 @@ class HomeViewModel(
         loadMemories()
     }
 
-
     fun loadMemories() {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
-            try{
+            try {
                 val memories = memoryRepository.getMemories(
                     search = currentSearch,
                     filter = currentFilter
                 )
-                val sections = groupMemories(memories)
                 _uiState.value = HomeUiState.Success(memories)
-
-            }catch( e: Exception) {
-                _uiState.value = HomeUiState.Error(
-                    e.message ?: "Unable to load memories"
-                )
-        }
+            } catch (e: Exception) {
+                _uiState.value = HomeUiState.Error(e.message ?: "Unable to load memories")
+            }
         }
     }
 
@@ -59,15 +58,10 @@ class HomeViewModel(
                 memoryRepository.favorite(memoryId)
                 loadMemories()
             } catch (e: Exception) {
-                _uiState.value = HomeUiState.Error(
-                    e.message ?: "Unable to update favorite"
-                )
+                _errorMessage.value = e.message ?: "Unable to update favorite"
             }
         }
     }
 
-    fun refresh(){
-            loadMemories()
-        }
-        }
-
+    fun refresh() { loadMemories() }
+}

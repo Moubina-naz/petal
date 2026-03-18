@@ -12,17 +12,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import com.example.petal.DarkGreen
 import com.example.petal.PetalIcon
+import com.example.petal.components.ErrorSnackbar
 
 @Composable
 fun LoginScreen(
@@ -37,8 +43,12 @@ fun LoginScreen(
 
     val bg        = Color(0xFFF9F7F2)
     val black     = Color(0xFF2d2d2d)
-    val terracotta = Color(0xFFd36b54)
     val green     = Color(0xFF1E3A2F)
+
+    val isLoading = state is AuthUiState.Loading
+    val isButtonEnabled = email.isNotBlank() && password.isNotBlank() && !isLoading
+
+    val passwordFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier
@@ -86,6 +96,10 @@ fun LoginScreen(
                     .background(Color.White, RoundedCornerShape(4.dp)),
                 shape      = RoundedCornerShape(4.dp),
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { passwordFocusRequester.requestFocus() }
+                ),
                 colors     = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor    = green.copy(alpha = 0.35f),
                     focusedBorderColor      = green,
@@ -133,9 +147,16 @@ fun LoginScreen(
                 },
                 modifier   = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(4.dp)),
+                    .background(Color.White, RoundedCornerShape(4.dp))
+                    .focusRequester(passwordFocusRequester),
                 shape      = RoundedCornerShape(4.dp),
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (isButtonEnabled) viewModel.login(email, password)
+                    }
+                ),
                 colors     = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor    = green.copy(alpha = 0.35f),
                     focusedBorderColor      = green,
@@ -149,22 +170,34 @@ fun LoginScreen(
 
         Button(
             onClick  = { viewModel.login(email, password) },
+            enabled  = isButtonEnabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
             shape  = RoundedCornerShape(4.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = green)
-        ) {
-            Text(
-                "OPEN JOURNAL",
-                style = TextStyle(
-                    fontFamily    = FontFamily.SansSerif,
-                    fontWeight    = FontWeight.SemiBold,
-                    fontSize      = 13.sp,
-                    letterSpacing = 2.sp,
-                    color         = bg
-                )
+            colors = ButtonDefaults.buttonColors(
+                containerColor         = green,
+                disabledContainerColor = green.copy(alpha = 0.35f)
             )
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color    = bg,
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(
+                    "OPEN JOURNAL",
+                    style = TextStyle(
+                        fontFamily    = FontFamily.SansSerif,
+                        fontWeight    = FontWeight.SemiBold,
+                        fontSize      = 13.sp,
+                        letterSpacing = 2.sp,
+                        color         = bg
+                    )
+                )
+            }
         }
 
         Spacer(Modifier.weight(1f))
@@ -203,13 +236,16 @@ fun LoginScreen(
             }
         }
 
-        when (state) {
-            is AuthUiState.Loading -> CircularProgressIndicator(color = green)
-            is AuthUiState.Error   ->
-                Text((state as AuthUiState.Error).message, color = Color.Red, fontSize = 13.sp)
-            is AuthUiState.Success ->
-                LaunchedEffect(Unit) { onLoginSuccess() }
-            else -> {}
+        if (state is AuthUiState.Error) {
+            ErrorSnackbar(
+                message   = (state as AuthUiState.Error).message,
+                onDismiss = { viewModel.resetState() }  // clears error after shown
+            )
+
+        }
+
+        if (state is AuthUiState.Success) {
+            LaunchedEffect(Unit) { onLoginSuccess() }
         }
     }
 }

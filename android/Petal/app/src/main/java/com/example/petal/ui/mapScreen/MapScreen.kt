@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
 import com.example.petal.DarkGreen
+import com.example.petal.components.ErrorSnackbar
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.delay
@@ -281,8 +282,6 @@ fun MapScreen(
                         }
                     )
 
-
-
                     )
 
                 if (searchResults.isNotEmpty()) {
@@ -366,6 +365,10 @@ fun MapScreen(
                 }
             }
         }
+    }
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    errorMessage?.let {
+        ErrorSnackbar(message = it, onDismiss = { viewModel.clearError() })
     }
 
     selectedLocation?.let { pin ->

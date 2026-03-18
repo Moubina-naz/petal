@@ -58,6 +58,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.example.petal.NavigationEvent
+import com.example.petal.components.ErrorSnackbar
 import com.example.petal.ui.addMemory.MemoryImageGalleryScreen
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -74,247 +75,257 @@ fun MemoryDetailScreen(
     var startIndex by remember { mutableStateOf(0) }
     val bg = Color(0xFFFf9f8f3)
     val black = Color(0xFF2d2d2d)
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFf9f8f3))
-    ) {
-        when (uiState) {
-            is MemoryDetailUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is MemoryDetailUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Something went wrong")
-                }
-            }
-
-            is MemoryDetailUiState.Success -> {
-                val memory = (uiState as MemoryDetailUiState.Success).memory
-
-                val displayInstant = memory.memoryDateTime ?: memory.createdAt
-
-                val dateText = remember(displayInstant) {
-                    displayInstant
-                        .atZone(ZoneId.systemDefault())
-                        .format(DateTimeFormatter.ofPattern("MMM dd • hh:mm a"))
-                }
-
-                val locationText = remember(memory.location?.name) {
-                    memory.location?.name ?: "Unknown Location"
-                }
-
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .statusBarsPadding()
-                        .padding(16.dp)
-                ) {
-                    // TOP BAR
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFf9f8f3))
+        ) {
+            when (uiState) {
+                is MemoryDetailUiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { onNavigationEvent(NavigationEvent.GoBack) }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBackIosNew,
-                                contentDescription = "Back"
-                            )
-                        }
+                        CircularProgressIndicator()
+                    }
+                }
 
-                        Spacer(modifier = Modifier.weight(1f))
+                is MemoryDetailUiState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Something went wrong")
+                    }
+                }
 
-                        IconButton(onClick = { viewModel.toggleFavorite() }) {
-                            Icon(
-                                imageVector =
-                                    if (memory.isFavorite)
-                                        Icons.Default.Favorite
-                                    else
-                                        Icons.Default.FavoriteBorder,
-                                tint =
-                                    if (memory.isFavorite)
-                                        Color(0xFFCC6666)
-                                    else
-                                        black,
-                                contentDescription = "Favorite"
-                            )
-                        }
+                is MemoryDetailUiState.Success -> {
+                    val memory = (uiState as MemoryDetailUiState.Success).memory
 
-                        Box {
-                            IconButton(onClick = { showMenu = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "More")
-                            }
+                    val displayInstant = memory.memoryDateTime ?: memory.createdAt
 
-                            DropdownMenu(
-                                expanded = showMenu,
-                                onDismissRequest = { showMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Delete") },
-                                    onClick = {
-                                        showMenu = false
-                                        viewModel.deleteMemory {
-                                            onNavigationEvent(NavigationEvent.GoBack)
-                                        }
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Edit") },
-                                    onClick = {
-                                        showMenu = false
-                                        onNavigationEvent(
-                                            NavigationEvent.OpenEditMemory(memory.id)
-                                        )
-                                    }
-                                )
-                            }
-                        }
+                    val dateText = remember(displayInstant) {
+                        displayInstant
+                            .atZone(ZoneId.systemDefault())
+                            .format(DateTimeFormatter.ofPattern("MMM dd • hh:mm a"))
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Box(
-                            modifier = Modifier
-                                .width(30.dp)
-                                .height(1.dp)
-                                .background(Color(0xFFC65D5D))
-                        )
-
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Text(
-                            text = "$dateText • $locationText",
-                            fontSize = 14.sp,
-                            letterSpacing = 1.sp,
-
-                            color = black
-                        )
+                    val locationText = remember(memory.location?.name) {
+                        memory.location?.name ?: "Unknown Location"
                     }
 
 
-                    Spacer(modifier = Modifier.height(20.dp))
-
-
-                    Text(
-                        text = memory.title,
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = Color(0xFF3E2F26)
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-
-                    //MOOOOD
-                    memory.mood?.let { mood ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .statusBarsPadding()
+                            .padding(16.dp)
+                    ) {
+                        // TOP BAR
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier
-                                .background(
-                                    color = Color(0xFFf9f8f3),
-                                    shape = RoundedCornerShape(20.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { onNavigationEvent(NavigationEvent.GoBack) }) {
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowBackIosNew,
+                                    contentDescription = "Back"
                                 )
-                                .border(1.dp, black, RoundedCornerShape(20.dp))
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = mood.icon,
-                                contentDescription = mood.label,
-                                tint = mood.color,
-                                modifier = Modifier.size(15.dp)
-                            )
-                            Text(
-                                text = mood.label,
-                                fontSize = 14.sp,
-                                color = black
-                            )
-                        }
-                    }
+                            }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.weight(1f))
 
+                            IconButton(onClick = { viewModel.toggleFavorite() }) {
+                                Icon(
+                                    imageVector =
+                                        if (memory.isFavorite)
+                                            Icons.Default.Favorite
+                                        else
+                                            Icons.Default.FavoriteBorder,
+                                    tint =
+                                        if (memory.isFavorite)
+                                            Color(0xFFCC6666)
+                                        else
+                                            black,
+                                    contentDescription = "Favorite"
+                                )
+                            }
 
-                    Text(
-                        text = memory.note,
-                        fontSize = 16.sp,
-                        lineHeight = 26.sp,
-                        color = Color(0xFF5C5048)
-                    )
+                            Box {
+                                IconButton(onClick = { showMenu = true }) {
+                                    Icon(Icons.Default.MoreVert, contentDescription = "More")
+                                }
 
-
-                    if (memory.images.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(28.dp))
-
-                        Text(
-                            text = "CAPTURED MOMENTS",
-                            fontSize = 12.sp,
-                            letterSpacing = 1.sp,
-                            color = Color(0xFF9C8F86)
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.heightIn(max = 420.dp)
-                        ) {
-                            items(memory.images) { image ->
-                                if (image.imageUrl.isNotBlank()) {
-                                    AsyncImage(
-                                        model = image.imageUrl,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,  // ← add this
-                                        modifier = Modifier
-                                            .aspectRatio(1f)
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .clickable {
-                                                startIndex = memory.images.indexOf(image)
-                                                showViewer = true
+                                DropdownMenu(
+                                    expanded = showMenu,
+                                    onDismissRequest = { showMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Delete") },
+                                        onClick = {
+                                            showMenu = false
+                                            viewModel.deleteMemory {
+                                                onNavigationEvent(NavigationEvent.GoBack)
                                             }
+                                        }
                                     )
-
+                                    DropdownMenuItem(
+                                        text = { Text("Edit") },
+                                        onClick = {
+                                            showMenu = false
+                                            onNavigationEvent(
+                                                NavigationEvent.OpenEditMemory(memory.id)
+                                            )
+                                        }
+                                    )
                                 }
                             }
                         }
-                        if (showViewer) {
-                            val navigator = LocalNavigator.currentOrThrow
 
-                            LaunchedEffect(startIndex) {
-                                navigator.push(
-                                    MemoryImageGalleryScreen(
-                                        images = memory.images.map { it.imageUrl },
-                                        initialIndex = startIndex
+                        Spacer(modifier = Modifier.height(24.dp))
+
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Box(
+                                modifier = Modifier
+                                    .width(30.dp)
+                                    .height(1.dp)
+                                    .background(Color(0xFFC65D5D))
+                            )
+
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            Text(
+                                text = "$dateText • $locationText",
+                                fontSize = 14.sp,
+                                letterSpacing = 1.sp,
+
+                                color = black
+                            )
+                        }
+
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+
+                        Text(
+                            text = memory.title,
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = Color(0xFF3E2F26)
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+
+                        //MOOOOD
+                        memory.mood?.let { mood ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier
+                                    .background(
+                                        color = Color(0xFFf9f8f3),
+                                        shape = RoundedCornerShape(20.dp)
                                     )
+                                    .border(1.dp, black, RoundedCornerShape(20.dp))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = mood.icon,
+                                    contentDescription = mood.label,
+                                    tint = mood.color,
+                                    modifier = Modifier.size(15.dp)
                                 )
-                                showViewer = false
+                                Text(
+                                    text = mood.label,
+                                    fontSize = 14.sp,
+                                    color = black
+                                )
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(20.dp))
+
+
+                        Text(
+                            text = memory.note,
+                            fontSize = 16.sp,
+                            lineHeight = 26.sp,
+                            color = Color(0xFF5C5048)
+                        )
+
+
+                        if (memory.images.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(28.dp))
+
+                            Text(
+                                text = "CAPTURED MOMENTS",
+                                fontSize = 12.sp,
+                                letterSpacing = 1.sp,
+                                color = Color(0xFF9C8F86)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.heightIn(max = 420.dp)
+                            ) {
+                                items(memory.images) { image ->
+                                    if (image.imageUrl.isNotBlank()) {
+                                        AsyncImage(
+                                            model = image.imageUrl,
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,  // ← add this
+                                            modifier = Modifier
+                                                .aspectRatio(1f)
+                                                .clip(RoundedCornerShape(16.dp))
+                                                .clickable {
+                                                    startIndex = memory.images.indexOf(image)
+                                                    showViewer = true
+                                                }
+                                        )
+
+                                    }
+                                }
+                            }
+                            if (showViewer) {
+                                val navigator = LocalNavigator.currentOrThrow
+
+                                LaunchedEffect(startIndex) {
+                                    navigator.push(
+                                        MemoryImageGalleryScreen(
+                                            images = memory.images.map { it.imageUrl },
+                                            initialIndex = startIndex
+                                        )
+                                    )
+                                    showViewer = false
+                                }
+                            }
+
+                        }
                     }
                 }
             }
         }
+        errorMessage?.let {
+            ErrorSnackbar(
+                message   = it,
+                onDismiss = { viewModel.clearError() }
+            )
+        }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun MemoryDetailScreenPreview() {
