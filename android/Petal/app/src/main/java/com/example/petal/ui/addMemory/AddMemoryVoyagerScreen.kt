@@ -21,6 +21,7 @@ class AddMemoryVoyagerScreen(
 ) : Screen {
 
     override val key = uniqueScreenKey
+
     @Composable
     override fun Content() {
         val context = LocalContext.current
@@ -30,7 +31,7 @@ class AddMemoryVoyagerScreen(
             AddMemoryViewModel(
                 repository = ApiProvider.memoryRepository,
                 context = context,
-                locationSource = locationSource  // ← use the actual param
+                locationSource = locationSource
             )
         }
 
@@ -42,10 +43,11 @@ class AddMemoryVoyagerScreen(
                 }
             }
         }
+
         LaunchedEffect(viewModel) {
             viewModel.saveEffects.collect { effect ->
                 when (effect) {
-                    is SaveEffect.NavigateBack -> navigator.popUntilRoot()
+                    is SaveEffect.NavigateBack -> navigator.pop()
                     is SaveEffect.Error -> {}
                 }
             }

@@ -30,7 +30,15 @@ class HomeVoyagerScreen : Screen {
         val homeViewModel = remember {
             HomeViewModel(ApiProvider.memoryRepository)
         }
-
+        LaunchedEffect(Unit) {
+            var nav: cafe.adriel.voyager.navigator.Navigator? = navigator
+            var depth = 0
+            while (nav != null) {
+                android.util.Log.d("NAV_DEBUG", "depth $depth: ${nav.lastItem::class.simpleName}")
+                nav = nav.parent
+                depth++
+            }
+        }
         LaunchedEffect(navigator.lastItem) {
             homeViewModel.loadMemories()
         }
@@ -38,24 +46,25 @@ class HomeVoyagerScreen : Screen {
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
                 is NavigationEvent.OpenMemoryDetail ->
-                    navigator.push(
+                    navigator.push(              // ← parentNavigator
                         MemoryDetailVoyagerScreen(event.memoryId)
                     )
 
                 is NavigationEvent.OpenEditMemory ->
-                    navigator.push(
+                    navigator.push(              // ← parentNavigator
                         EditMemoryVoyagerScreen(event.memoryId)
                     )
                 is NavigationEvent.OpenSettings ->
-                    navigator.push(SettingsVoyagerScreen())
+                    navigator.push(SettingsVoyagerScreen())  // ← parentNavigator
+
                 is NavigationEvent.OpenAddMemory ->
-                    navigator.push(AddMemoryVoyagerScreen())
+                    navigator.push(AddMemoryVoyagerScreen()) // ← parentNavigator
 
                 NavigationEvent.OpenMap ->
-                    navigator.push(MapVoyagerScreen())
+                    navigator.push(MapVoyagerScreen())       // ← parentNavigator
 
                 NavigationEvent.GoBack ->
-                    navigator.pop()
+                    navigator.pop()  // ← keep as navigator (pop within tab is fine)
 
                 is NavigationEvent.ToggleFavorite ->
                     homeViewModel.favoriteById(event.memoryId)

@@ -1,5 +1,7 @@
 package com.example.petal
 
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateOf
 import com.example.petal.domain.Memory
 import com.example.petal.ui.mapScreen.LocationSource
 
@@ -32,3 +34,4 @@ sealed class NavigationEvent {
     data class RemoveImage(val imageId: String) : NavigationEvent()
     data object AddImage : NavigationEvent()
 }
+val LocalTabNavDepth = compositionLocalOf { mutableStateOf(1) }

@@ -317,3 +317,70 @@ def update_image_caption(request, memory_pk, image_pk):
     memory.save()
     
     return Response(MemoryImageSerializer(memory_image).data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def upload_memory_audio(request, pk):
+    """Upload or replace audio for a memory. Max 5 min enforced by validator."""
+    try:
+        memory = Memory.objects.get(pk=pk, user=request.user, is_deleted=False)
+    except Memory.DoesNotExist:
+        return Response({"error": "Memory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    audio_file = request.FILES.get('audio')
+    if not audio_file:
+        return Response({"error": "No audio file provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete old audio from Cloudinary if it exists
+    if memory.audio:
+        try:
+            import cloudinary.uploader
+            # Extract public_id from the existing CloudinaryField
+            public_id = memory.audio.public_id
+            cloudinary.uploader.destroy(public_id, resource_type='video')
+        except Exception:
+            pass  # Don't block upload if delete fails
+
+    # Run validators manually before saving
+    from .validators import validate_audio_size, validate_audio_extension, validate_audio_duration
+    from django.core.exceptions import ValidationError as DjangoValidationError
+    try:
+        validate_audio_size(audio_file)
+        validate_audio_extension(audio_file)
+        validate_audio_duration(audio_file)
+    except DjangoValidationError as e:
+        return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+    memory.audio = audio_file
+    memory.revision += 1
+    memory.save()
+
+    serializer = MemorySerializer(memory, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_memory_audio(request, pk):
+    """Remove audio from a memory and delete it from Cloudinary."""
+    try:
+        memory = Memory.objects.get(pk=pk, user=request.user, is_deleted=False)
+    except Memory.DoesNotExist:
+        return Response({"error": "Memory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if not memory.audio:
+        return Response({"error": "This memory has no audio"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        import cloudinary.uploader
+        public_id = memory.audio.public_id
+        cloudinary.uploader.destroy(public_id, resource_type='video')
+    except Exception:
+        pass  # Still clear the field even if Cloudinary delete fails
+
+    memory.audio = None
+    memory.revision += 1
+    memory.save()
+
+    return Response({"message": "Audio deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

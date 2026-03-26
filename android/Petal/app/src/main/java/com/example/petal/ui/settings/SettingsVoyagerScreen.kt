@@ -7,7 +7,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.petal.ui.auth.TokenManager
 import androidx.compose.ui.platform.LocalContext
-import com.example.petal.components.TabNavigatorStore
 import com.example.petal.ui.auth.LoginVoyagerScreen
 import kotlinx.coroutines.launch
 
@@ -30,7 +29,6 @@ class SettingsVoyagerScreen : Screen {
             onLogOut = {
                 kotlinx.coroutines.MainScope().launch {
                     tokenManager.clearTokens()
-                    TabNavigatorStore.clear()
 
                     // Use ROOT navigator, not the tab-scoped one
                     rootNavigator.replaceAll(LoginVoyagerScreen())

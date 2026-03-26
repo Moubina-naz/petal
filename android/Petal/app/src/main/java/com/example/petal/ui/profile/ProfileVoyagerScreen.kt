@@ -29,7 +29,7 @@ class ProfileVoyagerScreen : Screen {
         val viewModel = remember {
             ProfileViewModel(
                 repository = ApiProvider.memoryRepository,
-                tokenManager = TokenManager(context)           // ← now properly created
+                tokenManager = TokenManager(context)
             )
         }
         LaunchedEffect(Unit) {
@@ -37,17 +37,16 @@ class ProfileVoyagerScreen : Screen {
         }
         val state by viewModel.uiState.collectAsState()
 
-
         ProfileScreen(
             viewModel = viewModel,
             onBack = { navigator.pop() },
-            onEditProfile = { navigator.push(EditProfileVoyagerScreen()) },
+            onEditProfile = { navigator.push(EditProfileVoyagerScreen()) }, // ← parentNavigator
 
             onLogOut = {
                 kotlinx.coroutines.MainScope().launch {
                     tokenManager.clearTokens()
-                    navigator.popUntilRoot()
-                    navigator.replace(LoginVoyagerScreen())
+                    val rootNavigator = navigator.parent?.parent?.parent ?: navigator.parent?.parent ?: navigator
+                    rootNavigator.replaceAll(LoginVoyagerScreen())
                 }
             }
         )

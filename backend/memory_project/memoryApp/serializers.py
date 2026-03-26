@@ -35,3 +35,14 @@ class MemorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'revision', 'images']
 
+        def get_audio_url(self, obj):
+            if not obj.audio:
+               return None
+            try:
+               # CloudinaryField gives a full URL directly
+               url = obj.audio.url
+               if url.startswith('http'):
+                  return url
+               return None
+            except Exception:
+               return None

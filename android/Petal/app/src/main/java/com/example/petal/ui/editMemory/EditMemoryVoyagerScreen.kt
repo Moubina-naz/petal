@@ -47,12 +47,12 @@ class EditMemoryVoyagerScreen(
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
 
-                NavigationEvent.GoBack,
-                NavigationEvent.CancelEdit -> navigator.pop()
+                NavigationEvent.GoBack -> navigator.pop()
+                NavigationEvent.CancelEdit -> navigator.pop()  // ← parentNavigator
 
                 NavigationEvent.SaveMemory -> {
                     viewModel.save {
-                        navigator.pop()
+                        navigator.pop()  // ← parentNavigator
                     }
                 }
 
@@ -64,11 +64,8 @@ class EditMemoryVoyagerScreen(
                     viewModel.addImage("content://dummy-image-${System.currentTimeMillis()}")
                 }
 
-                // 🔥 THIS IS WHAT WAS MISSING
                 NavigationEvent.OpenMap -> {
-
                     val state = viewModel.uiState.value
-
                     val currentLocationSource =
                         if (state.latitude != null && state.longitude != null) {
                             LocationSource.Selected(
@@ -80,7 +77,7 @@ class EditMemoryVoyagerScreen(
                             LocationSource.None
                         }
 
-                    navigator.push(
+                    navigator.push(  // ← parentNavigator
                         MapVoyagerScreen(
                             mode = MapMode.EDIT_LOCATION,
                             memoryId = memoryId,

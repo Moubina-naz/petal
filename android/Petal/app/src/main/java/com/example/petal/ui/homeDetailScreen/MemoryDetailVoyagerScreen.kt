@@ -21,6 +21,8 @@ class MemoryDetailVoyagerScreen(
 
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
         val viewModel = remember {
             MemoryDetailViewModel(ApiProvider.memoryRepository)
         }
@@ -29,16 +31,14 @@ class MemoryDetailVoyagerScreen(
             viewModel.initialize(memoryId)
         }
 
-        val navigator = LocalNavigator.currentOrThrow
+
 
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
                 NavigationEvent.GoBack -> navigator.pop()
 
                 is NavigationEvent.OpenEditMemory -> {
-                    navigator.push(
-                        EditMemoryVoyagerScreen(event.memoryId)
-                    )
+                    navigator.push(EditMemoryVoyagerScreen(event.memoryId))
                 }
 
                 is NavigationEvent.DeleteMemory -> {

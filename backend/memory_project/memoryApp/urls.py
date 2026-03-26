@@ -15,4 +15,8 @@ urlpatterns = [
     path('memories/<int:pk>/unfavorite/', views.unfavorite_memory, name='unfavourite-memory'),
     path('profile/', views.user_profile, name='user-profile'),
     path('profile/change-password/', views.change_password, name='change-password'),
+
+    path('memories/<int:pk>/audio/', views.upload_memory_audio),   # POST
+    path('memories/<int:pk>/audio/delete/', views.delete_memory_audio),  # DELETE
+
 ]

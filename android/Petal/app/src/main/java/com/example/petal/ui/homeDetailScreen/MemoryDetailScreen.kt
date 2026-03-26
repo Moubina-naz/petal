@@ -62,6 +62,12 @@ import com.example.petal.components.ErrorSnackbar
 import com.example.petal.ui.addMemory.MemoryImageGalleryScreen
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.ui.unit.DpOffset
 
 @Composable
 fun MemoryDetailScreen(
@@ -155,6 +161,10 @@ fun MemoryDetailScreen(
                                 )
                             }
 
+                            // Replace the Box containing IconButton + DropdownMenu in MemoryDetailScreen
+
+                            var showDeleteDialog by remember { mutableStateOf(false) }
+
                             Box {
                                 IconButton(onClick = { showMenu = true }) {
                                     Icon(Icons.Default.MoreVert, contentDescription = "More")
@@ -162,27 +172,157 @@ fun MemoryDetailScreen(
 
                                 DropdownMenu(
                                     expanded = showMenu,
-                                    onDismissRequest = { showMenu = false }
+                                    onDismissRequest = { showMenu = false },
+                                    containerColor = Color.Transparent,
+                                    shadowElevation = 0.dp,
+                                    offset = DpOffset(x = 0.dp, y = 8.dp),
+                                    modifier = Modifier
+                                        .width(160.dp)
+                                        .background(Color(0xFFfffdf9))
+                                        .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
                                 ) {
+                                    // Edit
                                     DropdownMenuItem(
-                                        text = { Text("Delete") },
-                                        onClick = {
-                                            showMenu = false
-                                            viewModel.deleteMemory {
-                                                onNavigationEvent(NavigationEvent.GoBack)
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(34.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Color.White),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Edit,
+                                                        contentDescription = null,
+                                                        tint = Color(0xFF615A57),
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                }
+                                                Spacer(Modifier.width(12.dp))
+                                                Text(
+                                                    text = "Edit",
+                                                    style = MaterialTheme.typography.titleMedium.copy(
+                                                        fontSize = 16.sp,
+                                                        color = Color(0xFF3A3330)
+                                                    )
+                                                )
                                             }
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("Edit") },
+                                        },
                                         onClick = {
                                             showMenu = false
-                                            onNavigationEvent(
-                                                NavigationEvent.OpenEditMemory(memory.id)
-                                            )
-                                        }
+                                            onNavigationEvent(NavigationEvent.OpenEditMemory(memory.id))
+                                        },
+                                        colors = MenuDefaults.itemColors(textColor = Color(0xFF3A3330))
+                                    )
+
+                                    // Delete
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(34.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Color(0xFFFFEDED)),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        tint = Color(0xFFCC6666),
+                                                        modifier = Modifier.size(18.dp)
+                                                    )
+                                                }
+                                                Spacer(Modifier.width(12.dp))
+                                                Text(
+                                                    text = "Delete",
+                                                    style = MaterialTheme.typography.titleMedium.copy(
+                                                        fontSize = 16.sp,
+                                                        color = Color(0xFFCC6666)
+                                                    )
+                                                )
+                                            }
+                                        },
+                                        onClick = {
+                                            showMenu = false
+                                            showDeleteDialog = true
+                                        },
+                                        colors = MenuDefaults.itemColors(textColor = Color(0xFFCC6666))
                                     )
                                 }
+                            }
+
+                            if (showDeleteDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showDeleteDialog = false },
+                                    containerColor = Color(0xFFfffdf9),
+                                    shape = RoundedCornerShape(24.dp),
+                                    title = {
+                                        Text(
+                                            text = "Delete memory?",
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontSize = 18.sp,
+                                                color = Color(0xFF3E2F26)
+                                            )
+                                        )
+                                    },
+                                    text = {
+                                        Text(
+                                            text = "This memory will be permanently deleted and cannot be recovered.",
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontSize = 14.sp,
+                                                lineHeight = 22.sp,
+                                                color = Color(0xFF5C5048)
+                                            )
+                                        )
+                                    },
+                                    confirmButton = {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(Color(0xFFCC6666))
+                                                .clickable {
+                                                    showDeleteDialog = false
+                                                    viewModel.deleteMemory {
+                                                        onNavigationEvent(NavigationEvent.GoBack)
+                                                    }
+                                                }
+                                                .padding(horizontal = 20.dp, vertical = 10.dp)
+                                        ) {
+                                            Text(
+                                                text = "Delete",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontSize = 14.sp,
+                                                    color = Color.White
+                                                )
+                                            )
+                                        }
+                                    },
+                                    dismissButton = {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(20.dp))
+                                                .clickable { showDeleteDialog = false }
+                                                .padding(horizontal = 20.dp, vertical = 10.dp)
+                                        ) {
+                                            Text(
+                                                text = "Cancel",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontSize = 14.sp,
+                                                    color = Color(0xFF3A3330)
+                                                )
+                                            )
+                                        }
+                                    }
+                                )
                             }
                         }
 

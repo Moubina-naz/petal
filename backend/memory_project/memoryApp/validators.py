@@ -7,7 +7,7 @@ def validate_image_size(value):
         raise ValidationError(f'Image size too large. Max size is {max_size/1024/1024}MB')
 
 def validate_audio_size(value):
-    max_size = 10 * 1024 * 1024  
+    max_size = 5 * 1024 * 1024  
     if value.size > max_size:
         raise ValidationError(f'Audio file too large. Max size is {max_size/1024/1024}MB')
 
@@ -22,3 +22,20 @@ def validate_audio_extension(value):
     ext = os.path.splitext(value.name)[1].lower()
     if ext not in valid_extensions:
         raise ValidationError(f'Unsupported audio format. Allowed: {", ".join(valid_extensions)}')
+    
+def validate_audio_duration(value):
+    """Max 5 minutes = 300 seconds. Uses mutagen — no ffmpeg needed."""
+    try:
+        from mutagen import File as MutagenFile
+        audio = MutagenFile(value)
+        if audio is not None and audio.info is not None:
+            duration = audio.info.length  # seconds
+            if duration > 300:
+                raise ValidationError(
+                    f'Audio too long. Max duration is 5 minutes. Your file is {int(duration // 60)}m {int(duration % 60)}s.'
+                )
+    except ValidationError:
+        raise
+    except Exception:
+        # If mutagen can't read it, let it through — size validator is the fallback
+        pass
