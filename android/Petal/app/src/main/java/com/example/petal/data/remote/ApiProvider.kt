@@ -28,7 +28,7 @@ object ApiProvider {
             .build()
 
         retrofit = Retrofit.Builder()
-            .baseUrl("https://petal-production.up.railway.app/api/")
+            .baseUrl("https://petal.onrender.com/api/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
