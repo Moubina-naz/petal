@@ -24,6 +24,7 @@ class MemoryImageSerializer(serializers.ModelSerializer):
 class MemorySerializer(serializers.ModelSerializer):
     images = MemoryImageSerializer(many=True, read_only=True)
     location_name = serializers.CharField(required=False, allow_blank=True)
+    audio_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Memory
@@ -39,7 +40,7 @@ class MemorySerializer(serializers.ModelSerializer):
             if not obj.audio:
                return None
             try:
-               # CloudinaryField gives a full URL directly
+               # cloudinaryField gives a full URL directly
                url = obj.audio.url
                if url.startswith('http'):
                   return url

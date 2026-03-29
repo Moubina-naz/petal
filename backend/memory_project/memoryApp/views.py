@@ -332,17 +332,14 @@ def upload_memory_audio(request, pk):
     if not audio_file:
         return Response({"error": "No audio file provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Delete old audio from Cloudinary if it exists
     if memory.audio:
         try:
             import cloudinary.uploader
-            # Extract public_id from the existing CloudinaryField
             public_id = memory.audio.public_id
             cloudinary.uploader.destroy(public_id, resource_type='video')
         except Exception:
-            pass  # Don't block upload if delete fails
+            pass  
 
-    # Run validators manually before saving
     from .validators import validate_audio_size, validate_audio_extension, validate_audio_duration
     from django.core.exceptions import ValidationError as DjangoValidationError
     try:
@@ -363,24 +360,30 @@ def upload_memory_audio(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_memory_audio(request, pk):
-    """Remove audio from a memory and delete it from Cloudinary."""
+    
     try:
         memory = Memory.objects.get(pk=pk, user=request.user, is_deleted=False)
     except Memory.DoesNotExist:
         return Response({"error": "Memory not found"}, status=status.HTTP_404_NOT_FOUND)
-
+ 
     if not memory.audio:
         return Response({"error": "This memory has no audio"}, status=status.HTTP_400_BAD_REQUEST)
-
+ 
     try:
         import cloudinary.uploader
+        # cloudinaryField has .public_id 
         public_id = memory.audio.public_id
         cloudinary.uploader.destroy(public_id, resource_type='video')
-    except Exception:
-        pass  # Still clear the field even if Cloudinary delete fails
-
+    except AttributeError:
+        # If audio is FileField (not CloudinaryField), just delete locally
+        print("WARNING: audio field is not CloudinaryField, deleting locally only")
+        memory.audio.delete(save=False)
+    except Exception as e:
+        print(f"WARNING: Could not delete from Cloudinary: {e}")
+ 
     memory.audio = None
     memory.revision += 1
     memory.save()
-
-    return Response({"message": "Audio deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+ 
+    serializer = MemorySerializer(memory, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)

@@ -18,11 +18,11 @@ def validate_image_extension(value):
         raise ValidationError(f'Unsupported file extension. Allowed: {", ".join(valid_extensions)}')
 
 def validate_audio_extension(value):
+    """Validate audio file extension"""
     valid_extensions = ['.mp3', '.wav', '.ogg', '.m4a']
     ext = os.path.splitext(value.name)[1].lower()
     if ext not in valid_extensions:
-        raise ValidationError(f'Unsupported audio format. Allowed: {", ".join(valid_extensions)}')
-    
+        raise ValidationError(f'Unsupported audio format. Allowed: {", ".join(valid_extensions)}')  
 def validate_audio_duration(value):
     """Max 5 minutes = 300 seconds. Uses mutagen — no ffmpeg needed."""
     try:
@@ -37,5 +37,5 @@ def validate_audio_duration(value):
     except ValidationError:
         raise
     except Exception:
-        # If mutagen can't read it, let it through — size validator is the fallback
+        # incase mutagen can't read the file then size validator is the fallback
         pass
