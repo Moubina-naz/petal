@@ -23,9 +23,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PieChartOutline
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,10 +46,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.example.petal.NavigationEvent
+import com.example.petal.components.AudioPlayer
+import com.example.petal.components.AudioRecorder
 import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
 import com.example.petal.domain.Mood
+import java.io.File
 import java.nio.file.Paths.get
 import java.time.Instant
 import java.time.LocalTime
@@ -75,6 +83,16 @@ fun AddMemoryScreen(
     var showLocationSheet by remember { mutableStateOf(false) }
     val bg = Color(0xFFFf9f8f3)
     val black = Color(0xFF2d2d2d)
+
+
+    var isRecording by remember { mutableStateOf(false) }
+    var recordedFile by remember { mutableStateOf<File?>(null) }
+    var isPlaying by remember { mutableStateOf(false) }
+
+    val recorder = remember { AudioRecorder(context) }
+    val player = remember { AudioPlayer() }
+    var progress by remember { mutableStateOf(0f) }
+
 
     Column(
         modifier = Modifier
@@ -305,12 +323,87 @@ fun AddMemoryScreen(
 
         // MOOD
 
-        var moodExpanded by remember { mutableStateOf(false) }
-        MoodDropdown(
-            selectedMood = uiState.mood,
-            onMoodSelected = { viewModel.onMoodSelected(it) }
-        )
+            var moodExpanded by remember { mutableStateOf(false) }
+            MoodDropdown(
+                selectedMood = uiState.mood,
+                onMoodSelected = { viewModel.onMoodSelected(it) }
+            )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        //Audio recs
+
+        if (recordedFile == null) {
+
+            // 🎤 Mic button
+            IconButton(
+                onClick = {
+                    if (!isRecording) {
+                        recorder.start()
+                        isRecording = true
+                    } else {
+                        recordedFile = recorder.stop()
+                        isRecording = false
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = if (isRecording) Icons.Default.Stop else Icons.Default.Mic,
+                    contentDescription = null
+                )
+            }
+
+        } else {
+
+            // Audio Player
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black, RoundedCornerShape(12.dp))
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                // 🗑 Delete
+                IconButton(onClick = {
+                    recorder.delete()
+                    recordedFile = null
+                    player.stop()
+                }) {
+                    Icon(Icons.Default.Delete, contentDescription = null, tint = Color.White)
+                }
+
+                // ⏱ Duration
+                Text("0:03", color = Color.White)
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                //waveform
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(20.dp)
+                        .background(Color.Gray)
+                )
+
+                // Play
+                IconButton(onClick = {
+                    if (!isPlaying) {
+                        player.play(recordedFile!!.absolutePath)
+                        isPlaying = true
+                    } else {
+                        player.stop()
+                        isPlaying = false
+                    }
+                }) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            }
+        }
 
 
         Spacer(modifier = Modifier.height(24.dp))

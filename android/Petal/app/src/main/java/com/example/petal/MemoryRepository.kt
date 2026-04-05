@@ -91,7 +91,31 @@ class MemoryRepository(
         )
         return MemoryMapper.map(response)
 
-        println("ACTUAL JSON = " + Gson().toJson(req))
+        return MemoryMapper.map(response)
+    }
+    suspend fun uploadAudio(
+        context: Context,
+        memoryId: Int,
+        audioUri: Uri
+    ): Memory {
+        val audioFile = getFileFromUri(context, audioUri)
+        val (fileExtension, mimeType) = getMimeTypeForAudio(audioUri, context)
+
+        val part = MultipartBody.Part.createFormData(
+            name = "audio",
+            filename = "audio_${System.currentTimeMillis()}.$fileExtension",
+            body = audioFile.asRequestBody(mimeType.toMediaTypeOrNull())
+        )
+
+        try {
+            val response = memoryApi.uploadAudio(memoryId, part)
+            return MemoryMapper.map(response)
+        } finally {
+            audioFile.delete()
+        }
+    }
+    suspend fun deleteAudio(memoryId: Int): Memory {
+        val response = memoryApi.deleteAudio(memoryId)
         return MemoryMapper.map(response)
     }
 
@@ -164,12 +188,12 @@ class MemoryRepository(
     suspend fun compressImageUri(
         context: Context,
         uri: Uri,
-        maxWidth: Int = 1200,          // adjust as needed (1080–1600 common)
+        maxWidth: Int = 1200,
         maxHeight: Int = 1200,
-        quality: Int = 80              // 70–85 is sweet spot
+        quality: Int = 80
     ): File {
         return withContext(Dispatchers.IO) {
-            // Step 1: Decode bitmap with sampling to avoid OOM
+            // decode bitmap
             val options = BitmapFactory.Options().apply {
                 inJustDecodeBounds = true
             }
@@ -177,7 +201,7 @@ class MemoryRepository(
                 BitmapFactory.decodeStream(input, null, options)
             }
 
-            // Calculate sample size for downscaling
+            // calculate sample size for downscaling
             options.inSampleSize = calculateInSampleSize(options, maxWidth, maxHeight)
             options.inJustDecodeBounds = false
 
@@ -203,7 +227,6 @@ class MemoryRepository(
             scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
             scaledBitmap.recycle()
 
-            // Step 4: Write to temp file (Retrofit Multipart needs File)
             val tempFile = File.createTempFile("compressed_", ".jpg", context.cacheDir)
             FileOutputStream(tempFile).use { fos ->
                 fos.write(outputStream.toByteArray())
@@ -230,6 +253,28 @@ class MemoryRepository(
             }
         }
         return inSampleSize
+    }
+    private fun getMimeTypeForAudio(uri: Uri, context: Context): Pair<String, String> {
+        val contentType = context.contentResolver.getType(uri)?.lowercase() ?: "audio/mpeg"
+        return when {
+            contentType.contains("mpeg") || contentType.contains("mp3") -> "mp3" to "audio/mpeg"
+            contentType.contains("wav") -> "wav" to "audio/wav"
+            contentType.contains("ogg") -> "ogg" to "audio/ogg"
+            contentType.contains("mp4") || contentType.contains("m4a") -> "m4a" to "audio/mp4"
+            else -> "mp3" to "audio/mpeg"  // fallback
+        }
+    }
+    private suspend fun getFileFromUri(context: Context, uri: Uri): File {
+        return withContext(Dispatchers.IO) {
+            val inputStream = context.contentResolver.openInputStream(uri)
+                ?: throw IOException("Cannot open audio file")
+
+            val tempFile = File.createTempFile("audio_", ".tmp", context.cacheDir)
+            tempFile.outputStream().use { output ->
+                inputStream.copyTo(output)
+            }
+            tempFile
+        }
     }
 
 }

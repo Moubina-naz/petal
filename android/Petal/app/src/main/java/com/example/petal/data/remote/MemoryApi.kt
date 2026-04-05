@@ -67,7 +67,14 @@ interface MemoryApi {
         @Part images: List<MultipartBody.Part>
     )
 
-
+    @Multipart
+    @POST("memories/{id}/audio/")
+    suspend fun uploadAudio(
+        @Path("id") id: Int,
+        @Part audio: MultipartBody.Part
+    ): MemoryDto
+    @DELETE("memories/{id}/audio/")
+    suspend fun deleteAudio(@Path("id") id: Int): MemoryDto
 
     @Serializable
     data class CreateMemoryReq(
@@ -78,10 +85,10 @@ interface MemoryApi {
         val latitude: Double? = null,
         val longitude: Double? = null,
 
-        @SerializedName("memory_datetime")   // ← Correct for Gson
+        @SerializedName("memory_datetime")
         val memoryDateTime: String? = null,
 
-        @SerializedName("location_name")     // ← Correct for Gson
+        @SerializedName("location_name")
         val locationName: String? = null
 
     )
