@@ -3,6 +3,9 @@ package com.example.petal.ui.addMemory
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.petal.MemoryRepository
@@ -25,7 +28,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
-
+import com.example.petal.components.AudioRecorder
+import java.io.File
 
 
 sealed interface SaveEffect {
@@ -155,36 +159,45 @@ class AddMemoryViewModel(
         }
     }
 
+    private val audioRecorder = AudioRecorder(context)
 
+
+    var recordedAudioFile by mutableStateOf<File?>(null)
+        private set
+    var isRecording by mutableStateOf(false)
+        private set
+
+    fun startRecording() {
+        isRecording = true
+        audioRecorder.start()
+    }
+
+    fun stopRecording() {
+        isRecording = false
+        recordedAudioFile = audioRecorder.stop()
+    }
+
+    fun deleteAudio() {
+        audioRecorder.delete()
+        recordedAudioFile = null
+    }
     fun save() {
         viewModelScope.launch {
-            println("=== SAVE DEBUG START ===")
-            println("UI location text: '${uiState.value.location}'")                    // what the text field shows
-            println("ViewModel _location.value?.name: '${_location.value?.name}'")      // what VM thinks the name is
-            println("Location object before save: ${_location.value}")                   // full object
-            println("USER PICKED TIME = ${uiState.value.selectedTime}")
-            println("USER PICKED DATE = ${uiState.value.selectedDate}")
-
             _uiState.update { it.copy(isSaving = true, error = null) }
-            val date = uiState.value.selectedDate
-            val time = uiState.value.selectedTime
             val state = _uiState.value
-            val memoryDateTime =
-                LocalDateTime.of(date, time)
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()
 
-
+            if (state.title.isBlank()) {
+                _uiState.update { it.copy(isSaving = false, error = "Title is required") }
+                _saveEffects.trySend(SaveEffect.Error("Title is required"))
+                return@launch
+            }
 
             try {
-
-                if (state.title.isBlank()) {
-                    _uiState.update {
-                        it.copy(isSaving = false, error = "Title is required")
-                    }
-                    _saveEffects.trySend(SaveEffect.Error("Title is required"))
-                    return@launch
-                }
+                val date = state.selectedDate
+                val time = state.selectedTime
+                val memoryDateTime = LocalDateTime.of(date, time)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
 
                 val memory = Memory(
                     id = 0,
@@ -203,16 +216,25 @@ class AddMemoryViewModel(
                     updatedAt = Instant.now(),
                     images = emptyList()
                 )
-                println("Memory location name right before repo: '${memory.location?.name}'")
-                val created = repository.createMemory(memory)
-                println("After creation - server returned location_name: '${created.location?.name}'")
-                println("=== SAVE DEBUG END ===")
 
+                val created = repository.createMemory(memory)
+
+                // Upload images
                 repository.uploadMemoryImages(
                     context = context,
                     memoryId = created.id,
                     imageUris = state.images.map { Uri.parse(it.localUri) }
                 )
+
+                //Upload audio if we have one
+                recordedAudioFile?.let { audioFile ->
+                    val audioUri = Uri.fromFile(audioFile)
+                    repository.uploadAudio(
+                        context = context,
+                        memoryId = created.id,
+                        audioUri = audioUri
+                    )
+                }
 
                 _uiState.update { it.copy(isSaving = false) }
                 _saveEffects.trySend(SaveEffect.NavigateBack)
@@ -229,12 +251,13 @@ class AddMemoryViewModel(
                         e.message ?: "Unknown error"
                     }
                 }
-
                 _uiState.update { it.copy(isSaving = false, error = errorMsg) }
                 _saveEffects.trySend(SaveEffect.Error(errorMsg))
             }
         }
     }
+
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

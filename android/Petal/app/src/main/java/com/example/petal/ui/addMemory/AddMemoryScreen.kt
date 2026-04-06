@@ -52,6 +52,7 @@ import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
 import com.example.petal.domain.Mood
+import kotlinx.coroutines.delay
 import java.io.File
 import java.nio.file.Paths.get
 import java.time.Instant
@@ -84,12 +85,12 @@ fun AddMemoryScreen(
     val bg = Color(0xFFFf9f8f3)
     val black = Color(0xFF2d2d2d)
 
-
-    var isRecording by remember { mutableStateOf(false) }
-    var recordedFile by remember { mutableStateOf<File?>(null) }
-    var isPlaying by remember { mutableStateOf(false) }
-
-    val recorder = remember { AudioRecorder(context) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) viewModel.startRecording()
+    }
+        val recorder = remember { AudioRecorder(context) }
     val player = remember { AudioPlayer() }
     var progress by remember { mutableStateOf(0f) }
 
@@ -332,76 +333,112 @@ fun AddMemoryScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         //Audio recs
+// Audio section — replace everything between "//Audio recs" and the next Spacer
 
-        if (recordedFile == null) {
+        val isRecording = viewModel.isRecording
+        val recordedFile = viewModel.recordedAudioFile
+        val player = remember { AudioPlayer() }
+        var isPlaying by remember { mutableStateOf(false) }
 
-            // 🎤 Mic button
+        val permissionLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) viewModel.startRecording()
+        }
+
+        if (!isRecording && recordedFile == null) {
+
+            // Mic button — idle state
             IconButton(
                 onClick = {
-                    if (!isRecording) {
-                        recorder.start()
-                        isRecording = true
-                    } else {
-                        recordedFile = recorder.stop()
-                        isRecording = false
-                    }
+                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 }
             ) {
                 Icon(
-                    imageVector = if (isRecording) Icons.Default.Stop else Icons.Default.Mic,
-                    contentDescription = null
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = "Record audio",
+                    tint = black
                 )
             }
 
-        } else {
+        } else if (isRecording) {
 
-            // Audio Player
+            // Recording bar — red dot + timer + stop
+            var seconds by remember { mutableStateOf(0) }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    delay(1000)
+                    seconds++
+                }
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black, RoundedCornerShape(12.dp))
-                    .padding(12.dp),
+                    .background(Color(0xFFF5F5F5), RoundedCornerShape(24.dp))
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                // 🗑 Delete
-                IconButton(onClick = {
-                    recorder.delete()
-                    recordedFile = null
-                    player.stop()
-                }) {
-                    Icon(Icons.Default.Delete, contentDescription = null, tint = Color.White)
-                }
-
-                // ⏱ Duration
-                Text("0:03", color = Color.White)
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                //waveform
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .height(20.dp)
-                        .background(Color.Gray)
+                        .size(10.dp)
+                        .background(Color.Red, CircleShape)
                 )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "%d:%02d".format(seconds / 60, seconds % 60),
+                    fontSize = 14.sp,
+                    color = black
+                )
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { viewModel.stopRecording() }) {
+                    Icon(Icons.Default.Stop, contentDescription = "Stop", tint = black)
+                }
+            }
 
-                // Play
+        } else if (recordedFile != null) {
+
+            // Playback bar — delete + play/pause + line
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 IconButton(onClick = {
-                    if (!isPlaying) {
-                        player.play(recordedFile!!.absolutePath)
-                        isPlaying = true
-                    } else {
+                    player.stop()
+                    isPlaying = false
+                    viewModel.deleteAudio()
+                }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
+                }
+
+                IconButton(onClick = {
+                    if (isPlaying) {
                         player.stop()
                         isPlaying = false
+                    } else {
+                        player.play(recordedFile!!.absolutePath)
+                        isPlaying = true
                     }
                 }) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = null,
+                        contentDescription = "Play",
                         tint = Color.White
                     )
                 }
+
+                // Simple line — the "waveform"
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(2.dp)
+                        .background(Color.Gray)
+                )
+
+                Spacer(Modifier.width(8.dp))
             }
         }
 
