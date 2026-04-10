@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from math import radians, cos, sin, sqrt, atan2
-
+import traceback
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -81,6 +81,7 @@ def memory_list(request):
         return paginator.get_paginated_response(serializer.data)
 
     elif request.method == 'POST':
+      try:
         serializer = MemorySerializer(data=request.data)
         if serializer.is_valid():
             memory = serializer.save(user=request.user)
@@ -88,9 +89,11 @@ def memory_list(request):
                 MemorySerializer(memory, context={'request': request}).data,
                 status=status.HTTP_201_CREATED
             )
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+      except Exception as e:
+        traceback.print_exc()
+        return Response({"error": str(e), "trace": traceback.format_exc()}, status=500)   
+      
 from django.utils.timezone import make_aware
 from datetime import datetime
 import calendar
