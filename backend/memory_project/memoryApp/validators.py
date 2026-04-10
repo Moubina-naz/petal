@@ -19,7 +19,7 @@ def validate_image_extension(value):
 
 def validate_audio_extension(value):
     """Validate audio file extension"""
-    valid_extensions = ['.mp3', '.wav', '.ogg', '.m4a']
+    valid_extensions = ['.mp3', '.wav', '.ogg', '.m4a','.mp4']
     ext = os.path.splitext(value.name)[1].lower()
     if ext not in valid_extensions:
         raise ValidationError(f'Unsupported audio format. Allowed: {", ".join(valid_extensions)}')  
