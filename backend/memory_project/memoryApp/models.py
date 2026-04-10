@@ -26,11 +26,12 @@ class Memory(models.Model):
     location_name = models.CharField(blank=True, null=True, default="Unknown location", max_length=555)
 
     audio = CloudinaryField(
-        'audio',
-        blank=True,
-        null=True,
-        validators=[validate_audio_size, validate_audio_extension, validate_audio_duration]
-    )
+    'video',          # ← 'video' tells Cloudinary it's audio/video, not image
+    blank=True,
+    null=True,
+    resource_type='video',   # ← this is the key fix
+    validators=[validate_audio_size, validate_audio_extension, validate_audio_duration]
+)
     music_url = models.URLField(blank=True)
 
     tags = models.JSONField(default=list, blank=True)
