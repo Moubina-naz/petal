@@ -360,30 +360,19 @@ def upload_memory_audio(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_memory_audio(request, pk):
-    
     try:
         memory = Memory.objects.get(pk=pk, user=request.user, is_deleted=False)
     except Memory.DoesNotExist:
         return Response({"error": "Memory not found"}, status=status.HTTP_404_NOT_FOUND)
- 
+
     if not memory.audio:
         return Response({"error": "This memory has no audio"}, status=status.HTTP_400_BAD_REQUEST)
- 
-    try:
-        import cloudinary.uploader
-        # cloudinaryField has .public_id 
-        public_id = memory.audio.public_id
-        cloudinary.uploader.destroy(public_id, resource_type='video')
-    except AttributeError:
-        # If audio is FileField (not CloudinaryField), just delete locally
-        print("WARNING: audio field is not CloudinaryField, deleting locally only")
-        memory.audio.delete(save=False)
-    except Exception as e:
-        print(f"WARNING: Could not delete from Cloudinary: {e}")
- 
+
+    # For FileField, just delete the file and clear the field
+    memory.audio.delete(save=False)  # Delete actual file from disk
     memory.audio = None
     memory.revision += 1
     memory.save()
- 
+
     serializer = MemorySerializer(memory, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
