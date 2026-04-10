@@ -24,23 +24,23 @@ class MemoryImageSerializer(serializers.ModelSerializer):
 class MemorySerializer(serializers.ModelSerializer):
     images = MemoryImageSerializer(many=True, read_only=True)
     location_name = serializers.CharField(required=False, allow_blank=True)
-    audio_url = serializers.SerializerMethodField()
+    audio = serializers.SerializerMethodField()  # ← 'audio' not 'audio_url'
 
     class Meta:
         model = Memory
         fields = [
-            'id', 'title', 'note', 'latitude', 'longitude','location_name',
-            'audio', 'music_url', 'tags', 'mood',
-            'is_favorite', 'is_deleted', 'revision','memory_datetime', 
+            'id', 'title', 'note', 'latitude', 'longitude', 'location_name',
+            'audio',  # ← 'audio' not 'audio_url'
+            'music_url', 'tags', 'mood',
+            'is_favorite', 'is_deleted', 'revision', 'memory_datetime',
             'created_at', 'updated_at', 'images'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'revision', 'images']
 
-    def get_audio_url(self, obj):
+    def get_audio(self, obj):  # ← 'get_audio' not 'get_audio_url'
         if not obj.audio:
             return None
         try:
-            # cloudinaryField gives a full URL directly
             url = obj.audio.url
             if url.startswith('http'):
                 return url
