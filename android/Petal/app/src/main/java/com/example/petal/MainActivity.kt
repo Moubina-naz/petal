@@ -31,6 +31,8 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,28 +41,49 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PetalTheme {
-
                 var isLoggedIn by remember { mutableStateOf<Boolean?>(null) }
                 var splashDone by remember { mutableStateOf(false) }
+                var forceLoginKey by remember { mutableStateOf(0) }
 
                 LaunchedEffect(Unit) {
+                    // 1. Set unauthorized callback — auto-logout on 401
+                    ApiProvider.onUnauthorized = {
+                        isLoggedIn = false
+                        forceLoginKey++
+                    }
+
+                    // 2. Check if token exists
                     isLoggedIn = ApiProvider.authRepository.isLoggedIn()
+
+                    // 3. If logged in, ping Render in background WHILE splash shows
+                    //    So by the time user sees HomeScreen, server is already awake
+                    if (isLoggedIn == true) {
+                        withContext(Dispatchers.IO) {
+                            try {
+                                ApiProvider.memoryRepository.getMemories(
+                                    filter = com.example.petal.ui.homeScreen.HomeFilter.ALL
+                                )
+                            } catch (e: Exception) {
+                                // Ignore — HomeViewModel handles retries
+                            }
+                        }
+                    }
                 }
 
                 val ready = splashDone && isLoggedIn != null
 
                 if (!ready) {
-                    PetalSplashScreen {
-                        splashDone = true
-                    }
+                    PetalSplashScreen { splashDone = true }
                 } else {
-                    Navigator(
-                        screen = if (isLoggedIn == true)
-                            MainAppScreen()
-                        else
-                            LoginVoyagerScreen()
-                    ) {
-                        CurrentScreen()
+                    key(forceLoginKey) {
+                        Navigator(
+                            screen = if (isLoggedIn == true)
+                                MainAppScreen()
+                            else
+                                LoginVoyagerScreen()
+                        ) {
+                            CurrentScreen()
+                        }
                     }
                 }
             }

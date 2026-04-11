@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -36,7 +37,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -58,6 +61,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -82,6 +86,9 @@ import coil.compose.AsyncImage
 import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
+import com.example.petal.components.RecordedAudioBar
+import com.example.petal.components.UrlAudioBar
+import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
@@ -339,6 +346,74 @@ fun EditMemoryScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
+
+            val isRecording = viewModel.isRecording
+            val recordedFile = viewModel.recordedAudioFile
+            val existingAudioUrl = uiState.existingAudioUrl
+
+            val permissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted -> if (granted) viewModel.startRecording() }
+
+            when {
+                isRecording -> {
+                    var seconds by remember { mutableStateOf(0) }
+                    LaunchedEffect(Unit) { while (true) { delay(1000); seconds++ } }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF5F5F5), RoundedCornerShape(24.dp))
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .background(Color.Red, CircleShape)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "%d:%02d".format(seconds / 60, seconds % 60),
+                            fontSize = 14.sp,
+                            color = black
+                        )
+                        Spacer(Modifier.weight(1f))
+                        IconButton(onClick = { viewModel.stopRecording() }) {
+                            Icon(Icons.Default.Stop, contentDescription = "Stop", tint = black)
+                        }
+                    }
+                }
+
+                recordedFile != null -> {
+                    RecordedAudioBar(
+                        file = recordedFile,
+                        onDeleteClick = { viewModel.deleteNewAudio() }
+                    )
+                }
+
+                existingAudioUrl != null -> {
+                    UrlAudioBar(url = existingAudioUrl)
+                    Spacer(Modifier.height(4.dp))
+                    TextButton(onClick = { viewModel.deleteExistingAudio() }) {
+                        Text("Remove audio", color = Color(0xFFCC6666), fontSize = 12.sp)
+                    }
+                }
+
+                else -> {
+                    IconButton(onClick = {
+                        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                    }) {
+                        Icon(
+                            Icons.Default.Mic,
+                            contentDescription = "Record",
+                            tint = black
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             TextField(
                 value = uiState.note,

@@ -68,6 +68,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.ui.unit.DpOffset
+import com.example.petal.components.UrlAudioBar
 
 @Composable
 fun MemoryDetailScreen(
@@ -392,6 +393,14 @@ fun MemoryDetailScreen(
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
+
+                        memory.audioUrl?.let { url ->
+                            Spacer(modifier = Modifier.height(16.dp))
+                            UrlAudioBar(url = url)
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
 
 
                         Text(

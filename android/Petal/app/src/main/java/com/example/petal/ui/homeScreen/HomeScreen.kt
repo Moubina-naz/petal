@@ -175,7 +175,23 @@ fun HomeScreen(
             when (uiState) {
                 is HomeUiState.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = black)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = black)
+                        }
+                    }
+                }
+                is HomeUiState.Connecting -> {
+                    val attempt = (uiState as HomeUiState.Connecting).attempt
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = black)
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = "Connecting... ($attempt/3)",
+                                color = Color(0xFF9C8F86),
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                 }
                 is HomeUiState.Error -> {

@@ -2,13 +2,14 @@ package com.example.petal.ui.homeScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petal.ui.homeScreen.HomeFilter
 import com.example.petal.MemoryRepository
 import com.example.petal.components.groupMemories
 import com.example.petal.domain.Memory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 
 class HomeViewModel(
     private val memoryRepository: MemoryRepository
@@ -40,14 +41,31 @@ class HomeViewModel(
     fun loadMemories() {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
-            try {
-                val memories = memoryRepository.getMemories(
-                    search = currentSearch,
-                    filter = currentFilter
-                )
-                _uiState.value = HomeUiState.Success(memories)
-            } catch (e: Exception) {
-                _uiState.value = HomeUiState.Error(e.message ?: "Unable to load memories")
+
+            var attempts = 0
+            val maxAttempts = 3
+
+            while (attempts < maxAttempts) {
+                try {
+                    val memories = memoryRepository.getMemories(
+                        search = currentSearch,
+                        filter = currentFilter
+                    )
+                    _uiState.value = HomeUiState.Success(memories)
+                    return@launch  // success, stop retrying
+                } catch (e: SocketTimeoutException) {
+                    attempts++
+                    if (attempts < maxAttempts) {
+                        // Stay in Loading state with a connecting message
+                        _uiState.value = HomeUiState.Connecting(attempts)
+                        delay(3000) // wait 3s before retry
+                    } else {
+                        _uiState.value = HomeUiState.Error("Server is waking up. Please try again in a moment.")
+                    }
+                } catch (e: Exception) {
+                    _uiState.value = HomeUiState.Error(e.message ?: "Unable to load memories")
+                    return@launch
+                }
             }
         }
     }

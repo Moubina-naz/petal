@@ -22,7 +22,9 @@ data class EditMemoryUiState(
     val images: List<EditableImage> = emptyList(),
 
     val isSaving: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val existingAudioUrl: String? = null,
+    val audioDeleted: Boolean = false
 ) {
     val dateLabel: String
         get() = selectedDate.format(DateTimeFormatter.ofPattern("MMM d, yyyy"))

@@ -48,6 +48,7 @@ import coil.compose.AsyncImage
 import com.example.petal.NavigationEvent
 import com.example.petal.components.AudioPlayer
 import com.example.petal.components.AudioRecorder
+import com.example.petal.components.AudioRecorderSection
 import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
@@ -90,9 +91,7 @@ fun AddMemoryScreen(
     ) { isGranted ->
         if (isGranted) viewModel.startRecording()
     }
-        val recorder = remember { AudioRecorder(context) }
-    val player = remember { AudioPlayer() }
-    var progress by remember { mutableStateOf(0f) }
+
 
 
     Column(
@@ -346,101 +345,16 @@ fun AddMemoryScreen(
             if (isGranted) viewModel.startRecording()
         }
 
-        if (!isRecording && recordedFile == null) {
+        AudioRecorderSection(
+            isRecording = isRecording,
+            recordedFile = recordedFile,
+            onMicClick = {
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            },
+            onStopClick = { viewModel.stopRecording() },
+            onDeleteClick = { viewModel.deleteAudio() }
+        )
 
-            // Mic button — idle state
-            IconButton(
-                onClick = {
-                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Mic,
-                    contentDescription = "Record audio",
-                    tint = black
-                )
-            }
-
-        } else if (isRecording) {
-
-            // Recording bar — red dot + timer + stop
-            var seconds by remember { mutableStateOf(0) }
-            LaunchedEffect(Unit) {
-                while (true) {
-                    delay(1000)
-                    seconds++
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F5F5), RoundedCornerShape(24.dp))
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(Color.Red, CircleShape)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = "%d:%02d".format(seconds / 60, seconds % 60),
-                    fontSize = 14.sp,
-                    color = black
-                )
-                Spacer(Modifier.weight(1f))
-                IconButton(onClick = { viewModel.stopRecording() }) {
-                    Icon(Icons.Default.Stop, contentDescription = "Stop", tint = black)
-                }
-            }
-
-        } else if (recordedFile != null) {
-
-            // Playback bar — delete + play/pause + line
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {
-                    player.stop()
-                    isPlaying = false
-                    viewModel.deleteAudio()
-                }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
-                }
-
-                IconButton(onClick = {
-                    if (isPlaying) {
-                        player.stop()
-                        isPlaying = false
-                    } else {
-                        player.play(recordedFile!!.absolutePath)
-                        isPlaying = true
-                    }
-                }) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        tint = Color.White
-                    )
-                }
-
-                // Simple line — the "waveform"
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(2.dp)
-                        .background(Color.Gray)
-                )
-
-                Spacer(Modifier.width(8.dp))
-            }
-        }
 
 
         Spacer(modifier = Modifier.height(24.dp))

@@ -14,9 +14,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
@@ -44,36 +46,38 @@ import java.io.File
 fun AudioRecorderSection(
     isRecording: Boolean,
     recordedFile: File?,
-    onMicClick: () -> Unit,      // starts recording
-    onStopClick: () -> Unit,     // stops recording
-    onDeleteClick: () -> Unit    // deletes the recording
+    onMicClick: () -> Unit,
+    onStopClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     when {
-        // STATE 1: Nothing recorded yet → show mic button
         !isRecording && recordedFile == null -> {
-            IconButton(onClick = onMicClick) {
-                Icon(
-                    painter = painterResource(R.drawable.content), // standard mic icon
-                    contentDescription = "Record audio"
+            // Clean mic button — no background, just icon
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onMicClick, modifier = Modifier.size(36.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Mic,
+                        contentDescription = "Record audio",
+                        tint = Color(0xFF9C8F86),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Text(
+                    text = "Add voice note",
+                    fontSize = 14.sp,
+                    color = Color(0xFF9C8F86)
                 )
             }
         }
-
-        // STATE 2: Currently recording → show stop button + timer
-        isRecording -> {
-            RecordingBar(onStopClick = onStopClick)
-        }
-
-        // STATE 3: Recording done → show playback bar with delete
-        recordedFile != null -> {
-            RecordedAudioBar(
-                file = recordedFile,
-                onDeleteClick = onDeleteClick
-            )
-        }
+        isRecording -> RecordingBar(onStopClick = onStopClick)
+        recordedFile != null -> RecordedAudioBar(file = recordedFile, onDeleteClick = onDeleteClick)
     }
 }
-
 @Composable
 fun RecordingBar(onStopClick: () -> Unit) {
     var seconds by remember { mutableStateOf(0) }
@@ -116,6 +120,7 @@ fun RecordingBar(onStopClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
     var isPlaying by remember { mutableStateOf(false) }
@@ -123,7 +128,6 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
     var totalMs by remember { mutableStateOf(0) }
     val mediaPlayer = remember { MediaPlayer() }
 
-    // Progress polling while playing
     LaunchedEffect(isPlaying) {
         while (isPlaying) {
             currentMs = mediaPlayer.currentPosition
@@ -139,45 +143,51 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
-            .padding(horizontal = 4.dp, vertical = 4.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Delete
-        IconButton(onClick = {
-            mediaPlayer.reset()
-            isPlaying = false
-            currentMs = 0
-            totalMs = 0
-            onDeleteClick()
-        }) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
-        }
-        // Play/Pause
-        IconButton(onClick = {
-            if (isPlaying) {
-                mediaPlayer.pause()
-                isPlaying = false
-            } else {
-                mediaPlayer.reset()
-                mediaPlayer.setDataSource(file.absolutePath)
-                mediaPlayer.prepare()
-                if (currentMs > 0) mediaPlayer.seekTo(currentMs)
-                mediaPlayer.start()
-                isPlaying = true
-                mediaPlayer.setOnCompletionListener {
+        // Mic icon (static, just decorative)
+        Icon(
+            imageVector = Icons.Default.Mic,
+            contentDescription = null,
+            tint = Color(0xFF2d2d2d),
+            modifier = Modifier.size(18.dp)
+        )
+
+        Spacer(Modifier.width(8.dp))
+
+        // Play/Pause button
+        IconButton(
+            onClick = {
+                if (isPlaying) {
+                    mediaPlayer.pause()
                     isPlaying = false
-                    currentMs = 0
+                } else {
+                    mediaPlayer.reset()
+                    mediaPlayer.setDataSource(file.absolutePath)
+                    mediaPlayer.prepare()
+                    if (currentMs > 0) mediaPlayer.seekTo(currentMs)
+                    mediaPlayer.start()
+                    isPlaying = true
+                    mediaPlayer.setOnCompletionListener {
+                        isPlaying = false
+                        currentMs = 0
+                    }
                 }
-            }
-        }) {
+            },
+            modifier = Modifier.size(32.dp)
+        ) {
             Icon(
-                if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Play",
-                tint = Color.White
+                tint = Color(0xFF2d2d2d),
+                modifier = Modifier.size(20.dp)
             )
         }
-        // Progress slider
+
+        Spacer(Modifier.width(4.dp))
+
+        // Slider — green active track
         Slider(
             value = if (totalMs > 0) currentMs.toFloat() / totalMs else 0f,
             onValueChange = { fraction ->
@@ -186,22 +196,181 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
                 currentMs = seekTo
             },
             modifier = Modifier.weight(1f),
-            colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = Color.White,
-                inactiveTrackColor = Color.Gray
-            )
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(Color(0xFF6BAF7A), CircleShape)
+                )
+            },
+            track = { sliderState ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .background(Color(0xFFD6CCC2), RoundedCornerShape(2.dp))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(sliderState.value)
+                            .height(3.dp)
+                            .background(Color(0xFF6BAF7A), RoundedCornerShape(2.dp))
+                    )
+                }
+            }
         )
-        // Remaining time
+
+        Spacer(Modifier.width(6.dp))
+
+        // Time remaining
         Text(
             text = formatAudioMs(if (totalMs > 0) totalMs - currentMs else 0),
-            color = Color.White,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(end = 8.dp)
+            color = Color(0xFF9C8F86),
+            fontSize = 11.sp
         )
+
+        Spacer(Modifier.width(4.dp))
+
+        // Delete — small, subtle
+        IconButton(
+            onClick = {
+                mediaPlayer.reset()
+                isPlaying = false
+                currentMs = 0
+                totalMs = 0
+                onDeleteClick()
+            },
+            modifier = Modifier.size(28.dp)
+        ) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = "Delete",
+                tint = Color(0xFFCC6666),
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UrlAudioBar(url: String) {
+    var isPlaying by remember { mutableStateOf(false) }
+    var currentMs by remember { mutableStateOf(0) }
+    var totalMs by remember { mutableStateOf(0) }
+    val mediaPlayer = remember { MediaPlayer() }
+    var isPrepared by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            currentMs = mediaPlayer.currentPosition
+            if (totalMs == 0 && mediaPlayer.duration > 0) totalMs = mediaPlayer.duration
+            delay(200)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { mediaPlayer.release() }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Mic icon (decorative)
+        Icon(
+            imageVector = Icons.Default.Mic,
+            contentDescription = null,
+            tint = Color(0xFF2d2d2d),
+            modifier = Modifier.size(18.dp)
+        )
+
+        Spacer(Modifier.width(8.dp))
+
+        // Play/Pause
+        IconButton(
+            onClick = {
+                if (isPlaying) {
+                    mediaPlayer.pause()
+                    isPlaying = false
+                } else {
+                    if (!isPrepared) {
+                        mediaPlayer.setDataSource(url)
+                        mediaPlayer.prepareAsync()
+                        mediaPlayer.setOnPreparedListener {
+                            isPrepared = true
+                            totalMs = it.duration
+                            it.start()
+                            isPlaying = true
+                        }
+                    } else {
+                        if (currentMs > 0) mediaPlayer.seekTo(currentMs)
+                        mediaPlayer.start()
+                        isPlaying = true
+                    }
+                    mediaPlayer.setOnCompletionListener {
+                        isPlaying = false
+                        currentMs = 0
+                    }
+                }
+            },
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = "Play",
+                tint = Color(0xFF2d2d2d),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Spacer(Modifier.width(4.dp))
+
+        // Slider — green
+        Slider(
+            value = if (totalMs > 0) currentMs.toFloat() / totalMs else 0f,
+            onValueChange = { fraction ->
+                val seekTo = (fraction * totalMs).toInt()
+                mediaPlayer.seekTo(seekTo)
+                currentMs = seekTo
+            },
+            modifier = Modifier.weight(1f),
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(Color(0xFF6BAF7A), CircleShape)
+                )
+            },
+            track = { sliderState ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .background(Color(0xFFD6CCC2), RoundedCornerShape(2.dp))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(sliderState.value)
+                            .height(3.dp)
+                            .background(Color(0xFF6BAF7A), RoundedCornerShape(2.dp))
+                    )
+                }
+            }
+        )
+
+        Spacer(Modifier.width(6.dp))
+
+        // Time
+        Text(
+            text = formatAudioMs(if (totalMs > 0) totalMs - currentMs else 0),
+            color = Color(0xFF9C8F86),
+            fontSize = 11.sp
+        )
+    }
+}
 private fun formatAudioMs(ms: Int): String {
     val secs = ms / 1000
     return "%d:%02d".format(secs / 60, secs % 60)
