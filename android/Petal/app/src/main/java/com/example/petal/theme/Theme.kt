@@ -8,36 +8,61 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+private val LightColorScheme = lightColorScheme(
+    background      = Background,
+    surface         = Surface,
+    surfaceVariant  = SurfaceSoft,
+
+    primary             = Primary,
+    primaryContainer    = PrimaryContainer,
+    onPrimary           = OnPrimary,
+
+    secondary           = Secondary,
+    secondaryContainer  = SecondaryContainer,
+    onSecondary         = OnSecondary,
+
+    onBackground        = OnBackground,
+    onSurface           = OnSurface,
+
+    outline             = Outline,
+    outlineVariant      = OutlineStrong,
+
+    error               = Error,
+    errorContainer      = ErrorContainer,
+
+)
+
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    background      = DarkBackground,
+    surface         = DarkSurface,
+    surfaceVariant  = DarkSurfaceSoft,
+
+    primary             = Primary,           // terracotta holds in dark
+    primaryContainer    = DarkPrimaryContainer,
+    onPrimary           = Color.White,
+
+    secondary           = Secondary,
+    secondaryContainer  = DarkSecondaryContainer,
+    onSecondary         = Color.White,
+
+    onBackground        = DarkOnBackground,
+    onSurface           = DarkOnSurface,
+
+    outline             = DarkOutline,
+    outlineVariant      = DarkOutlineStrong,
+
+    error               = DarkError,
+    errorContainer      = DarkErrorContainer,
 )
-
-private val LightColors = lightColorScheme(
-    background = Background,
-    surface = Surface,
-    surfaceVariant = SurfaceVariant,
-
-    primary = Primary,
-    primaryContainer = PrimaryContainer,
-
-    onBackground = OnBackground,
-    onSurface = OnSurface,
-    onPrimary = Surface,
-
-    outline = Outline,
-    error = Error
-)
-
 
 @Composable
 fun PetalTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -45,14 +70,20 @@ fun PetalTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
-        else -> LightColors
+        else      -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    // Provide extended colors alongside the M3 scheme
+    val extendedColors = if (darkTheme) DarkExtendedColors else LightExtendedColors
+
+    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography  = Typography,
+            content     = content
+        )
+    }
 }
+val MaterialTheme.extended: ExtendedColors
+    @Composable get() = LocalExtendedColors.current

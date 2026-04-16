@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.petal.domain.Memory
+import com.example.petal.theme.extended
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -43,8 +44,8 @@ fun MemoryCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(0.dp))
-            .background(Color(0xFFFffffff))
-            .border(1.dp, Color(0xFFB4B4B4), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(0.dp))
             .clickable { onMemoryClick() }
     ) {
         if (hasImage) {
@@ -71,18 +72,15 @@ fun MemoryCard(
                     ) {
                         Text(
                             text = memory.title,
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = Color(0xFF3B2314)
-                            ),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
                         if (memory.isFavorite) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
                                 contentDescription = null,
-                                tint = Color(0xFFCC6666),
+                                tint =  MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .size(16.dp)
 
@@ -94,10 +92,8 @@ fun MemoryCard(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = memory.note,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color(0xFF9C8F86),
-                                fontSize = 14.sp
-                            ),
+                            style = MaterialTheme.typography.bodyMedium ,
+                            color =  MaterialTheme.colorScheme.onSurface,
                             maxLines = 2
                         )
                     }
@@ -143,7 +139,7 @@ fun MemoryCard(
                                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                                     modifier = Modifier
                                         .background(
-                                            color = Color(0xFFEEE8E0),
+                                            color =  MaterialTheme.colorScheme.surface,
                                             shape = RoundedCornerShape(20.dp)
                                         )
                                         .padding(horizontal = 10.dp, vertical = 4.dp)
@@ -151,13 +147,13 @@ fun MemoryCard(
                                     Box(
                                         modifier = Modifier
                                             .size(6.dp)
-                                            .background(Color(0xFFB09A88), CircleShape)
+                                            .background( MaterialTheme.colorScheme.onSurface, CircleShape)
                                     )
                                     Text(
                                         text = tag.uppercase(),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF8B7060),
+                                        color =  MaterialTheme.colorScheme.onSurface,
                                         letterSpacing = 0.6.sp
                                     )
                                 }
@@ -184,7 +180,7 @@ fun MemoryCard(
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color(0xFF3B2314)
+                            color =  MaterialTheme.colorScheme.onSurface
                         ),
                         modifier = Modifier.weight(1f)
                     )
@@ -193,7 +189,7 @@ fun MemoryCard(
                         Text(
                             text = timeText,
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = Color(0xFF8e8e8e),
+                                color =  MaterialTheme.extended.textMuted,
                                 fontSize = 11.sp
                             )
                         )
@@ -202,7 +198,7 @@ fun MemoryCard(
                             Icon(
                                 imageVector = Icons.Default.Favorite,
                                 contentDescription = null,
-                                tint = Color(0xFFCC6666),
+                                tint =  MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .size(14.dp)
                                     .clickable { onFavoriteClick() }
@@ -218,7 +214,7 @@ fun MemoryCard(
                     Text(
                         text = memory.note,
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color(0xFF8e8e8e),
+                            color =  MaterialTheme.extended.textMuted,
                             fontSize = 14.sp,
                             lineHeight = 20.sp
                         ),
@@ -269,7 +265,7 @@ fun MemoryCard(
                                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                                 modifier = Modifier
                                     .background(
-                                        color = Color(0xFFEEE8E0),
+                                        color =  MaterialTheme.colorScheme.onSurface,
                                         shape = RoundedCornerShape(20.dp)
                                     )
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
@@ -277,13 +273,13 @@ fun MemoryCard(
                                 Box(
                                     modifier = Modifier
                                         .size(6.dp)
-                                        .background(Color(0xFFB09A88), CircleShape)
+                                        .background( MaterialTheme.colorScheme.onSurface, CircleShape)
                                 )
                                 Text(
                                     text = tag.uppercase(),
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF8B7060),
+                                    color =  MaterialTheme.colorScheme.onSurface,
                                     letterSpacing = 0.6.sp
                                 )
                             }

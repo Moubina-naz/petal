@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.NavigationEvent
+import com.example.petal.theme.extended
 
 @Composable
 fun EditProfileScreen(
@@ -34,14 +35,12 @@ fun EditProfileScreen(
 
     val state by viewModel.uiState.collectAsState()
 
-    val accent = Color(0xFF8B5E3C)
-    val background = Color(0xFFF7F3EE)
     val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(background)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -62,8 +61,8 @@ fun EditProfileScreen(
             Text(
                 "Edit Profile",
                 fontSize = 22.sp,
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.SemiBold
             )
 
             Spacer(Modifier.weight(1f))
@@ -73,7 +72,7 @@ fun EditProfileScreen(
 
         Text(
             "Manage your private account details ",
-            color = Color.Gray,
+            color =MaterialTheme.extended.textMuted,
             fontSize = 14.sp
         )
 
@@ -130,7 +129,7 @@ fun EditProfileScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             shape = RoundedCornerShape(0.dp),
             onClick = { onChangePassword() }
         ) {
@@ -173,14 +172,14 @@ fun EditProfileScreen(
                     .height(54.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E3A2F),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.surface
                 )
             ) {
 
                 Text(
                     if (state.isSavingProfile) "Saving..." else "Save Changes",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -205,7 +204,7 @@ private fun FieldLabel(text: String) {
         text = text,
         fontSize = 11.sp,
         letterSpacing = 1.sp,
-        color = Color.Gray,
+        color = MaterialTheme.extended.textMuted,
         modifier = Modifier.padding(bottom = 6.dp)
     )
 }
@@ -236,10 +235,10 @@ private fun ProfileTextField(
             }
         } else null,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            focusedBorderColor = Color(0xFF2d2d2d),
-            unfocusedBorderColor = Color(0xFFE3DED7)
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor = MaterialTheme.colorScheme.onBackground,
+            unfocusedBorderColor = MaterialTheme.colorScheme.surface
         )
     )
 }
@@ -258,7 +257,7 @@ fun ChangePasswordScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F3EE))
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .padding(20.dp)
     ) {
@@ -308,13 +307,13 @@ fun ChangePasswordScreen(
                 .height(54.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF1E3A2F),
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.surface
             )
         )  {
             Text(
                 if (state.isSavingPassword) "Changing..." else "Update Password",
-                color = Color.White
+                color = MaterialTheme.colorScheme.surface
             )
         }
 
@@ -325,7 +324,7 @@ fun ChangePasswordScreen(
 
         state.passwordSuccess?.let {
             Spacer(Modifier.height(12.dp))
-            Text(it, color = Color(0xFF4CAF50))
+            Text(it, color =MaterialTheme.colorScheme.secondary)
         }
     }
 }

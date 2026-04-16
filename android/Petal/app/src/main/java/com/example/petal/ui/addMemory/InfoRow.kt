@@ -36,7 +36,7 @@ fun InfoRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color(0xFF8A817C),
+            tint = MaterialTheme.colorScheme.outlineVariant,
             modifier = Modifier.size(18.dp)
         )
 
@@ -45,7 +45,7 @@ fun InfoRow(
         Text(
             text = text,
             fontSize = 13.sp,
-            color = Color(0xFF8A817C),
+            color = MaterialTheme.colorScheme.outlineVariant,
             style = MaterialTheme.typography.bodyMedium
         )
     }

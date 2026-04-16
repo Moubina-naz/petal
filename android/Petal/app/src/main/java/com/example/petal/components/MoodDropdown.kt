@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.domain.Mood
+import com.example.petal.theme.extended
 
 @Composable
 fun MoodDropdown(
@@ -57,8 +58,8 @@ fun MoodDropdown(
             modifier = Modifier
                 .wrapContentWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFFfffdf9))
-                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
+                .background( MaterialTheme.colorScheme.background)
+                .border(1.dp,  MaterialTheme.colorScheme.onBackground, RoundedCornerShape(24.dp))
                 .clickable { expanded = true }
                 .padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
@@ -68,13 +69,13 @@ fun MoodDropdown(
                 Box(
                     modifier = Modifier
                         .size(26.dp)
-                        .background(Color(0xFFfffdf9), CircleShape),
+                        .background( MaterialTheme.colorScheme.surface, CircleShape),
                     contentAlignment = Alignment.Center
                 ){
                     Icon(
                         imageVector = selectedMood?.icon ?: Icons.Default.Add,
                         contentDescription = null,
-                        tint = selectedMood?.color?: Color(0xFF615A57),
+                        tint = selectedMood?.color?:  MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -83,7 +84,7 @@ fun MoodDropdown(
                     text = selectedMood?.label ?: "Mood?",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 14.sp,
-                        color = Color(0xFF615A57)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 )
             }
@@ -98,8 +99,8 @@ fun MoodDropdown(
             modifier = Modifier
                 .width(180.dp)
                 .heightIn(max = 210.dp)
-                .background(Color(0xFFfffdf9))
-                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(1.dp, MaterialTheme.colorScheme.background, RoundedCornerShape(24.dp))
         ) {
             Mood.values().forEach { mood ->
                 val isSelected = mood == selectedMood
@@ -114,7 +115,7 @@ fun MoodDropdown(
                                 modifier = Modifier
                                     .size(34.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White),
+                                    .background(MaterialTheme.colorScheme.onSurface),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -129,7 +130,7 @@ fun MoodDropdown(
                                 text = mood.label,
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontSize = 16.sp,
-                                    color = Color(0xFF3A3330)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             )
                             Spacer(Modifier.weight(1f))
@@ -137,7 +138,7 @@ fun MoodDropdown(
                                 Icon(
                                     Icons.Default.Check,
                                     null,
-                                    tint = Color(0xFF3A3330),
+                                    tint = MaterialTheme.colorScheme.outline,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -148,7 +149,7 @@ fun MoodDropdown(
                         expanded = false
                     },
                     colors = MenuDefaults.itemColors(
-                        textColor = Color(0xFF3A3330),
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         leadingIconColor = mood.color
                     )
                 )
@@ -163,7 +164,8 @@ fun MoodDropdown(
         onClick: () -> Unit
     ) {
         val background =
-            if (selected) Color(0xFFF6E7A8) // soft yellow highlight
+            if (selected) MaterialTheme.extended.dropdownSelectedBg
+            // soft yellow highlight
             else Color.Transparent
 
         Box(
@@ -188,7 +190,7 @@ fun MoodDropdown(
                     Icon(
                         imageVector = mood.icon,
                         contentDescription = null,
-                        tint = Color(0xFF615A57),
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -199,7 +201,7 @@ fun MoodDropdown(
                     text = mood.label,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 16.sp,
-                        color = Color(0xFF3A3330)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 )
 

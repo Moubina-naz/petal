@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.components.ErrorSnackbar
 import com.example.petal.domain.Mood
+import com.example.petal.theme.extended
 import com.example.petal.ui.settings.SettingsItem
-import com.example.petal.ui.settings.SettingsSectionHeader
 
 @Composable
 fun ProfileScreen(
@@ -56,7 +56,7 @@ fun ProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F3EE))
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp)
     ) {
 
@@ -72,7 +72,7 @@ fun ProfileScreen(
                 text = state.username,
                 fontSize = 32.sp,
                 style = MaterialTheme.typography.headlineLarge,
-                color = Color(0xFF2d2d2d) ,
+                color = MaterialTheme.colorScheme.onBackground ,
                 fontWeight = FontWeight.Normal,
                 //fontFamily = FontFamily.Serif,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -141,18 +141,18 @@ fun ProfileScreen(
                         .wrapContentSize()
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .height(52.dp)
-                        .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp)),
+                        .border(1.dp, MaterialTheme.colorScheme.onBackground, RoundedCornerShape(24.dp)),
 
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCC6B4F))
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ExitToApp,
                         contentDescription = null,
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.surface
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "LOG OUT", color = Color.White,
+                        "LOG OUT", color = MaterialTheme.colorScheme.surface,
                         fontWeight = FontWeight.Bold, letterSpacing = 1.sp
                     )
                 }
@@ -174,7 +174,7 @@ fun ProfileScreen(
                         showLogoutDialog = false
                         onLogOut()
                     }) {
-                        Text("Log Out", color = Color(0xFFCC6B4F), fontWeight = FontWeight.Bold)
+                        Text("Log Out", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
@@ -211,7 +211,7 @@ private fun StatCard(
         Text(
             text = value.toString(),
             fontSize = 22.sp,
-            color = Color(0xFF2F2F2F),
+            color = MaterialTheme.colorScheme.outlineVariant,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -221,7 +221,7 @@ private fun StatCard(
         Text(
             text = label,
             fontSize = 11.sp,
-            color = Color.Gray
+            color = MaterialTheme.extended.textMuted
         )
     }
 }
@@ -240,7 +240,7 @@ private fun MoodCard(
             style = MaterialTheme.typography.headlineMedium,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.Gray
+            color = MaterialTheme.extended.textMuted
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -249,7 +249,7 @@ private fun MoodCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .background(
-                    color = Color(0xFFE7ECEA),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(50)
                 )
                 .padding(horizontal = 14.dp, vertical = 8.dp)
@@ -258,7 +258,7 @@ private fun MoodCard(
             Icon(
                 imageVector = mood?.icon ?: Icons.Outlined.SentimentSatisfied,
                 contentDescription = null,
-                tint = Color(0xFF4A6E66),
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(18.dp)
             )
 
@@ -268,7 +268,7 @@ private fun MoodCard(
                 text = " $mood",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF4A6E66)
+                color = MaterialTheme.colorScheme.secondary
             )
         }
     }
@@ -291,7 +291,7 @@ private fun StreakCard(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             letterSpacing = 1.sp,
-            color = Color.Gray
+            color = MaterialTheme.extended.textMuted
         )
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -307,7 +307,7 @@ private fun StreakCard(
                     .size(170.dp)
                     .border(
                         width = 2.dp,
-                        color = Color(0xFFD96C4F),
+                        color = MaterialTheme.colorScheme.primary,
                         shape = CircleShape
                     )
             ) {
@@ -321,14 +321,14 @@ private fun StreakCard(
                         fontSize = 42.sp,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2B2B2B)
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
 
                     Text(
                         text = "DAYS STREAK",
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
-                        color = Color(0xFFD96C4F)
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -336,4 +336,15 @@ private fun StreakCard(
 
 
     }
+}
+@Composable
+fun SettingsSectionHeader(title: String) {
+    val colors = MaterialTheme.colorScheme
+
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = colors.onSurfaceVariant,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
 }

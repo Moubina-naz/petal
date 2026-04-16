@@ -80,15 +80,13 @@ fun MemoryDetailScreen(
 
     var showViewer by remember { mutableStateOf(false) }
     var startIndex by remember { mutableStateOf(0) }
-    val bg = Color(0xFFFf9f8f3)
-    val black = Color(0xFF2d2d2d)
     val errorMessage by viewModel.errorMessage.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFf9f8f3))
+                .background(MaterialTheme.colorScheme.background)
         ) {
             when (uiState) {
                 is MemoryDetailUiState.Loading -> {
@@ -145,6 +143,7 @@ fun MemoryDetailScreen(
                             }
 
                             Spacer(modifier = Modifier.weight(1f))
+                            //favorite icon
 
                             IconButton(onClick = { viewModel.toggleFavorite() }) {
                                 Icon(
@@ -155,9 +154,9 @@ fun MemoryDetailScreen(
                                             Icons.Default.FavoriteBorder,
                                     tint =
                                         if (memory.isFavorite)
-                                            Color(0xFFCC6666)
+                                            MaterialTheme.colorScheme.error
                                         else
-                                            black,
+                                            MaterialTheme.colorScheme.onBackground,
                                     contentDescription = "Favorite"
                                 )
                             }
@@ -174,13 +173,16 @@ fun MemoryDetailScreen(
                                 DropdownMenu(
                                     expanded = showMenu,
                                     onDismissRequest = { showMenu = false },
-                                    containerColor = Color.Transparent,
+                                    containerColor = MaterialTheme.colorScheme.surface,
                                     shadowElevation = 0.dp,
                                     offset = DpOffset(x = 0.dp, y = 8.dp),
                                     modifier = Modifier
                                         .width(160.dp)
-                                        .background(Color(0xFFfffdf9))
-                                        .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(24.dp))
+                                        .border(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outline,
+                                            RoundedCornerShape(24.dp)
+                                        )
                                 ) {
                                     // Edit
                                     DropdownMenuItem(
@@ -193,13 +195,13 @@ fun MemoryDetailScreen(
                                                     modifier = Modifier
                                                         .size(34.dp)
                                                         .clip(CircleShape)
-                                                        .background(Color.White),
+                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.Edit,
                                                         contentDescription = null,
-                                                        tint = Color(0xFF615A57),
+                                                        tint = MaterialTheme.colorScheme.onSurface,
                                                         modifier = Modifier.size(18.dp)
                                                     )
                                                 }
@@ -208,7 +210,7 @@ fun MemoryDetailScreen(
                                                     text = "Edit",
                                                     style = MaterialTheme.typography.titleMedium.copy(
                                                         fontSize = 16.sp,
-                                                        color = Color(0xFF3A3330)
+                                                        color = MaterialTheme.colorScheme.onSurface
                                                     )
                                                 )
                                             }
@@ -231,13 +233,13 @@ fun MemoryDetailScreen(
                                                     modifier = Modifier
                                                         .size(34.dp)
                                                         .clip(CircleShape)
-                                                        .background(Color(0xFFFFEDED)),
+                                                        .background(MaterialTheme.colorScheme.errorContainer),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.Delete,
                                                         contentDescription = null,
-                                                        tint = Color(0xFFCC6666),
+                                                        tint = MaterialTheme.colorScheme.error,
                                                         modifier = Modifier.size(18.dp)
                                                     )
                                                 }
@@ -246,7 +248,7 @@ fun MemoryDetailScreen(
                                                     text = "Delete",
                                                     style = MaterialTheme.typography.titleMedium.copy(
                                                         fontSize = 16.sp,
-                                                        color = Color(0xFFCC6666)
+                                                        color = MaterialTheme.colorScheme.error
                                                     )
                                                 )
                                             }
@@ -263,15 +265,14 @@ fun MemoryDetailScreen(
                             if (showDeleteDialog) {
                                 AlertDialog(
                                     onDismissRequest = { showDeleteDialog = false },
-                                    containerColor = Color(0xFFfffdf9),
+                                    containerColor = MaterialTheme.colorScheme.surface,
                                     shape = RoundedCornerShape(24.dp),
                                     title = {
                                         Text(
                                             text = "Delete memory?",
                                             style = MaterialTheme.typography.titleMedium.copy(
                                                 fontSize = 18.sp,
-                                                color = Color(0xFF3E2F26)
-                                            )
+                                                color = MaterialTheme.colorScheme.onSurface                                            )
                                         )
                                     },
                                     text = {
@@ -280,15 +281,14 @@ fun MemoryDetailScreen(
                                             style = MaterialTheme.typography.bodyMedium.copy(
                                                 fontSize = 14.sp,
                                                 lineHeight = 22.sp,
-                                                color = Color(0xFF5C5048)
-                                            )
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant                                            )
                                         )
                                     },
                                     confirmButton = {
                                         Box(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(20.dp))
-                                                .background(Color(0xFFCC6666))
+                                                .background(MaterialTheme.colorScheme.error)
                                                 .clickable {
                                                     showDeleteDialog = false
                                                     viewModel.deleteMemory {
@@ -301,8 +301,7 @@ fun MemoryDetailScreen(
                                                 text = "Delete",
                                                 style = MaterialTheme.typography.titleMedium.copy(
                                                     fontSize = 14.sp,
-                                                    color = Color.White
-                                                )
+                                                    color = MaterialTheme.colorScheme.onPrimary                                                )
                                             )
                                         }
                                     },
@@ -310,7 +309,7 @@ fun MemoryDetailScreen(
                                         Box(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(20.dp))
-                                                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(20.dp))
+                                                .border(1.dp,     MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp))
                                                 .clickable { showDeleteDialog = false }
                                                 .padding(horizontal = 20.dp, vertical = 10.dp)
                                         ) {
@@ -318,7 +317,8 @@ fun MemoryDetailScreen(
                                                 text = "Cancel",
                                                 style = MaterialTheme.typography.titleMedium.copy(
                                                     fontSize = 14.sp,
-                                                    color = Color(0xFF3A3330)
+                                                    color = MaterialTheme.colorScheme.onBackground
+
                                                 )
                                             )
                                         }
@@ -338,7 +338,7 @@ fun MemoryDetailScreen(
                                 modifier = Modifier
                                     .width(30.dp)
                                     .height(1.dp)
-                                    .background(Color(0xFFC65D5D))
+                                    .background(MaterialTheme.colorScheme.primary)
                             )
 
                             Spacer(modifier = Modifier.width(10.dp))
@@ -348,7 +348,8 @@ fun MemoryDetailScreen(
                                 fontSize = 14.sp,
                                 letterSpacing = 1.sp,
 
-                                color = black
+                                color = MaterialTheme.colorScheme.onBackground
+
                             )
                         }
 
@@ -359,7 +360,7 @@ fun MemoryDetailScreen(
                         Text(
                             text = memory.title,
                             style = MaterialTheme.typography.headlineLarge,
-                            color = Color(0xFF3E2F26)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -372,10 +373,10 @@ fun MemoryDetailScreen(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 modifier = Modifier
                                     .background(
-                                        color = Color(0xFFf9f8f3),
+                                        color = MaterialTheme.colorScheme.background,
                                         shape = RoundedCornerShape(20.dp)
                                     )
-                                    .border(1.dp, black, RoundedCornerShape(20.dp))
+                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             ) {
                                 Icon(
@@ -387,7 +388,7 @@ fun MemoryDetailScreen(
                                 Text(
                                     text = mood.label,
                                     fontSize = 14.sp,
-                                    color = black
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                             }
                         }
@@ -407,7 +408,7 @@ fun MemoryDetailScreen(
                             text = memory.note,
                             fontSize = 16.sp,
                             lineHeight = 26.sp,
-                            color = Color(0xFF5C5048)
+                            color =  MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
 
@@ -418,7 +419,7 @@ fun MemoryDetailScreen(
                                 text = "CAPTURED MOMENTS",
                                 fontSize = 12.sp,
                                 letterSpacing = 1.sp,
-                                color = Color(0xFF9C8F86)
+                                color =MaterialTheme.colorScheme.onSurface
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))

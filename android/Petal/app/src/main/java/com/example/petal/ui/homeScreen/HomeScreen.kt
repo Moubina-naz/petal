@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,12 +48,10 @@ fun HomeScreen(
     val focusManager = LocalFocusManager.current
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    val bg = Color(0xFFFf9f7f2)
-    val black = Color(0xFF2d2d2d)
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(bg)
+            .background(MaterialTheme.colorScheme.background)
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
@@ -80,49 +77,46 @@ fun HomeScreen(
                         text = "Petal",
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF2d2d2d)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Search bar
-
-                    OutlinedTextField(
-                        value = searchText,
-                        onValueChange = {
-                            searchText = it
-                            viewModel.onSearchChange(it)
-                        },
-                        placeholder = {
-                            Text(
-                                "Search memories...",
-                                color = Color(0xFFB0A89E),
-                                fontSize = 14.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                tint = Color(0xFFB0A89E),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(28.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFFFFFFF),
-                            unfocusedContainerColor = bg,
-                            focusedBorderColor = Color(0xFF6E625A),   // softer than black
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedTextColor = Color(0xFF2B1A10),
-                            unfocusedTextColor = Color(0xFF2B1A10)
-                        ),
-                        singleLine = true
-                    )
-
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = {
+                        searchText = it
+                        viewModel.onSearchChange(it)
+                    },
+                    placeholder = {
+                        Text(
+                            "Search memories...",
+                            color = MaterialTheme.colorScheme.outline,
+                            fontSize = 14.sp
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                        focusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    singleLine = true
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -136,9 +130,9 @@ fun HomeScreen(
                                 selectedTab = title
                                 viewModel.onFilterChange(
                                     when (title) {
-                                        "Favourites" -> HomeFilter.FAVORITES  // ← match exact tab name
-                                        "Photos" -> HomeFilter.PHOTOS
-                                        else -> HomeFilter.ALL
+                                        "Favourites" -> HomeFilter.FAVORITES
+                                        "Photos"     -> HomeFilter.PHOTOS
+                                        else         -> HomeFilter.ALL
                                     }
                                 )
                             },
@@ -153,18 +147,18 @@ fun HomeScreen(
                             },
                             shape = RoundedCornerShape(20.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                containerColor = Color(0xFFffffff),
-                                selectedContainerColor = Color(0xFFd36b54),
-                                labelColor = black,
-                                selectedLabelColor = Color.White
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                labelColor = MaterialTheme.colorScheme.onBackground,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                enabled = true, selected = isSelected,
-                                borderColor = Color(0xFF98948d),
-                                selectedBorderColor = black,
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.onBackground,
                                 borderWidth = 1.dp,
-                                selectedBorderWidth = 1.dp,
-
+                                selectedBorderWidth = 1.dp
                             )
                         )
                     }
@@ -172,45 +166,35 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(2.dp))
             }
 
+            // Content area
             when (uiState) {
                 is HomeUiState.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = black)
-                        }
-                    }
-                }
-                is HomeUiState.Connecting -> {
-                    val attempt = (uiState as HomeUiState.Connecting).attempt
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = black)
-                            Spacer(Modifier.height(12.dp))
-                            Text(
-                                text = "Connecting... ($attempt/3)",
-                                color = Color(0xFF9C8F86),
-                                fontSize = 14.sp
-                            )
-                        }
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 is HomeUiState.Error -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text((uiState as HomeUiState.Error).message, color = Color(0xFF9C8F86))
+                        Text(
+                            (uiState as HomeUiState.Error).message,
+                            color = MaterialTheme.colorScheme.outline
+                        )
                     }
                 }
                 is HomeUiState.Success -> {
                     val memories = (uiState as HomeUiState.Success).memories
 
                     if (selectedTab == "Photos") {
-                        // Flatten all images from all memories
                         val allImages = memories.flatMap { memory ->
                             memory.images.map { image -> Pair(image, memory) }
                         }
 
                         if (allImages.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("No photos yet", color = Color(0xFF9C8F86))
+                                Text(
+                                    "No photos yet",
+                                    color = MaterialTheme.colorScheme.outline
+                                )
                             }
                         } else {
                             LazyVerticalGrid(
@@ -248,7 +232,11 @@ fun HomeScreen(
                                                         showOptions = false
                                                         onNavigationEvent(NavigationEvent.OpenMemoryDetail(memory.id))
                                                     }) {
-                                                        Text("Go to Memory", color = Color.White, fontWeight = FontWeight.Bold)
+                                                        Text(
+                                                            "Go to Memory",
+                                                            color = Color.White,
+                                                            fontWeight = FontWeight.Bold
+                                                        )
                                                     }
                                                 }
                                             }
@@ -261,7 +249,10 @@ fun HomeScreen(
                         val sections = groupMemories(memories)
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp)
+                            contentPadding = PaddingValues(
+                                start = 16.dp, end = 16.dp,
+                                top = 8.dp, bottom = 100.dp
+                            )
                         ) {
                             sections.forEach { section ->
                                 item {
@@ -281,22 +272,29 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                else -> {}
             }
         }
 
-
+        // FAB
         FloatingActionButton(
             onClick = { onNavigationEvent(NavigationEvent.OpenAddMemory()) },
-            containerColor = Color(0xFFd36b54),
+            containerColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(20.dp)
                 .size(52.dp)
-                .border(1.dp, black, CircleShape)
+                .border(1.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Memory", tint = Color.White)
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Add Memory",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
+
         errorMessage?.let {
             ErrorSnackbar(message = it, onDismiss = { viewModel.clearError() })
         }

@@ -83,8 +83,7 @@ fun AddMemoryScreen(
     var startIndex by remember { mutableStateOf(0) }
     val navigator = LocalNavigator.currentOrThrow
     var showLocationSheet by remember { mutableStateOf(false) }
-    val bg = Color(0xFFFf9f8f3)
-    val black = Color(0xFF2d2d2d)
+
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -97,7 +96,7 @@ fun AddMemoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .statusBarsPadding()
             .padding(16.dp)
@@ -109,13 +108,13 @@ fun AddMemoryScreen(
             OutlinedButton(
                 onClick = { onNavigationEvent(NavigationEvent.GoBack) },
                 shape = RoundedCornerShape(20.dp),
-                border = BorderStroke(1.dp, black),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = black
+                    contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
             ) {
-                Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+                Text("Cancel", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -124,12 +123,12 @@ fun AddMemoryScreen(
                 onClick = { onNavigationEvent(NavigationEvent.SaveMemory) },
                 enabled = !uiState.isSaving,
                 shape = RoundedCornerShape(20.dp),
-                border= BorderStroke(1.dp, black),
+                border= BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFd36b54),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFD6CCC2),
-                    disabledContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = MaterialTheme.colorScheme.surface
                 ),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
             ) {
@@ -154,7 +153,7 @@ fun AddMemoryScreen(
             Icon(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = "Date",
-                tint = black,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -164,7 +163,7 @@ fun AddMemoryScreen(
                     .uppercase(),
                 fontSize = 14.sp,
                 letterSpacing = 1.2.sp,
-                color = black,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
             )
         }
@@ -189,7 +188,7 @@ fun AddMemoryScreen(
                             viewModel.onDateSelected(selected)
                         }
                         showDatePicker = false
-                    }) { Text("OK") }
+                    }) { Text("OK", color = MaterialTheme.colorScheme.onBackground) }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
@@ -212,7 +211,7 @@ fun AddMemoryScreen(
             Icon(
                 imageVector = Icons.Default.Schedule,
                 contentDescription = "Time",
-                tint = black,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -222,7 +221,7 @@ fun AddMemoryScreen(
                     .uppercase(),
                 fontSize = 14.sp,
                 letterSpacing = 1.2.sp,
-                color = black,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
             )
         }
@@ -243,10 +242,10 @@ fun AddMemoryScreen(
                             java.time.LocalTime.of(timePickerState.hour, timePickerState.minute)
                         )
                         showTimePicker = false
-                    }) { Text("OK") }
+                    }) { Text("OK", color = MaterialTheme.colorScheme.onBackground) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+                    TextButton(onClick = { showTimePicker = false }) { Text("Cancel",color =MaterialTheme.colorScheme.onBackground) }
                 },
                 text = { TimePicker(state = timePickerState) }
             )
@@ -268,7 +267,7 @@ fun AddMemoryScreen(
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = null,
-                tint = black
+                tint = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(Modifier.width(12.dp))
@@ -276,7 +275,7 @@ fun AddMemoryScreen(
             Text(
                 text = uiState.location.ifBlank { "Add location" },
                 fontSize = 14.sp,
-                color = black,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)
             )
@@ -286,7 +285,7 @@ fun AddMemoryScreen(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Remove location",
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.outlineVariant
                     )
                 }
             }
@@ -302,7 +301,7 @@ fun AddMemoryScreen(
             BasicTextField(
                 value = uiState.title,
                 onValueChange = { if (it.length <= 100) viewModel.onTitleChange(it) },
-                textStyle = MaterialTheme.typography.headlineLarge.copy(color = black),
+                textStyle = MaterialTheme.typography.headlineLarge.copy(color = MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (uiState.title.isEmpty()) {
@@ -314,7 +313,7 @@ fun AddMemoryScreen(
             Text(
                 "${uiState.title.length}/100",
                 fontSize = 11.sp,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.align(Alignment.End)
             )
         }
@@ -332,8 +331,6 @@ fun AddMemoryScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         //Audio recs
-// Audio section — replace everything between "//Audio recs" and the next Spacer
-
         val isRecording = viewModel.isRecording
         val recordedFile = viewModel.recordedAudioFile
         val player = remember { AudioPlayer() }
@@ -368,7 +365,7 @@ fun AddMemoryScreen(
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (uiState.note.isEmpty()) {
-                        Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFFB0AAA3))
+                        Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = MaterialTheme.colorScheme.outlineVariant)
                     }
                     inner()
                 }
@@ -376,7 +373,7 @@ fun AddMemoryScreen(
             Text(
                 "${uiState.note.length}/10000",
                 fontSize = 11.sp,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.align(Alignment.End)
             )
         }
@@ -395,7 +392,7 @@ fun AddMemoryScreen(
             text = "Captured Moments",
             fontSize = 16.sp,
             letterSpacing = 1.sp,
-            color = Color(0xFF9C8F86)
+            color = MaterialTheme.colorScheme.outlineVariant,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -411,7 +408,7 @@ fun AddMemoryScreen(
                     modifier = Modifier
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFEDE6DE))
+                        .background(MaterialTheme.colorScheme.surface)
                         .clickable {
                             startIndex = index
                             showViewer = true
@@ -430,7 +427,7 @@ fun AddMemoryScreen(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
-                            .background(Color.White.copy(alpha = 0.7f), CircleShape)
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), CircleShape)
                     ) {
                         Icon(Icons.Default.Close, null, tint = Color.Black)
                     }
@@ -448,7 +445,7 @@ fun AddMemoryScreen(
                             modifier = Modifier
                                 .size(52.dp)
                                 .clip(RoundedCornerShape(16.dp))
-                                .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(16.dp))
+                                .border(1.dp,MaterialTheme.colorScheme.onBackground, RoundedCornerShape(16.dp))
                                 .clickable {
                                     pickerLauncher.launch(
                                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -459,7 +456,7 @@ fun AddMemoryScreen(
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = null,
-                                tint = black,
+                                tint = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier.size(22.dp)
                             )
                         }

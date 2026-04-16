@@ -146,7 +146,10 @@ fun EditMemoryScreen(
                     ),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
                 ) {
-                    Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "Cancel",
+                        style = MaterialTheme.typography.labelMedium
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -194,8 +197,7 @@ fun EditMemoryScreen(
                                 .withLocale(java.util.Locale.US)
                         )
                         .uppercase(),
-                    fontSize = 14.sp,
-                    letterSpacing = 1.2.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = black,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )

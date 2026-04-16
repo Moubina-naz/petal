@@ -36,10 +36,7 @@ private const val MAX_EMAIL    = 254
 private const val MIN_PASSWORD = 8
 private const val MAX_PASSWORD = 128
 
-val bg = Color(0xFFF9F7F2)
-val black = Color(0xFF2d2d2d)
-val terracotta = Color(0xFFd36b54)
-val green = Color(0xFF1E3A2F)
+
 @Composable
 fun SignupScreen(
     viewModel: AuthViewModel,
@@ -82,7 +79,7 @@ fun SignupScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 28.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
@@ -98,7 +95,7 @@ fun SignupScreen(
 
         Text(
             text          = "Petal",
-            color         = black,
+            color         = MaterialTheme.colorScheme.onBackground,
             fontSize      = 52.sp,
             fontWeight    = FontWeight.Normal,
             fontFamily    = FontFamily.Serif,
@@ -114,10 +111,9 @@ fun SignupScreen(
                 fontWeight    = FontWeight.Light,
                 fontSize      = 10.sp,
                 letterSpacing = 3.sp,
-                color         = green.copy(alpha = 0.6f)
+                color         = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
             )
         )
-
         Spacer(Modifier.height(40.dp))
 
         // ── Username ──
@@ -130,15 +126,15 @@ fun SignupScreen(
                 Text("USERNAME", style = fieldLabelStyle())
                 Text(
                     "${username.length}/$MAX_USERNAME",
-                    style = TextStyle(fontSize = 10.sp, color = Color.Gray, fontFamily = FontFamily.SansSerif)
+                    style = TextStyle(fontSize = 10.sp, color = MaterialTheme.colorScheme.outlineVariant, fontFamily = FontFamily.SansSerif)
                 )
             }
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
                 value         = username,
                 onValueChange = { if (it.length <= MAX_USERNAME) username = it },
-                placeholder   = { Text("yourname", color = Color.Gray, fontSize = 14.sp) },
-                modifier      = Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(4.dp)),
+                placeholder   = { Text("yourname", color = MaterialTheme.colorScheme.outlineVariant, fontSize = 14.sp) },
+                modifier      = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp)),
                 shape           = RoundedCornerShape(4.dp),
                 singleLine      = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -161,10 +157,10 @@ fun SignupScreen(
                         emailTouched = true
                     }
                 },
-                placeholder   = { Text("hello@petal.app", color = Color.Gray, fontSize = 14.sp) },
+                placeholder   = { Text("hello@petal.app", color = MaterialTheme.colorScheme.outlineVariant, fontSize = 14.sp) },
                 modifier      = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
                     .focusRequester(emailFocusRequester),
                 shape           = RoundedCornerShape(4.dp),
                 singleLine      = true,
@@ -177,7 +173,7 @@ fun SignupScreen(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "Please enter a valid email address",
-                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = Color(0xFFB94040))
+                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
                 )
             }
         }
@@ -196,7 +192,7 @@ fun SignupScreen(
                         passwordTouched = true
                     }
                 },
-                placeholder          = { Text("Min 8 characters", color = Color.Gray, fontSize = 14.sp) },
+                placeholder          = { Text("Min 8 characters", color = MaterialTheme.colorScheme.outlineVariant, fontSize = 14.sp) },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 isError              = passwordTooShort,
                 trailingIcon = {
@@ -204,14 +200,14 @@ fun SignupScreen(
                         Icon(
                             imageVector        = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                             contentDescription = if (passwordVisible) "Hide" else "Show",
-                            tint               = green.copy(alpha = 0.5f),
+                            tint               = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
                             modifier           = Modifier.size(20.dp)
                         )
                     }
                 },
                 modifier      = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
                     .focusRequester(passwordFocusRequester),
                 shape           = RoundedCornerShape(4.dp),
                 singleLine      = true,
@@ -223,7 +219,7 @@ fun SignupScreen(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "Password must be at least $MIN_PASSWORD characters",
-                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = Color(0xFFB94040))
+                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
                 )
             }
         }
@@ -245,14 +241,14 @@ fun SignupScreen(
                         Icon(
                             imageVector        = if (confirmPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                             contentDescription = if (confirmPasswordVisible) "Hide" else "Show",
-                            tint               = green.copy(alpha = 0.5f),
+                            tint               = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
                             modifier           = Modifier.size(20.dp)
                         )
                     }
                 },
                 modifier      = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
                     .focusRequester(confirmPasswordFocusRequester),
                 shape           = RoundedCornerShape(4.dp),
                 singleLine      = true,
@@ -269,7 +265,7 @@ fun SignupScreen(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "Passwords don't match",
-                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = Color(0xFFB94040))
+                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
                 )
             }
         }
@@ -282,12 +278,12 @@ fun SignupScreen(
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape    = RoundedCornerShape(4.dp),
             colors   = ButtonDefaults.buttonColors(
-                containerColor         = green,
-                disabledContainerColor = green.copy(alpha = 0.35f)
+                containerColor         = MaterialTheme.colorScheme.secondary,
+                disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)
             )
         ) {
             if (isLoading) {
-                CircularProgressIndicator(color = bg, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.background, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
             } else {
                 Text(
                     "SIGN UP",
@@ -296,7 +292,7 @@ fun SignupScreen(
                         fontWeight    = FontWeight.SemiBold,
                         fontSize      = 13.sp,
                         letterSpacing = 2.sp,
-                        color         = bg
+                        color         = MaterialTheme.colorScheme.background
                     )
                 )
             }
@@ -312,7 +308,7 @@ fun SignupScreen(
                     fontWeight    = FontWeight.Normal,
                     fontSize      = 11.sp,
                     letterSpacing = 1.5.sp,
-                    color         = green.copy(alpha = 0.6f)
+                    color         = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
                 )
             )
         }
@@ -332,13 +328,13 @@ fun fieldLabelStyle() = TextStyle(
     fontWeight    = FontWeight.SemiBold,
     fontSize      = 10.sp,
     letterSpacing = 1.5.sp,
-    color         = green
+    color         = MaterialTheme.colorScheme.secondary
 )
 
 @Composable
 fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    unfocusedBorderColor    = green.copy(alpha = 0.35f),
-    focusedBorderColor      = green,
-    unfocusedContainerColor = Color.White,
-    focusedContainerColor   = Color.White
+    unfocusedBorderColor    = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f),
+    focusedBorderColor      = MaterialTheme.colorScheme.secondary,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    focusedContainerColor   = MaterialTheme.colorScheme.surface
 )

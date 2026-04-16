@@ -25,6 +25,7 @@ import coil.compose.AsyncImage
 import com.example.petal.NavigationEvent
 import com.example.petal.components.MemoryCard
 import com.example.petal.domain.Memory
+import com.example.petal.theme.extended
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
@@ -40,27 +41,28 @@ fun CalendarScreen(
     val selectedDay by viewModel.selectedDay.collectAsState()
 
     val selectedMemories = selectedDay?.let { memoriesByDay[it] } ?: emptyList()
+    val today = LocalDate.now()
 
+    val isCurrentMonth =
+        currentDate.year == today.year &&
+                currentDate.month == today.month
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFDF8F4))
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Calendar",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
-                color = Color(0xFF3E2F26),
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -76,22 +78,31 @@ fun CalendarScreen(
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Previous month",
-                    tint = Color(0xFF615A57)
+                    tint = MaterialTheme.colorScheme.outlineVariant
                 )
             }
 
             Text(
                 text = currentDate.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF3E2F26)
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            IconButton(onClick = { viewModel.goToNextMonth() }) {
+            IconButton(
+                onClick = {
+                    if (!isCurrentMonth) {
+                        viewModel.goToNextMonth()
+                    }
+                },
+                enabled = !isCurrentMonth
+            ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Next month",
-                    tint = Color(0xFF615A57)
+                    contentDescription = "next month",
+                    tint = if (isCurrentMonth)
+                        MaterialTheme.colorScheme.surface
+                    else
+                        MaterialTheme.colorScheme.outlineVariant
                 )
             }
         }
@@ -105,9 +116,8 @@ fun CalendarScreen(
                     text = day,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
-                    fontSize = 14.sp,
-                    color = Color(0xFF7F4032),
-                    fontWeight = FontWeight.Medium
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -116,7 +126,7 @@ fun CalendarScreen(
 
         if (isLoading) {
             Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF9E6F73))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
             // Calendar grid
@@ -135,12 +145,10 @@ fun CalendarScreen(
             val monthName = currentDate.format(DateTimeFormatter.ofPattern("MMM"))
             Text(
                 text = "Memories for $monthName $selectedDay",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                color = Color(0xFF313131)),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                style = MaterialTheme.typography.titleLarge ,
+                letterSpacing = 2.sp,
+                color = MaterialTheme.colorScheme.outlineVariant)
+
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -149,7 +157,7 @@ fun CalendarScreen(
                     modifier = Modifier.fillMaxWidth().padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No memories on this day", color = Color(0xFF9C8F86))
+                    Text("No memories on this day", color = MaterialTheme.colorScheme.onSurface)
                 }
             } else {
                 LazyColumn(
@@ -207,7 +215,8 @@ fun CalendarGrid(
                             val isToday = currentDate.year == today.year &&
                                     currentDate.month == today.month &&
                                     day == today.dayOfMonth
-                            val firstImage = memoriesByDay[day]?.firstOrNull()?.images?.firstOrNull()?.imageUrl
+                            val firstImage = memoriesByDay[day]
+                                ?.firstOrNull()?.images?.firstOrNull()?.imageUrl
 
                             Box(
                                 modifier = Modifier
@@ -216,14 +225,14 @@ fun CalendarGrid(
                                     .clip(RoundedCornerShape(8.dp))
                                     .then(
                                         if (isSelected)
-                                            Modifier.background(Color(0xFFa0bbb3))
+                                            Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
                                         else
                                             Modifier.background(Color.Transparent)
                                     )
                                     .clickable { onDayClick(day) },
                                 contentAlignment = Alignment.Center
                             ) {
-
+                                // Day has a photo → show thumbnail with dark overlay
                                 if (hasMemories && firstImage != null && !isSelected) {
                                     AsyncImage(
                                         model = firstImage,
@@ -236,15 +245,21 @@ fun CalendarGrid(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                            .background(
+                                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
+                                                RoundedCornerShape(8.dp)
+                                            )
                                     )
                                 }
-
+                                // Day has memories but no photo → tinted bg
                                 else if (hasMemories && !isSelected) {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .background(Color(0xFFe5a79a), RoundedCornerShape(8.dp))
+                                            .background(
+                                                MaterialTheme.colorScheme.primaryContainer,
+                                                RoundedCornerShape(8.dp)
+                                            )
                                     )
                                 }
 
@@ -253,20 +268,21 @@ fun CalendarGrid(
                                     fontSize = 13.sp,
                                     fontWeight = if (isToday || isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = when {
-                                        isSelected -> Color.White
-                                        hasMemories && firstImage != null -> Color.White
-                                        isToday -> Color(0xFFC77B57)
-                                        else -> Color(0xFF3E2F26)
+                                        isSelected                        -> MaterialTheme.colorScheme.onSecondary
+                                        hasMemories && firstImage != null -> Color.White   // contrast on photo
+                                        isToday                           -> MaterialTheme.extended.accentLine
+                                        else                              -> MaterialTheme.colorScheme.onBackground
                                     }
                                 )
 
+                                // Today dot indicator
                                 if (isToday && !isSelected) {
                                     Box(
                                         modifier = Modifier
                                             .align(Alignment.BottomCenter)
                                             .padding(bottom = 3.dp)
                                             .size(4.dp)
-                                            .background(Color(0xFFC77B57), CircleShape)
+                                            .background(MaterialTheme.extended.accentLine, CircleShape)
                                     )
                                 }
                             }
@@ -295,14 +311,15 @@ fun MemoryDayCard(
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail
             val firstImage = memory.images.firstOrNull()?.imageUrl
             if (firstImage != null) {
                 AsyncImage(
@@ -318,7 +335,7 @@ fun MemoryDayCard(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFEDE6DE)),
+                        .background(MaterialTheme.extended.surfaceSoft),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("📝", fontSize = 20.sp)
@@ -332,18 +349,18 @@ fun MemoryDayCard(
                     text = memory.title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF3E2F26)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (timeText.isNotBlank()) {
-                        Text("🕐 $timeText", fontSize = 12.sp, color = Color(0xFF9C8F86))
+                        Text("🕐 $timeText", fontSize = 12.sp, color = MaterialTheme.extended.textMuted)
                     }
                     if (timeText.isNotBlank() && locationText.isNotBlank()) {
-                        Text(" • ", fontSize = 12.sp, color = Color(0xFF9C8F86))
+                        Text(" • ", fontSize = 12.sp, color = MaterialTheme.extended.textMuted)
                     }
                     if (locationText.isNotBlank()) {
-                        Text("📍 $locationText", fontSize = 12.sp, color = Color(0xFF9C8F86))
+                        Text("📍 $locationText", fontSize = 12.sp, color = MaterialTheme.extended.textMuted)
                     }
                 }
             }
@@ -351,7 +368,7 @@ fun MemoryDayCard(
             Icon(
                 Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                tint = Color(0xFFD6CCC2),
+                tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(16.dp)
             )
         }

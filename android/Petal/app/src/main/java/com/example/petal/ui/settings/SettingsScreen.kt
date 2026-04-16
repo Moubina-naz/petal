@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.petal.ui.profile.SettingsSectionHeader
 
 @Composable
 fun SettingsScreen(
@@ -27,12 +28,11 @@ fun SettingsScreen(
     onLogOut: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
-    val bg = Color(0xFFF7F3EE)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         // Top bar
@@ -47,7 +47,7 @@ fun SettingsScreen(
             }
             Text(
                 text = "Settings",
-                fontSize = 20.sp,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF2F2F2F)
             )
@@ -78,7 +78,9 @@ fun SettingsScreen(
         ) {
             Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color.White)
             Spacer(Modifier.width(8.dp))
-            Text("LOG OUT", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            Text("LOG OUT", color = Color.White,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -116,16 +118,6 @@ fun SettingsScreen(
     }
 }
 
-@Composable
-fun SettingsSectionHeader(title: String) {
-    Text(
-        text = title,
-        fontSize = 14.sp,
-        style = MaterialTheme.typography.headlineMedium,
-        color = Color.Gray,
-        modifier = Modifier.padding( vertical = 8.dp)
-    )
-}
 
 @Composable
 fun SettingsItem(

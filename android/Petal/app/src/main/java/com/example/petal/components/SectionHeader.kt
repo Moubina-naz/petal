@@ -1,6 +1,7 @@
 package com.example.petal.components
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,9 +16,9 @@ fun SectionHeader(title: String) {
         text = title,
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
-        color = Color(0xFF8d8982),
+        color =MaterialTheme.colorScheme.onSurface,
         letterSpacing = 2.sp,
-        modifier = Modifier.padding(horizontal = 2.dp, vertical = 2.dp)
+        modifier = Modifier
     )
 }
 

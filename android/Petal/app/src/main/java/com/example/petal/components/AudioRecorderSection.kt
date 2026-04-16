@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -63,14 +64,14 @@ fun AudioRecorderSection(
                     Icon(
                         imageVector = Icons.Default.Mic,
                         contentDescription = "Record audio",
-                        tint = Color(0xFF9C8F86),
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(20.dp)
                     )
                 }
                 Text(
                     text = "Add voice note",
                     fontSize = 14.sp,
-                    color = Color(0xFF9C8F86)
+                    color = MaterialTheme.colorScheme.outline
                 )
             }
         }
@@ -94,7 +95,7 @@ fun RecordingBar(onStopClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -146,17 +147,17 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Mic icon (static, just decorative)
+        // Mic icon
         Icon(
             imageVector = Icons.Default.Mic,
             contentDescription = null,
-            tint = Color(0xFF2d2d2d),
+            tint =MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.size(18.dp)
         )
 
         Spacer(Modifier.width(8.dp))
 
-        // Play/Pause button
+        //Pause button
         IconButton(
             onClick = {
                 if (isPlaying) {
@@ -180,14 +181,14 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Play",
-                tint = Color(0xFF2d2d2d),
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(20.dp)
             )
         }
 
         Spacer(Modifier.width(4.dp))
 
-        // Slider — green active track
+        // Slider
         Slider(
             value = if (totalMs > 0) currentMs.toFloat() / totalMs else 0f,
             onValueChange = { fraction ->
@@ -200,7 +201,7 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
                 Box(
                     modifier = Modifier
                         .size(12.dp)
-                        .background(Color(0xFF6BAF7A), CircleShape)
+                        .background(MaterialTheme.colorScheme.secondary, CircleShape)
                 )
             },
             track = { sliderState ->
@@ -208,13 +209,13 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
-                        .background(Color(0xFFD6CCC2), RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(sliderState.value)
                             .height(3.dp)
-                            .background(Color(0xFF6BAF7A), RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(2.dp))
                     )
                 }
             }
@@ -225,13 +226,13 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
         // Time remaining
         Text(
             text = formatAudioMs(if (totalMs > 0) totalMs - currentMs else 0),
-            color = Color(0xFF9C8F86),
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 11.sp
         )
 
         Spacer(Modifier.width(4.dp))
 
-        // Delete — small, subtle
+        // Delete
         IconButton(
             onClick = {
                 mediaPlayer.reset()
@@ -245,7 +246,7 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
             Icon(
                 Icons.Default.Delete,
                 contentDescription = "Delete",
-                tint = Color(0xFFCC6666),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -283,7 +284,7 @@ fun UrlAudioBar(url: String) {
         Icon(
             imageVector = Icons.Default.Mic,
             contentDescription = null,
-            tint = Color(0xFF2d2d2d),
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(18.dp)
         )
 
@@ -321,7 +322,7 @@ fun UrlAudioBar(url: String) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Play",
-                tint = Color(0xFF2d2d2d),
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -341,7 +342,7 @@ fun UrlAudioBar(url: String) {
                 Box(
                     modifier = Modifier
                         .size(12.dp)
-                        .background(Color(0xFF6BAF7A), CircleShape)
+                        .background(MaterialTheme.colorScheme.secondary, CircleShape)
                 )
             },
             track = { sliderState ->
@@ -349,13 +350,13 @@ fun UrlAudioBar(url: String) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
-                        .background(Color(0xFFD6CCC2), RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.background, RoundedCornerShape(2.dp))
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(sliderState.value)
                             .height(3.dp)
-                            .background(Color(0xFF6BAF7A), RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(2.dp))
                     )
                 }
             }
@@ -366,7 +367,7 @@ fun UrlAudioBar(url: String) {
         // Time
         Text(
             text = formatAudioMs(if (totalMs > 0) totalMs - currentMs else 0),
-            color = Color(0xFF9C8F86),
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 11.sp
         )
     }

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -26,6 +27,7 @@ import com.example.petal.components.CalendarTab
 import com.example.petal.components.JournalTab
 import com.example.petal.components.MapTab
 import com.example.petal.components.ProfileTab
+import com.example.petal.theme.extended
 
 @Composable
 fun PetalBottomNavBar() {
@@ -33,8 +35,6 @@ fun PetalBottomNavBar() {
     val tabNavigator = LocalTabNavigator.current
     val currentTab = runCatching { tabNavigator.current }.getOrNull()
 
-    val selectedColor = Color(0xFFE86A33)
-    val unselectedColor = Color(0xFFBDBDBD)
     val navigator = LocalNavigator.currentOrThrow
     val isTopLevel = navigator.items.size == 1
 
@@ -67,10 +67,10 @@ fun PetalBottomNavBar() {
                 icon = { Icon(Icons.Outlined.Book, contentDescription = "Journal") },
                 label = { Text("Journal") },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = selectedColor,
-                    selectedTextColor = selectedColor,
-                    unselectedIconColor = unselectedColor,
-                    unselectedTextColor = unselectedColor,
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
                     indicatorColor = Color.Transparent
                 )
             )
@@ -87,10 +87,10 @@ fun PetalBottomNavBar() {
                 icon = { Icon(Icons.Outlined.Place, contentDescription = "Places") },
                 label = { Text("Places") },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = selectedColor,
-                    selectedTextColor = selectedColor,
-                    unselectedIconColor = unselectedColor,
-                    unselectedTextColor = unselectedColor,
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
                     indicatorColor = Color.Transparent
                 )
             )
@@ -107,10 +107,10 @@ fun PetalBottomNavBar() {
                 icon = { Icon(Icons.Outlined.CalendarToday, contentDescription = "Time") },
                 label = { Text("Time") },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = selectedColor,
-                    selectedTextColor = selectedColor,
-                    unselectedIconColor = unselectedColor,
-                    unselectedTextColor = unselectedColor,
+                    selectedIconColor = MaterialTheme.extended.navSelected,
+                    selectedTextColor = MaterialTheme.extended.navSelected,
+                    unselectedIconColor = MaterialTheme.extended.navUnselected   ,
+                    unselectedTextColor = MaterialTheme.extended.navUnselected,
                     indicatorColor = Color.Transparent
                 )
             )
@@ -127,10 +127,10 @@ fun PetalBottomNavBar() {
                 icon = { Icon(Icons.Outlined.Person, contentDescription = "Profile") },
                 label = { Text("Profile") },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = selectedColor,
-                    selectedTextColor = selectedColor,
-                    unselectedIconColor = unselectedColor,
-                    unselectedTextColor = unselectedColor,
+                    selectedIconColor = MaterialTheme.extended.navSelected,
+                    selectedTextColor = MaterialTheme.extended.navSelected,
+                    unselectedIconColor = MaterialTheme.extended.navUnselected   ,
+                    unselectedTextColor = MaterialTheme.extended.navUnselected,
                     indicatorColor = Color.Transparent
                 )
             )

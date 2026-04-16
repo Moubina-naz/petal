@@ -22,8 +22,8 @@ fun ErrorSnackbar(
     SnackbarHost(hostState = snackbarHostState) { data ->
         Snackbar(
             snackbarData    = data,
-            containerColor  = Color(0xFFB94040),
-            contentColor    = Color.White
+            containerColor  = MaterialTheme.colorScheme.primary,
+            contentColor    = MaterialTheme.colorScheme.surface,
         )
     }
 }

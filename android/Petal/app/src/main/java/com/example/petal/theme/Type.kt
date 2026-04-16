@@ -13,51 +13,52 @@ private val Playfair = FontFamily(
     Font(R.font.playfairdisplay_regular, FontWeight.Normal),
     Font(R.font.playfairdisplay_medium, FontWeight.Medium)
 )
-
 private val Inter = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),
     Font(R.font.inter_medium, FontWeight.Medium)
 )
-
 val Typography = Typography(
 
-    //"Petal"
+    // App titles (Petal, Calendar)
     headlineLarge = TextStyle(
         fontFamily = Playfair,
-        fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 38.sp
-    ),
-
-    // Memory titles
-    headlineMedium = TextStyle(
-        fontFamily = Playfair,
         fontWeight = FontWeight.Medium,
-        fontSize = 18.sp,
-        lineHeight = 24.sp
+        fontSize = 32.sp
     ),
 
-    //  journal text
+    // Screen titles (Edit Profile, Change Password)
+    titleLarge = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
+    ),
+
+    // Section headers (Earlier this week, Account, etc)
+    titleMedium = TextStyle(
+        fontFamily = Inter,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        letterSpacing = 1.sp
+    ),
+
+    // Card titles (memory titles)
     bodyLarge = TextStyle(
         fontFamily = Inter,
-        fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 22.sp
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
     ),
 
-    // Preview text
+    // Secondary text
     bodyMedium = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Normal,
-        fontSize = 13.sp,
-        lineHeight = 19.sp
+        fontSize = 14.sp
     ),
 
-    // Dates, chips, section headers
-    labelSmall = TextStyle(
+    // Labels
+    labelMedium = TextStyle(
         fontFamily = Inter,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 15.sp
+        fontSize = 12.sp
     )
 )

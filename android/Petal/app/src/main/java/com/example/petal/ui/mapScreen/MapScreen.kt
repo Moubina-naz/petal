@@ -41,7 +41,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
-import com.example.petal.DarkGreen
 import com.example.petal.components.ErrorSnackbar
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.libraries.places.api.Places
@@ -55,6 +54,7 @@ fun MapScreen(
     onLocationPicked: (Double, Double, String?) -> Unit,
     onDismiss: () -> Unit
 ){
+    val DarkGreen = Color(0xFF1E3A2F)
     val viewModel = remember { MapViewModel(ApiProvider.memoryRepository) }
     LaunchedEffect(locationSource) {
         if (locationSource is LocationSource.Selected) {

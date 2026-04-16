@@ -1,71 +1,52 @@
 package com.example.petal
 
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-
-// Colors
-val Cream = Color(0xFFF5F0EB)
-val DarkGreen = Color(0xFF1E3A2F)
-val Terracotta = Color(0xFFCB6040)
-val SubtleRed = Color(0xFFB85C5C)
 
 @Composable
 fun PetalSplashScreen(onFinished: () -> Unit = {}) {
+
+    val colors = MaterialTheme.colorScheme
+
     var visible by remember { mutableStateOf(false) }
 
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = 1000, easing = EaseInOut),
-        label = "alpha"
+        animationSpec = tween(1000)
     )
 
     val logoAlpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = 1200, delayMillis = 300, easing = EaseInOut),
-        label = "logoAlpha"
-    )
-
-    val bottomAlpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = 1000, delayMillis = 700, easing = EaseInOut),
-        label = "bottomAlpha"
+        animationSpec = tween(1200, delayMillis = 300)
     )
 
     LaunchedEffect(Unit) {
         visible = true
-        delay(3000)
+        delay(2500)
         onFinished()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Cream),
+            .background(colors.background),
         contentAlignment = Alignment.Center
     ) {
-        // Top decorative line
+
+        // 🔹 Top decorative line
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -76,61 +57,47 @@ fun PetalSplashScreen(onFinished: () -> Unit = {}) {
                 modifier = Modifier
                     .width(32.dp)
                     .height(1.5.dp)
-                    .background(SubtleRed.copy(alpha = 0.6f))
+                    .background(colors.primary.copy(alpha = 0.5f))
             )
         }
 
-        // Center content
+        // 🔹 Center content
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.alpha(logoAlpha)
         ) {
-            // Petal drop shape
-            Canvas(
-                modifier = Modifier.size(56.dp, 72.dp)
-            ) {
-                drawPetalShape(this)
+
+            Canvas(modifier = Modifier.size(56.dp, 72.dp)) {
+                drawPetalShape(this, colors.primary)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // "Petal" serif title
             Text(
                 text = "Petal",
-                color = DarkGreen,
-                fontSize = 52.sp,
-                fontWeight = FontWeight.Normal,
-                fontFamily = FontFamily.Serif,
-                letterSpacing = 0.sp
+                style = MaterialTheme.typography.headlineLarge,
+                color = colors.onBackground
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(Modifier.height(8.dp))
 
-            // Subtitle
             Text(
                 text = "WHERE MEMORIES LIVE",
-                color = DarkGreen.copy(alpha = 0.7f),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Light,
-                letterSpacing = 4.sp,
-                fontFamily = FontFamily.SansSerif
+                style = MaterialTheme.typography.labelSmall,
+                color = colors.onSurfaceVariant
             )
         }
-
-
     }
 }
 
-fun drawPetalShape(scope: DrawScope) {
+fun drawPetalShape(scope: DrawScope, color: androidx.compose.ui.graphics.Color) {
     val path = Path().apply {
         val w = scope.size.width
         val h = scope.size.height
 
-        // Shift the tip rightward by ~20% of width
-        val tipX = w * 0.65f  // was w/2f (center), now shifted right
-        val tipY = 0f
+        val tipX = w * 0.65f
 
-        moveTo(tipX, tipY)
+        moveTo(tipX, 0f)
         cubicTo(
             w * 1.2f, h * 0.25f,
             w * 1.05f, h * 0.75f,
@@ -139,28 +106,25 @@ fun drawPetalShape(scope: DrawScope) {
         cubicTo(
             w * -0.05f, h * 0.75f,
             w * 0.15f, h * 0.25f,
-            tipX, tipY
+            tipX, 0f
         )
         close()
     }
-    scope.drawPath(
-        path = path,
-        color = Terracotta
-    )
+
+    scope.drawPath(path, color)
 }
+
 
 @Composable
 fun PetalIcon(modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+
     Box(
-        modifier = modifier
-            .size(72.dp),
+        modifier = modifier.size(72.dp),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(
-            modifier = Modifier
-                .size(34.dp, 44.dp)
-        ) {
-            drawPetalShape(this)
+        Canvas(modifier = Modifier.size(34.dp, 44.dp)) {
+            drawPetalShape(this, colors.primary)
         }
     }
 }
