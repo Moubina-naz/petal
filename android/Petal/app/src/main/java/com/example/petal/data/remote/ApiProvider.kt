@@ -19,9 +19,8 @@ object ApiProvider {
     private lateinit var tokenManager: TokenManager
     private lateinit var retrofit: Retrofit
 
-    // MainActivity sets this — fires when any request gets 401
-    var onUnauthorized: (() -> Unit)? = null
 
+    var onUnauthorized: (() -> Unit)? = null
     private val tokenProvider: () -> String? = {
         runBlocking { tokenManager.getAccessToken() }
     }
@@ -38,7 +37,7 @@ object ApiProvider {
                 }
                 response.close()
             } catch (e: Exception) {
-                lastException = e
+                   lastException = e
                 if (attempt < 2) Thread.sleep(3000)
             }
         }
@@ -47,7 +46,7 @@ object ApiProvider {
 
     private val unauthorizedInterceptor = Interceptor { chain ->
         val response = chain.proceed(chain.request())
-        if (response.code == 401) {
+            if (response.code == 401) {
             runBlocking { tokenManager.clearTokens() }
             onUnauthorized?.invoke()
         }

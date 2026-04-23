@@ -56,9 +56,9 @@ class HomeViewModel(
                 } catch (e: SocketTimeoutException) {
                     attempts++
                     if (attempts < maxAttempts) {
-                        // Stay in Loading state with a connecting message
+                        // stay in Loading state with a connecting message
                         _uiState.value = HomeUiState.Connecting(attempts)
-                        delay(3000) // wait 3s before retry
+                        delay(3000)
                     } else {
                         _uiState.value = HomeUiState.Error("Server is waking up. Please try again in a moment.")
                     }

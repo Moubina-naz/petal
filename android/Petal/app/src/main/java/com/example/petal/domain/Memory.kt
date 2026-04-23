@@ -4,7 +4,7 @@ import com.example.petal.domain.Mood
 import java.time.Instant
 
 data class Memory(
-    val id: Int,                     // server ID
+    val id: Int,
     val title: String,
     val note: String,
     val location: Location?,

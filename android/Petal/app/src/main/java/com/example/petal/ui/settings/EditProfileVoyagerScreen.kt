@@ -35,7 +35,6 @@ class ChangePasswordVoyagerScreen(
     override fun Content() {
 
         val navigator = LocalNavigator.currentOrThrow
-        //val viewModel = remember { EditProfileViewModel(ApiProvider.memoryRepository) }
 
         ChangePasswordScreen(
             viewModel = viewModel,

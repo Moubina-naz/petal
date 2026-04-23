@@ -25,7 +25,7 @@ data class MemoryDto(
 
     val tags: List<String>,
 
-    val mood: Int?,  // 1–10 (matches backend)
+    val mood: Int?,
 
     @SerializedName("is_favorite")
     val isFavorite: Boolean,

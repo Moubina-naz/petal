@@ -42,7 +42,7 @@ class MapVoyagerScreen(
                     MapMode.PICK_LOCATION -> {
                         LocationPickerResult.pickedLocation.value =
                             LocationSource.Selected(lat, lon, name)
-                        navigator.pop()  // now pop back to the existing AddMemoryVoyagerScreen
+                        navigator.pop()
                     }
                     MapMode.EDIT_LOCATION -> {
                         if (memoryId != null) {

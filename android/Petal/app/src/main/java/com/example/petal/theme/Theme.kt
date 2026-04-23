@@ -41,7 +41,7 @@ private val DarkColorScheme = darkColorScheme(
     surface         = DarkSurface,
     surfaceVariant  = DarkSurfaceSoft,
 
-    primary             = Primary,           // terracotta holds in dark
+    primary             = Primary,
     primaryContainer    = DarkPrimaryContainer,
     onPrimary           = Color.White,
 

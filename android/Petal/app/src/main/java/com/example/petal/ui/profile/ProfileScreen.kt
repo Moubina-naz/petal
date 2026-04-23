@@ -161,7 +161,6 @@ fun ProfileScreen(
 
         }
 
-        // Logout confirmation dialog
         if (showLogoutDialog) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },

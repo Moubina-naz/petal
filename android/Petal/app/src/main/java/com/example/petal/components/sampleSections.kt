@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 data class MemorySection(
-    val title: String, // "TODAY", "YESTERDAY", "LAST WEEK"
+    val title: String,
     val memories: List<Memory>
 )
 

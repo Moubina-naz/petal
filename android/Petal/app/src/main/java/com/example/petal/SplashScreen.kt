@@ -46,7 +46,6 @@ fun PetalSplashScreen(onFinished: () -> Unit = {}) {
         contentAlignment = Alignment.Center
     ) {
 
-        // 🔹 Top decorative line
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -61,7 +60,6 @@ fun PetalSplashScreen(onFinished: () -> Unit = {}) {
             )
         }
 
-        // 🔹 Center content
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.alpha(logoAlpha)

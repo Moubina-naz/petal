@@ -29,6 +29,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.collections.mapIndexed
 import kotlin.math.min
+import androidx.core.graphics.scale
 
 class MemoryRepository(
     private val memoryApi: MemoryApi
@@ -212,12 +213,7 @@ class MemoryRepository(
             // Step 2: Scale if still larger
             val scaledBitmap = if (bitmap.width > maxWidth || bitmap.height > maxHeight) {
                 val ratio = min(maxWidth.toFloat() / bitmap.width, maxHeight.toFloat() / bitmap.height)
-                Bitmap.createScaledBitmap(
-                    bitmap,
-                    (bitmap.width * ratio).toInt(),
-                    (bitmap.height * ratio).toInt(),
-                    true
-                )
+                bitmap.scale((bitmap.width * ratio).toInt(), (bitmap.height * ratio).toInt())
             } else {
                 bitmap
             }.also { if (it != bitmap) bitmap.recycle() }

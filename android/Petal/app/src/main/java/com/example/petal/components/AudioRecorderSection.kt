@@ -53,7 +53,6 @@ fun AudioRecorderSection(
 ) {
     when {
         !isRecording && recordedFile == null -> {
-            // Clean mic button — no background, just icon
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -46,25 +46,25 @@ class HomeVoyagerScreen : Screen {
         val onNavigationEvent: (NavigationEvent) -> Unit = { event ->
             when (event) {
                 is NavigationEvent.OpenMemoryDetail ->
-                    navigator.push(              // ← parentNavigator
+                    navigator.push(
                         MemoryDetailVoyagerScreen(event.memoryId)
                     )
 
                 is NavigationEvent.OpenEditMemory ->
-                    navigator.push(              // ← parentNavigator
+                    navigator.push(
                         EditMemoryVoyagerScreen(event.memoryId)
                     )
                 is NavigationEvent.OpenSettings ->
-                    navigator.push(SettingsVoyagerScreen())  // ← parentNavigator
+                    navigator.push(SettingsVoyagerScreen())
 
                 is NavigationEvent.OpenAddMemory ->
-                    navigator.push(AddMemoryVoyagerScreen()) // ← parentNavigator
+                    navigator.push(AddMemoryVoyagerScreen())
 
                 NavigationEvent.OpenMap ->
-                    navigator.push(MapVoyagerScreen())       // ← parentNavigator
+                    navigator.push(MapVoyagerScreen())
 
                 NavigationEvent.GoBack ->
-                    navigator.pop()  // ← keep as navigator (pop within tab is fine)
+                    navigator.pop()
 
                 is NavigationEvent.ToggleFavorite ->
                     homeViewModel.favoriteById(event.memoryId)

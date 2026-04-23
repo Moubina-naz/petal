@@ -22,7 +22,6 @@ import retrofit2.http.Query
 
 
 interface MemoryApi {
-
     @GET("memories/")
     suspend fun getMemories(
         @Query("search") search: String? = null,
@@ -51,7 +50,7 @@ interface MemoryApi {
 
     @POST("memories/")
     suspend fun createMemoryJson(
-        @Body body: MemoryApi.CreateMemoryReq   // ← use the inner class
+        @Body body: MemoryApi.CreateMemoryReq
     ): MemoryDto
 
     @GET("memories/by-month/")

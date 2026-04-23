@@ -130,7 +130,6 @@ fun MemoryDetailScreen(
                             .statusBarsPadding()
                             .padding(16.dp)
                     ) {
-                        // TOP BAR
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -161,7 +160,6 @@ fun MemoryDetailScreen(
                                 )
                             }
 
-                            // Replace the Box containing IconButton + DropdownMenu in MemoryDetailScreen
 
                             var showDeleteDialog by remember { mutableStateOf(false) }
 

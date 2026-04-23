@@ -19,7 +19,6 @@ class SettingsVoyagerScreen : Screen {
         val context = LocalContext.current
         val tokenManager = remember { TokenManager(context) }
 
-        // Walk up to the root navigator (above all tabs)
         val rootNavigator = generateSequence(navigator) { it.parent }
             .last()
 

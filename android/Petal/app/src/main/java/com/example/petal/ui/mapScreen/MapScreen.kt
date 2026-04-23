@@ -66,7 +66,7 @@ fun MapScreen(
         if (isDark) {
             MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
         } else {
-            null // null = default Google Maps style
+            null
         }
     }
     LaunchedEffect(locationSource) {
@@ -138,7 +138,7 @@ fun MapScreen(
         ) {
             delay(300L)  // small delay to let LaunchedEffect(locationSource) in MapVoyagerScreen run
 
-            if (selectedLocation == null) {  // re-check after delay
+            if (selectedLocation == null) {  // recheck after delay
                 getCurrentLocation(fusedLocationClient, context) { latLng ->
                     coroutineScope.launch {
                         cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
@@ -151,7 +151,7 @@ fun MapScreen(
     }
     val focusRequester = remember { FocusRequester() }
 
-// Add this LaunchedEffect
+
     LaunchedEffect(isSearchActive) {
         if (isSearchActive) {
             focusRequester.requestFocus()
@@ -523,7 +523,7 @@ private fun getPlaceNameFromLatLng(latLng: LatLng, context: android.content.Cont
                 ?: null
         }
     } catch (e: Exception) {
-        null  // silent fail → name will be null
+        null
     }
 }private suspend fun reverseGeocode(latLng: LatLng, context: android.content.Context): String? {
 

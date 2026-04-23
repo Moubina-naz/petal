@@ -12,7 +12,6 @@ class AudioPlayer {
     private var player: MediaPlayer? = null
     private var progressJob: Job? = null
 
-    // Callbacks
     var onProgressUpdate: ((current: Int, total: Int) -> Unit)? = null
     var onCompletion: (() -> Unit)? = null
 

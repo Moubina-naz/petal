@@ -5,6 +5,6 @@ import com.example.petal.domain.Memory
 data class LocationPin(
     val latitude: Double,
     val longitude: Double,
-    val name: String?,               // ← add this field if not already present
+    val name: String?,
     val memories: List<Memory> = emptyList()
 )

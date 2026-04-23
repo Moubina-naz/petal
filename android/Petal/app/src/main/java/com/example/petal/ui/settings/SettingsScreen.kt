@@ -68,7 +68,6 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Log out button
         Button(
             onClick = { showLogoutDialog = true },
             modifier = Modifier
@@ -97,7 +96,6 @@ fun SettingsScreen(
         )
     }
 
-    // Logout confirmation dialog
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },

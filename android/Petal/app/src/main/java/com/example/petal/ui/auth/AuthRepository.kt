@@ -90,14 +90,13 @@ class AuthRepository(
     }
 
     suspend fun logout() {
-        tokenManager.clearTokens()   // ← fixed name (was clear() in your version)
+        tokenManager.clearTokens()
     }
 
     suspend fun isLoggedIn(): Boolean {
         return tokenManager.getAccessToken() != null
     }
 
-    // Optional: helper to get current token (useful for debugging or manual header cases)
     suspend fun getCurrentAccessToken(): String? {
         return tokenManager.getAccessToken()
     }

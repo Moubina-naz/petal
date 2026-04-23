@@ -26,14 +26,14 @@ class MemoryImageGalleryScreen(
             initialPage = initialIndex,
             initialPageOffsetFraction = 0f
         ) {
-            images.size  // ← page count
+            images.size
         }
 
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)  // dark bg for gallery feel
+                .background(Color.Black)
         ) { page ->
             AsyncImage(
                 model = images[page],
