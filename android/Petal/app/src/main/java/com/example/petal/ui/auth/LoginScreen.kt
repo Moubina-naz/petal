@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalFocusManager
 import com.example.petal.PetalIcon
 import com.example.petal.components.ErrorSnackbar
+import com.example.petal.theme.extended
 
 @Composable
 fun LoginScreen(
@@ -39,12 +40,12 @@ fun LoginScreen(
     onSignupClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
-    var email by remember { mutableStateOf("") }
+    var user by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     val isLoading = state is AuthUiState.Loading
-    val isButtonEnabled = email.isNotBlank() && password.isNotBlank() && !isLoading
+    val isButtonEnabled = user.isNotBlank() && password.isNotBlank() && !isLoading
 
     val passwordFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -77,10 +78,7 @@ fun LoginScreen(
             Text(
                 text = "Petal",
                 color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 52.sp,
-                fontWeight = FontWeight.Normal,
-                fontFamily = FontFamily.Serif,
-                letterSpacing = 0.sp
+                style = MaterialTheme.typography.headlineLarge
             )
 
             Spacer(Modifier.height(52.dp))
@@ -94,14 +92,15 @@ fun LoginScreen(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 10.sp,
                         letterSpacing = 1.5.sp,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 )
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    placeholder = { Text("John Doe", color = Color.Gray, fontSize = 14.sp) },
+                    value = user,
+                    onValueChange = { user = it  },
+                    placeholder = { Text("John Doe",
+                        color = MaterialTheme.extended.textSecondary, fontSize = 14.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp)),
@@ -112,8 +111,11 @@ fun LoginScreen(
                         onNext = { passwordFocusRequester.requestFocus() }
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f),
-                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                        focusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedContainerColor = MaterialTheme.colorScheme.surface
                     )
@@ -131,14 +133,14 @@ fun LoginScreen(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 10.sp,
                         letterSpacing = 1.5.sp,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 )
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = { Text("••••••••", color = Color.Gray, fontSize = 14.sp) },
+                    placeholder = { Text("••••••••", color = MaterialTheme.extended.textSecondary, fontSize = 14.sp) },
                     visualTransformation = if (passwordVisible)
                         VisualTransformation.None
                     else
@@ -151,7 +153,7 @@ fun LoginScreen(
                                 else
                                     Icons.Outlined.VisibilityOff,
                                 contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                                tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -165,12 +167,15 @@ fun LoginScreen(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            if (isButtonEnabled) viewModel.login(email, password)
+                            if (isButtonEnabled) viewModel.login(user, password)
                         }
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f),
-                        focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                        focusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedContainerColor = MaterialTheme.colorScheme.surface
                     )
@@ -180,7 +185,7 @@ fun LoginScreen(
             Spacer(Modifier.height(32.dp))
 
             Button(
-                onClick = { viewModel.login(email, password) },
+                onClick = { viewModel.login(user, password) },
                 enabled = isButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,7 +198,7 @@ fun LoginScreen(
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.background,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp
                     )
@@ -205,13 +210,13 @@ fun LoginScreen(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 13.sp,
                             letterSpacing = 2.sp,
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.extended.textWhite
                         )
                     )
                 }
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(12.dp))
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -226,26 +231,14 @@ fun LoginScreen(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
                             letterSpacing = 1.5.sp,
-                            color = MaterialTheme.colorScheme.secondary,
+                            color = MaterialTheme.colorScheme.onBackground,
                             textDecoration = TextDecoration.Underline
                         )
                     )
                 }
             }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                modifier = Modifier.padding(bottom = 24.dp)
-            ) {
-                repeat(3) { i ->
-                    Box(
-                        Modifier
-                            .size(4.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.secondary.copy(alpha = if (i == 0) 0.6f else 0.2f))
-                    )
-                }
-            }
+
 
             if (state is AuthUiState.Error) {
                 ErrorSnackbar(

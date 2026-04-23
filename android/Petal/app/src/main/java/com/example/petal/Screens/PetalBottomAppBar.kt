@@ -53,7 +53,7 @@ fun PetalBottomNavBar() {
                     strokeWidth = strokeWidth
                 )
             },
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             NavigationBarItem(
                 selected = currentTab == JournalTab,
@@ -67,10 +67,10 @@ fun PetalBottomNavBar() {
                 icon = { Icon(Icons.Outlined.Book, contentDescription = "Journal") },
                 label = { Text("Journal") },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    selectedIconColor = MaterialTheme.extended.navSelected,
+                    selectedTextColor = MaterialTheme.extended.navSelected,
+                    unselectedIconColor = MaterialTheme.extended.navUnselected   ,
+                    unselectedTextColor = MaterialTheme.extended.navUnselected,
                     indicatorColor = Color.Transparent
                 )
             )
@@ -87,10 +87,10 @@ fun PetalBottomNavBar() {
                 icon = { Icon(Icons.Outlined.Place, contentDescription = "Places") },
                 label = { Text("Places") },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    selectedIconColor = MaterialTheme.extended.navSelected,
+                    selectedTextColor = MaterialTheme.extended.navSelected,
+                    unselectedIconColor = MaterialTheme.extended.navUnselected   ,
+                    unselectedTextColor = MaterialTheme.extended.navUnselected,
                     indicatorColor = Color.Transparent
                 )
             )

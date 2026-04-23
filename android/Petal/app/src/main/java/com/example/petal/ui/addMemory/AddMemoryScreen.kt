@@ -53,6 +53,7 @@ import com.example.petal.components.ErrorSnackbar
 import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
 import com.example.petal.domain.Mood
+import com.example.petal.theme.extended
 import kotlinx.coroutines.delay
 import java.io.File
 import java.nio.file.Paths.get
@@ -305,7 +306,7 @@ fun AddMemoryScreen(
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (uiState.title.isEmpty()) {
-                        Text("Add a Title...", style = MaterialTheme.typography.headlineLarge, color = Color(0xFF6b7280))
+                        Text("Add a Title...", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.extended.textSecondary)
                     }
                     inner()
                 }
@@ -361,11 +362,11 @@ fun AddMemoryScreen(
             BasicTextField(
                 value = uiState.note,
                 onValueChange = { if (it.length <= 10000) viewModel.onNoteChange(it) },
-                textStyle = TextStyle(fontSize = 16.sp, lineHeight = 26.sp, color = Color(0xFF3A3330)),
+                textStyle = TextStyle(fontSize = 16.sp, lineHeight = 26.sp, color = MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (uiState.note.isEmpty()) {
-                        Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = MaterialTheme.colorScheme.outlineVariant)
+                        Text("Start writing...", fontSize = 16.sp, lineHeight = 26.sp, color = MaterialTheme.extended.textSecondary)
                     }
                     inner()
                 }

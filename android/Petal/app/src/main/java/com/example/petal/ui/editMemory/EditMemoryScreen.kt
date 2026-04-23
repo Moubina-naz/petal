@@ -88,6 +88,7 @@ import com.example.petal.components.FullScreenImageViewer
 import com.example.petal.components.MoodDropdown
 import com.example.petal.components.RecordedAudioBar
 import com.example.petal.components.UrlAudioBar
+import com.example.petal.theme.extended
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.LocalTime
@@ -118,8 +119,6 @@ fun EditMemoryScreen(
     var showTimePicker by remember { mutableStateOf(false) }
 
     val navigator = LocalNavigator.currentOrThrow
-    val bg = Color(0xFFFf9f8f3)
-    val black = Color(0xFF2d2d2d)
 
     Box(modifier = Modifier
         .fillMaxSize())
@@ -127,7 +126,7 @@ fun EditMemoryScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFDF8F4))
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .statusBarsPadding()
                 .padding(16.dp)
@@ -140,9 +139,9 @@ fun EditMemoryScreen(
                 OutlinedButton(
                     onClick = { onNavigationEvent(NavigationEvent.GoBack) },
                     shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, black),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = black
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
                 ) {
@@ -158,12 +157,12 @@ fun EditMemoryScreen(
                     onClick = { onNavigationEvent(NavigationEvent.SaveMemory) },
                     enabled = !uiState.isSaving,
                     shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, black),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFd36b54),
-                        contentColor = Color.White,
-                        disabledContainerColor = Color(0xFFD6CCC2),
-                        disabledContentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.outline,
+                        disabledContentColor = MaterialTheme.colorScheme.surface
                     ),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
                 ) {
@@ -186,7 +185,7 @@ fun EditMemoryScreen(
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = "Date",
-                    tint = black,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -198,7 +197,7 @@ fun EditMemoryScreen(
                         )
                         .uppercase(),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )
             }
@@ -247,7 +246,7 @@ fun EditMemoryScreen(
                 Icon(
                     imageVector = Icons.Default.Schedule,
                     contentDescription = "Time",
-                    tint = black,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -257,7 +256,7 @@ fun EditMemoryScreen(
                         .uppercase(),
                     fontSize = 14.sp,
                     letterSpacing = 1.2.sp,
-                    color = black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )
             }
@@ -300,7 +299,7 @@ fun EditMemoryScreen(
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = black
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(Modifier.width(12.dp))
@@ -308,7 +307,7 @@ fun EditMemoryScreen(
                 Text(
                     text = uiState.locationName.ifBlank { "Add location" },
                     fontSize = 14.sp,
-                    color = black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                     modifier = Modifier.weight(1f)
                 )
@@ -320,7 +319,7 @@ fun EditMemoryScreen(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Clear location",
-                            tint = Color.Gray
+                            tint = MaterialTheme.extended.textSecondary
                         )
                     }
                 }
@@ -365,24 +364,24 @@ fun EditMemoryScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFF5F5F5), RoundedCornerShape(24.dp))
+                            .background(MaterialTheme.colorScheme.onSurface, RoundedCornerShape(24.dp))
                             .padding(horizontal = 16.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
-                                .background(Color.Red, CircleShape)
+                                .background(MaterialTheme.colorScheme.error, CircleShape)
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
                             "%d:%02d".format(seconds / 60, seconds % 60),
                             fontSize = 14.sp,
-                            color = black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.weight(1f))
                         IconButton(onClick = { viewModel.stopRecording() }) {
-                            Icon(Icons.Default.Stop, contentDescription = "Stop", tint = black)
+                            Icon(Icons.Default.Stop, contentDescription = "Stop", tint = MaterialTheme.colorScheme.onBackground)
                         }
                     }
                 }
@@ -398,7 +397,7 @@ fun EditMemoryScreen(
                     UrlAudioBar(url = existingAudioUrl)
                     Spacer(Modifier.height(4.dp))
                     TextButton(onClick = { viewModel.deleteExistingAudio() }) {
-                        Text("Remove audio", color = Color(0xFFCC6666), fontSize = 12.sp)
+                        Text("Remove audio", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
                     }
                 }
 
@@ -409,7 +408,7 @@ fun EditMemoryScreen(
                         Icon(
                             Icons.Default.Mic,
                             contentDescription = "Record",
-                            tint = black
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -440,7 +439,7 @@ fun EditMemoryScreen(
                 text = "Captured Moments",
                 fontSize = 16.sp,
                 letterSpacing = 1.sp,
-                color = Color(0xFF9C8F86)
+                color = MaterialTheme.extended.textSecondary,
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -457,7 +456,7 @@ fun EditMemoryScreen(
                         modifier = Modifier
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFFEDE6DE))
+                            .background(MaterialTheme.colorScheme.surface)
                     ) {
                         AsyncImage(
                             model = img.localUri,
@@ -482,7 +481,7 @@ fun EditMemoryScreen(
                                 .align(Alignment.TopEnd)
                                 .padding(6.dp)
                                 .size(24.dp)
-                                .background(Color.White, RoundedCornerShape(50))
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(50))
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -505,7 +504,7 @@ fun EditMemoryScreen(
                                 modifier = Modifier
                                     .size(52.dp)
                                     .clip(RoundedCornerShape(16.dp))
-                                    .border(1.dp, Color(0xFF2d2d2d), RoundedCornerShape(16.dp))
+                                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                                     .clickable {
                                         pickerLauncher.launch(
                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -516,7 +515,7 @@ fun EditMemoryScreen(
                                 Icon(
                                     Icons.Default.Add,
                                     contentDescription = null,
-                                    tint = black,
+                                    tint = MaterialTheme.colorScheme.onBackground,
                                     modifier = Modifier.size(22.dp)
                                 )
                             }

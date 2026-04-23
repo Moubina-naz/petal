@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.NavigationEvent
 import com.example.petal.data.remote.ApiProvider
+import com.example.petal.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -30,6 +31,7 @@ import java.util.Locale
 import android.location.Geocoder
 import android.location.Address
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -42,8 +44,11 @@ import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
 import com.example.petal.components.ErrorSnackbar
+import com.example.petal.theme.extended
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.libraries.places.api.Places
+
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
@@ -54,8 +59,16 @@ fun MapScreen(
     onLocationPicked: (Double, Double, String?) -> Unit,
     onDismiss: () -> Unit
 ){
-    val DarkGreen = Color(0xFF1E3A2F)
     val viewModel = remember { MapViewModel(ApiProvider.memoryRepository) }
+    val context = LocalContext.current
+    val isDark = isSystemInDarkTheme()
+    val mapStyleOptions = remember(isDark) {
+        if (isDark) {
+            MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
+        } else {
+            null // null = default Google Maps style
+        }
+    }
     LaunchedEffect(locationSource) {
         if (locationSource is LocationSource.Selected) {
             viewModel.onMapClick(
@@ -65,8 +78,6 @@ fun MapScreen(
             )
         }
     }
-    val context = LocalContext.current
-
     val placesClient = remember {
         if (Places.isInitialized()) {
             android.util.Log.d("PLACES_INIT", "Client created OK")
@@ -189,7 +200,8 @@ fun MapScreen(
                     ),
                     properties = MapProperties(
                         isMyLocationEnabled = locationPermissionsState.allPermissionsGranted,
-                        mapType = MapType.NORMAL
+                        mapType = MapType.NORMAL,
+                        mapStyleOptions = mapStyleOptions
                     )
                 ) {
                     pins.forEach { pin ->
@@ -375,7 +387,7 @@ fun MapScreen(
         ModalBottomSheet(
             onDismissRequest = { viewModel.clearSelection() },
             sheetState = sheetState,
-            containerColor = Color(0xFFFf9f7f2)
+            containerColor = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
@@ -383,23 +395,17 @@ fun MapScreen(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    Modifier
-                        .width(40.dp)
-                        .height(4.dp)
-                        .background(Color.LightGray, RoundedCornerShape(2.dp))
-                )
                 Spacer(Modifier.height(20.dp))
 
                 Text(
                     text = pin.name ?: "Selected Location",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     "Lat: ${"%.6f".format(pin.latitude)}, Lon: ${"%.6f".format(pin.longitude)}",
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -416,10 +422,10 @@ fun MapScreen(
                             .width(200.dp)
                             ,
                         shape    = RoundedCornerShape(4.dp),
-                        colors   = ButtonDefaults.buttonColors(containerColor = DarkGreen)
+                        colors   = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer)
                     ) {
-                        Text("Add Memory"
-                        ,color = Color.White
+                        Text("Add Memory",
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
 
@@ -435,10 +441,10 @@ fun MapScreen(
                             .width(200.dp)
                         ,
                         shape    = RoundedCornerShape(4.dp),
-                        colors   = ButtonDefaults.buttonColors(containerColor = DarkGreen)
+                        colors   = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer)
                     ) {
                         Text("Save Location",
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                             )
                     }
 
@@ -451,30 +457,32 @@ fun MapScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Dismiss")
+                        Text("Dismiss", color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
 
                 Spacer(Modifier.height(32.dp))
 
                 Text("MEMORIES NEARBY", style = MaterialTheme.typography.titleSmall
-                , color = Color.Black)
+                , color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(12.dp))
 
                 if (pin.memories.isEmpty()) {
-                    Text("(No memories yet)", color = Color.Gray)
+                    Text("(No memories yet)", color = MaterialTheme.extended.textSecondary)
                 } else {
                     pin.memories.forEach { memory ->
                         ListItem(
                             headlineContent = {
-                                Text(pin.name ?: "Unknown Location")
+                                Text(pin.name ?: "Unknown Location", color = MaterialTheme.colorScheme.onBackground)
                             },
                             supportingContent = {
 
                                 Text(
                                     memory.createdAt
                                         .atZone(java.time.ZoneId.systemDefault())
-                                        .format(java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy • HH:mm"))
+                                        .format(java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy • HH:mm")
+                                        )
+                                    ,color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             leadingContent = { Text("📅") },

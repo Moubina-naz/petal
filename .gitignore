@@ -2,3 +2,6 @@ backend/memory_project/venv/
 backend/memory_project/db.sqlite3
 backend/memory_project/media/
 __pycache__/
+.env
+backend/memory_project/.env
+PetalKeystore/

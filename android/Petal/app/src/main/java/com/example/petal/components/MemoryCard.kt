@@ -45,9 +45,11 @@ fun MemoryCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(0.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(0.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(0.dp))
             .clickable { onMemoryClick() }
     ) {
+        //memory has image
+
         if (hasImage) {
             Row(
                 modifier = Modifier.padding(12.dp),
@@ -94,7 +96,7 @@ fun MemoryCard(
                             text = memory.note,
                             style = MaterialTheme.typography.bodyMedium ,
                             color =  MaterialTheme.colorScheme.onSurface,
-                            maxLines = 2
+                            maxLines = 3
                         )
                     }
 
@@ -177,21 +179,16 @@ fun MemoryCard(
                 ) {
                     Text(
                         text = memory.title,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color =  MaterialTheme.colorScheme.onSurface
-                        ),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.weight(1f)
                     )
-
                     Column(horizontalAlignment = Alignment.End) {
+
                         Text(
                             text = timeText,
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                color =  MaterialTheme.extended.textMuted,
-                                fontSize = 11.sp
-                            )
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         if (memory.isFavorite) {
                             Spacer(modifier = Modifier.height(4.dp))
@@ -213,12 +210,9 @@ fun MemoryCard(
                 if (memory.note.isNotBlank()) {
                     Text(
                         text = memory.note,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color =  MaterialTheme.extended.textMuted,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp
-                        ),
-                        maxLines = 4
+                        style = MaterialTheme.typography.bodyMedium ,
+                        color =  MaterialTheme.colorScheme.onSurface,
+                        maxLines = 3
                     )
                 }
 
@@ -250,10 +244,9 @@ fun MemoryCard(
                                 )
                                 Text(
                                     text = mood.label.uppercase(),
-                                    fontSize = 10.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.SemiBold,
                                     color = mood.color,
-                                    letterSpacing = 0.6.sp
                                 )
                             }
                         }

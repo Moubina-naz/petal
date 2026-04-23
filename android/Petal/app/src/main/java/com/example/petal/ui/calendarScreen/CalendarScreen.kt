@@ -1,6 +1,7 @@
 package com.example.petal.ui.calendarScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,8 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,8 +29,8 @@ import com.example.petal.components.MemoryCard
 import com.example.petal.domain.Memory
 import com.example.petal.theme.extended
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarScreen(
@@ -46,37 +48,40 @@ fun CalendarScreen(
     val isCurrentMonth =
         currentDate.year == today.year &&
                 currentDate.month == today.month
+
+    val isCurrentDay =
+        currentDate.year == today.year &&
+                currentDate.month == today.month &&
+                currentDate.dayOfMonth == today.dayOfMonth
+
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            // FIX: Use consistent horizontal padding throughout; removed mixed horizontal=10/16
+            .padding(vertical = 16.dp, horizontal = 16.dp)
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         // Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Calendar",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+        Text(
+            text = "Calendar",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Month navigation
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = { viewModel.goToPreviousMonth() }) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBackIos,
                     contentDescription = "Previous month",
                     tint = MaterialTheme.colorScheme.outlineVariant
                 )
@@ -89,18 +94,14 @@ fun CalendarScreen(
             )
 
             IconButton(
-                onClick = {
-                    if (!isCurrentMonth) {
-                        viewModel.goToNextMonth()
-                    }
-                },
+                onClick = { if (!isCurrentMonth) viewModel.goToNextMonth() },
                 enabled = !isCurrentMonth
             ) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "next month",
+                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    contentDescription = "Next month",
                     tint = if (isCurrentMonth)
-                        MaterialTheme.colorScheme.surface
+                        MaterialTheme.extended.textSecondary
                     else
                         MaterialTheme.colorScheme.outlineVariant
                 )
@@ -109,8 +110,13 @@ fun CalendarScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Day of week headers
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+        // FIX: Day-of-week headers now share the same padding as CalendarGrid (horizontal = 8.dp)
+        // so the columns align perfectly with the date cells below
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+        ) {
             listOf("S", "M", "T", "W", "T", "F", "S").forEach { day ->
                 Text(
                     text = day,
@@ -125,11 +131,15 @@ fun CalendarScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
-            // Calendar grid
             CalendarGrid(
                 currentDate = currentDate,
                 memoriesByDay = memoriesByDay,
@@ -145,33 +155,33 @@ fun CalendarScreen(
             val monthName = currentDate.format(DateTimeFormatter.ofPattern("MMM"))
             Text(
                 text = "Memories for $monthName $selectedDay",
-                style = MaterialTheme.typography.titleLarge ,
-                letterSpacing = 2.sp,
-                color = MaterialTheme.colorScheme.outlineVariant)
-
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             if (selectedMemories.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No memories on this day", color = MaterialTheme.colorScheme.onSurface)
+                    Text("No memories on this day",
+                        color = MaterialTheme.colorScheme.onSurface)
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    // FIX: Removed horizontal padding here since the parent Column already has 16.dp
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(selectedMemories) { memory ->
                         MemoryCard(
                             memory = memory,
                             onMemoryClick = {
-                                onNavigationEvent(
-                                    NavigationEvent.OpenMemoryDetail(memory.id)
-                                )
+                                onNavigationEvent(NavigationEvent.OpenMemoryDetail(memory.id))
                             }
                         )
                     }
@@ -192,6 +202,7 @@ fun CalendarGrid(
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
     val daysInMonth = currentDate.month.length(currentDate.isLeapYear)
     val today = LocalDate.now()
+
 
     val cells = mutableListOf<Int?>()
     repeat(firstDayOfWeek) { cells.add(null) }
@@ -215,6 +226,11 @@ fun CalendarGrid(
                             val isToday = currentDate.year == today.year &&
                                     currentDate.month == today.month &&
                                     day == today.dayOfMonth
+                            val isFuture = currentDate.year > today.year ||
+                                    (currentDate.year == today.year && currentDate.month > today.month) ||
+                                    (currentDate.year == today.year && currentDate.month == today.month && day > today.dayOfMonth)
+
+
                             val firstImage = memoriesByDay[day]
                                 ?.firstOrNull()?.images?.firstOrNull()?.imageUrl
 
@@ -224,12 +240,26 @@ fun CalendarGrid(
                                     .padding(2.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .then(
-                                        if (isSelected)
-                                            Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
-                                        else
-                                            Modifier.background(Color.Transparent)
+                                        when {
+                                            isSelected ->
+                                                Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
+
+                                            hasMemories && firstImage == null ->
+                                                Modifier
+                                                    .background(
+                                                        MaterialTheme.colorScheme.primaryContainer,
+                                                        RoundedCornerShape(8.dp)
+                                                    )
+                                                    .border(
+                                                        1.dp,
+                                                        MaterialTheme.extended.orangeBorder,
+                                                        RoundedCornerShape(8.dp)
+                                                    )
+
+                                            else -> Modifier.background(Color.Transparent)
+                                        }
                                     )
-                                    .clickable { onDayClick(day) },
+                                    .clickable(enabled = !isFuture) { onDayClick(day) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 // Day has a photo → show thumbnail with dark overlay
@@ -251,25 +281,15 @@ fun CalendarGrid(
                                             )
                                     )
                                 }
-                                // Day has memories but no photo → tinted bg
-                                else if (hasMemories && !isSelected) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(
-                                                MaterialTheme.colorScheme.primaryContainer,
-                                                RoundedCornerShape(8.dp)
-                                            )
-                                    )
-                                }
 
                                 Text(
                                     text = day.toString(),
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = if (isToday || isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = when {
-                                        isSelected                        -> MaterialTheme.colorScheme.onSecondary
-                                        hasMemories && firstImage != null -> Color.White   // contrast on photo
+                                        isFuture                          -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                                        isSelected                        -> Color.White
+                                        hasMemories && firstImage != null -> Color.White
                                         isToday                           -> MaterialTheme.extended.accentLine
                                         else                              -> MaterialTheme.colorScheme.onBackground
                                     }
@@ -282,7 +302,10 @@ fun CalendarGrid(
                                             .align(Alignment.BottomCenter)
                                             .padding(bottom = 3.dp)
                                             .size(4.dp)
-                                            .background(MaterialTheme.extended.accentLine, CircleShape)
+                                            .background(
+                                                MaterialTheme.extended.accentLine,
+                                                CircleShape
+                                            )
                                     )
                                 }
                             }
@@ -354,13 +377,13 @@ fun MemoryDayCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (timeText.isNotBlank()) {
-                        Text("🕐 $timeText", fontSize = 12.sp, color = MaterialTheme.extended.textMuted)
+                        Text("🕐 $timeText", fontSize = 12.sp, color = MaterialTheme.extended.textSecondary)
                     }
                     if (timeText.isNotBlank() && locationText.isNotBlank()) {
-                        Text(" • ", fontSize = 12.sp, color = MaterialTheme.extended.textMuted)
+                        Text(" • ", fontSize = 12.sp, color = MaterialTheme.extended.textSecondary)
                     }
                     if (locationText.isNotBlank()) {
-                        Text("📍 $locationText", fontSize = 12.sp, color = MaterialTheme.extended.textMuted)
+                        Text("📍 $locationText", fontSize = 12.sp, color = MaterialTheme.extended.textSecondary)
                     }
                 }
             }

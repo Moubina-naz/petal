@@ -64,8 +64,8 @@ fun AudioRecorderSection(
                     Icon(
                         imageVector = Icons.Default.Mic,
                         contentDescription = "Record audio",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(20.dp)
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
                 Text(
@@ -127,18 +127,25 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
     var isPlaying by remember { mutableStateOf(false) }
     var currentMs by remember { mutableStateOf(0) }
     var totalMs by remember { mutableStateOf(0) }
-    val mediaPlayer = remember { MediaPlayer() }
 
-    LaunchedEffect(isPlaying) {
-        while (isPlaying) {
-            currentMs = mediaPlayer.currentPosition
-            if (totalMs == 0 && mediaPlayer.duration > 0) totalMs = mediaPlayer.duration
-            delay(200)
+    val audioPlayer = remember {
+        AudioPlayer().also { player ->
+            player.onProgressUpdate = { current, total ->
+                currentMs = current
+                totalMs = total
+            }
+            player.onCompletion = {
+                isPlaying = false
+                currentMs = 0
+            }
         }
     }
 
+    // Single DisposableEffect — just stop the player on dispose, no MediaPlayer.release() called directly
     DisposableEffect(Unit) {
-        onDispose { mediaPlayer.release() }
+        onDispose {
+            audioPlayer.stop()
+        }
     }
 
     Row(
@@ -147,33 +154,26 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Mic icon
         Icon(
             imageVector = Icons.Default.Mic,
             contentDescription = null,
-            tint =MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.size(18.dp)
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(24.dp)
         )
-
         Spacer(Modifier.width(8.dp))
 
-        //Pause button
         IconButton(
             onClick = {
                 if (isPlaying) {
-                    mediaPlayer.pause()
+                    audioPlayer.pause()
                     isPlaying = false
                 } else {
-                    mediaPlayer.reset()
-                    mediaPlayer.setDataSource(file.absolutePath)
-                    mediaPlayer.prepare()
-                    if (currentMs > 0) mediaPlayer.seekTo(currentMs)
-                    mediaPlayer.start()
-                    isPlaying = true
-                    mediaPlayer.setOnCompletionListener {
-                        isPlaying = false
-                        currentMs = 0
+                    if (currentMs > 0) {
+                        audioPlayer.resume()
+                    } else {
+                        audioPlayer.play(file.absolutePath)
                     }
+                    isPlaying = true
                 }
             },
             modifier = Modifier.size(32.dp)
@@ -181,19 +181,18 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Play",
-                tint = MaterialTheme.colorScheme.onBackground,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
 
         Spacer(Modifier.width(4.dp))
 
-        // Slider
         Slider(
             value = if (totalMs > 0) currentMs.toFloat() / totalMs else 0f,
             onValueChange = { fraction ->
                 val seekTo = (fraction * totalMs).toInt()
-                mediaPlayer.seekTo(seekTo)
+                audioPlayer.seekTo(seekTo)
                 currentMs = seekTo
             },
             modifier = Modifier.weight(1f),
@@ -209,13 +208,13 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
-                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(sliderState.value)
                             .height(3.dp)
-                            .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
                     )
                 }
             }
@@ -223,7 +222,6 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
 
         Spacer(Modifier.width(6.dp))
 
-        // Time remaining
         Text(
             text = formatAudioMs(if (totalMs > 0) totalMs - currentMs else 0),
             color = MaterialTheme.colorScheme.onSurface,
@@ -232,10 +230,9 @@ fun RecordedAudioBar(file: File, onDeleteClick: () -> Unit) {
 
         Spacer(Modifier.width(4.dp))
 
-        // Delete
         IconButton(
             onClick = {
-                mediaPlayer.reset()
+                audioPlayer.stop()
                 isPlaying = false
                 currentMs = 0
                 totalMs = 0
@@ -259,19 +256,24 @@ fun UrlAudioBar(url: String) {
     var isPlaying by remember { mutableStateOf(false) }
     var currentMs by remember { mutableStateOf(0) }
     var totalMs by remember { mutableStateOf(0) }
-    val mediaPlayer = remember { MediaPlayer() }
-    var isPrepared by remember { mutableStateOf(false) }
 
-    LaunchedEffect(isPlaying) {
-        while (isPlaying) {
-            currentMs = mediaPlayer.currentPosition
-            if (totalMs == 0 && mediaPlayer.duration > 0) totalMs = mediaPlayer.duration
-            delay(200)
+    val audioPlayer = remember {
+        AudioPlayer().also { player ->
+            player.onProgressUpdate = { current, total ->
+                currentMs = current
+                totalMs = total
+            }
+            player.onCompletion = {
+                isPlaying = false
+                currentMs = 0
+            }
         }
     }
 
     DisposableEffect(Unit) {
-        onDispose { mediaPlayer.release() }
+        onDispose {
+            audioPlayer.stop()
+        }
     }
 
     Row(
@@ -280,41 +282,26 @@ fun UrlAudioBar(url: String) {
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Mic icon (decorative)
         Icon(
             imageVector = Icons.Default.Mic,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(18.dp)
         )
-
         Spacer(Modifier.width(8.dp))
 
-        // Play/Pause
         IconButton(
             onClick = {
                 if (isPlaying) {
-                    mediaPlayer.pause()
+                    audioPlayer.pause()
                     isPlaying = false
                 } else {
-                    if (!isPrepared) {
-                        mediaPlayer.setDataSource(url)
-                        mediaPlayer.prepareAsync()
-                        mediaPlayer.setOnPreparedListener {
-                            isPrepared = true
-                            totalMs = it.duration
-                            it.start()
-                            isPlaying = true
-                        }
+                    if (currentMs > 0) {
+                        audioPlayer.resume()
                     } else {
-                        if (currentMs > 0) mediaPlayer.seekTo(currentMs)
-                        mediaPlayer.start()
-                        isPlaying = true
+                        audioPlayer.playUrl(url)
                     }
-                    mediaPlayer.setOnCompletionListener {
-                        isPlaying = false
-                        currentMs = 0
-                    }
+                    isPlaying = true
                 }
             },
             modifier = Modifier.size(32.dp)
@@ -329,12 +316,11 @@ fun UrlAudioBar(url: String) {
 
         Spacer(Modifier.width(4.dp))
 
-        // Slider — green
         Slider(
             value = if (totalMs > 0) currentMs.toFloat() / totalMs else 0f,
             onValueChange = { fraction ->
                 val seekTo = (fraction * totalMs).toInt()
-                mediaPlayer.seekTo(seekTo)
+                audioPlayer.seekTo(seekTo)
                 currentMs = seekTo
             },
             modifier = Modifier.weight(1f),
@@ -364,7 +350,6 @@ fun UrlAudioBar(url: String) {
 
         Spacer(Modifier.width(6.dp))
 
-        // Time
         Text(
             text = formatAudioMs(if (totalMs > 0) totalMs - currentMs else 0),
             color = MaterialTheme.colorScheme.onSurface,
@@ -372,6 +357,7 @@ fun UrlAudioBar(url: String) {
         )
     }
 }
+
 private fun formatAudioMs(ms: Int): String {
     val secs = ms / 1000
     return "%d:%02d".format(secs / 60, secs % 60)

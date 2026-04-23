@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import coil.compose.AsyncImage
 import com.example.petal.components.ErrorSnackbar
+import com.example.petal.theme.extended
 
 @Composable
 fun HomeScreen(
@@ -76,9 +77,7 @@ fun HomeScreen(
                     Text(
                         text = "Petal",
                         style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                        color = MaterialTheme.colorScheme.onBackground           )
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -93,7 +92,7 @@ fun HomeScreen(
                     placeholder = {
                         Text(
                             "Search memories...",
-                            color = MaterialTheme.colorScheme.outline,
+                            color = MaterialTheme.extended.textSecondary,
                             fontSize = 14.sp
                         )
                     },
@@ -101,7 +100,7 @@ fun HomeScreen(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.outline,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(18.dp)
                         )
                     },
@@ -156,7 +155,7 @@ fun HomeScreen(
                                 enabled = true,
                                 selected = isSelected,
                                 borderColor = MaterialTheme.colorScheme.outline,
-                                selectedBorderColor = MaterialTheme.colorScheme.onBackground,
+                                selectedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                                 borderWidth = 1.dp,
                                 selectedBorderWidth = 1.dp
                             )
@@ -286,7 +285,7 @@ fun HomeScreen(
                 .align(Alignment.BottomEnd)
                 .padding(20.dp)
                 .size(52.dp)
-                .border(1.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
         ) {
             Icon(
                 Icons.Default.Add,

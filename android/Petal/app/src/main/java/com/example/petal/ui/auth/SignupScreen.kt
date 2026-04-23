@@ -25,10 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petal.PetalIcon
 import com.example.petal.components.ErrorSnackbar
+import com.example.petal.theme.extended
 
 private val EMAIL_REGEX = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 private const val MAX_USERNAME = 30
@@ -96,10 +98,7 @@ fun SignupScreen(
         Text(
             text          = "Petal",
             color         = MaterialTheme.colorScheme.onBackground,
-            fontSize      = 52.sp,
-            fontWeight    = FontWeight.Normal,
-            fontFamily    = FontFamily.Serif,
-            letterSpacing = 0.sp
+            style = MaterialTheme.typography.headlineLarge
         )
 
         Spacer(Modifier.height(4.dp))
@@ -108,10 +107,10 @@ fun SignupScreen(
             "CREATE YOUR ACCOUNT",
             style = TextStyle(
                 fontFamily    = FontFamily.SansSerif,
-                fontWeight    = FontWeight.Light,
+                fontWeight    = FontWeight.Normal,
                 fontSize      = 10.sp,
                 letterSpacing = 3.sp,
-                color         = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+                color         = MaterialTheme.colorScheme.secondary
             )
         )
         Spacer(Modifier.height(40.dp))
@@ -126,25 +125,34 @@ fun SignupScreen(
                 Text("USERNAME", style = fieldLabelStyle())
                 Text(
                     "${username.length}/$MAX_USERNAME",
-                    style = TextStyle(fontSize = 10.sp, color = MaterialTheme.colorScheme.outlineVariant, fontFamily = FontFamily.SansSerif)
+                    style = TextStyle(fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontFamily = FontFamily.SansSerif)
                 )
             }
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
                 value         = username,
                 onValueChange = { if (it.length <= MAX_USERNAME) username = it },
-                placeholder   = { Text("yourname", color = MaterialTheme.colorScheme.outlineVariant, fontSize = 14.sp) },
+                placeholder   = { Text("yourname", color = MaterialTheme.extended.textSecondary, fontSize = 14.sp) },
                 modifier      = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp)),
                 shape           = RoundedCornerShape(4.dp),
                 singleLine      = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = { emailFocusRequester.requestFocus() }),
-                colors          = fieldColors()
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                    focusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
 
         Spacer(Modifier.height(16.dp))
-
         // ── Email ──
         Column(modifier = Modifier.fillMaxWidth()) {
             Text("EMAIL ADDRESS", style = fieldLabelStyle())
@@ -157,7 +165,7 @@ fun SignupScreen(
                         emailTouched = true
                     }
                 },
-                placeholder   = { Text("hello@petal.app", color = MaterialTheme.colorScheme.outlineVariant, fontSize = 14.sp) },
+                placeholder   = { Text("hello@petal.app", color = MaterialTheme.extended.textSecondary, fontSize = 14.sp) },
                 modifier      = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
@@ -167,7 +175,15 @@ fun SignupScreen(
                 isError         = emailError,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
-                colors          = fieldColors()
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                    focusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                )
             )
             if (emailError) {
                 Spacer(Modifier.height(4.dp))
@@ -192,7 +208,8 @@ fun SignupScreen(
                         passwordTouched = true
                     }
                 },
-                placeholder          = { Text("Min 8 characters", color = MaterialTheme.colorScheme.outlineVariant, fontSize = 14.sp) },
+                placeholder          = { Text("Min 8 characters",
+                color = MaterialTheme.extended.textSecondary, fontSize = 14.sp) },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 isError              = passwordTooShort,
                 trailingIcon = {
@@ -213,13 +230,22 @@ fun SignupScreen(
                 singleLine      = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = { confirmPasswordFocusRequester.requestFocus() }),
-                colors          = fieldColors()
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                    focusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface
+                )
             )
             if (passwordTooShort) {
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "Password must be at least $MIN_PASSWORD characters",
-                    style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
+                    style = TextStyle(fontFamily = FontFamily.SansSerif,
+                        fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
                 )
             }
         }
@@ -233,7 +259,7 @@ fun SignupScreen(
             OutlinedTextField(
                 value         = confirmPassword,
                 onValueChange = { if (it.length <= MAX_PASSWORD) confirmPassword = it },
-                placeholder   = { Text("••••••••", color = Color.Gray, fontSize = 14.sp) },
+                placeholder   = { Text("••••••••", color = MaterialTheme.extended.textSecondary, fontSize = 14.sp) },
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 isError = passwordMismatch,
                 trailingIcon = {
@@ -277,6 +303,7 @@ fun SignupScreen(
             enabled  = isButtonEnabled,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape    = RoundedCornerShape(4.dp),
+
             colors   = ButtonDefaults.buttonColors(
                 containerColor         = MaterialTheme.colorScheme.secondary,
                 disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)
@@ -299,16 +326,16 @@ fun SignupScreen(
         }
 
         Spacer(Modifier.height(12.dp))
-
         TextButton(onClick = onBackClick) {
             Text(
                 "BACK TO LOGIN",
                 style = TextStyle(
-                    fontFamily    = FontFamily.SansSerif,
-                    fontWeight    = FontWeight.Normal,
-                    fontSize      = 11.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 11.sp,
                     letterSpacing = 1.5.sp,
-                    color         = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textDecoration = TextDecoration.Underline
                 )
             )
         }
@@ -328,13 +355,13 @@ fun fieldLabelStyle() = TextStyle(
     fontWeight    = FontWeight.SemiBold,
     fontSize      = 10.sp,
     letterSpacing = 1.5.sp,
-    color         = MaterialTheme.colorScheme.secondary
+    color         = MaterialTheme.colorScheme.onBackground
 )
 
 @Composable
 fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    unfocusedBorderColor    = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f),
-    focusedBorderColor      = MaterialTheme.colorScheme.secondary,
+    unfocusedBorderColor    = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
+    focusedBorderColor      = MaterialTheme.colorScheme.onBackground,
     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
     focusedContainerColor   = MaterialTheme.colorScheme.surface
 )

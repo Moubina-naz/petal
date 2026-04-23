@@ -25,16 +25,16 @@ enum class Mood(
     val icon: ImageVector,
     val color: Color
 ) {
-    CALM(1, "Calm", Icons.Default.WbSunny, Color(0xFFD6A54A)),
-    HAPPY(2, "Happy", Icons.Default.SentimentSatisfied, Color(0xFFD86C5B)),
-    SAD(3, "Sad", Icons.Default.WaterDrop, Color(0xFF5C8D82)),
-    ANXIOUS(4, "Anxious", Icons.Default.Air, Color(0xFFC97A4C)),
-    EXCITED(5, "Excited", Icons.Default.Celebration, Color(0xFFC75B39)),
-    REFLECTIVE(6, "Reflective", Icons.Default.AutoStories, Color(0xFF6F8F7A)),
-    GRATEFUL(7, "Grateful", Icons.Default.WbSunny, Color(0xFFC9A44F)),
-    ANGRY(8, "Angry", Icons.Default.LocalFireDepartment, Color(0xFFA64B3C)),
-    LONELY(9, "Lonely", Icons.Default.PersonOutline, Color(0xFF7C8A96)),
-    CONTENT(10, "Content", Icons.Default.Spa, Color(0xFF8A9A5B));
+    CALM(1, "Calm", Icons.Default.WbSunny,          Color(0xFFD6A54A)),  // warm gold — keep
+    HAPPY(2, "Happy", Icons.Default.SentimentSatisfied, Color(0xFFE8729A)),  // warm pink
+    SAD(3, "Sad", Icons.Default.WaterDrop,           Color(0xFF6B8FBF)),  // soft blue
+    ANXIOUS(4, "Anxious", Icons.Default.Air,         Color(0xFFC97A4C)),  // terracotta — keep
+    EXCITED(5, "Excited", Icons.Default.Celebration, Color(0xFFEC4F4F)),  // hot pink
+    REFLECTIVE(6, "Reflective", Icons.Default.AutoStories, Color(0xFF8B7BB5)), // lavender
+    GRATEFUL(7, "Grateful", Icons.Default.WbSunny,  Color(0xFFC9A44F)),  // golden — keep
+    ANGRY(8, "Angry", Icons.Default.LocalFireDepartment, Color(0xFFA63C3C)), // deep red — keep
+    LONELY(9, "Lonely", Icons.Default.PersonOutline, Color(0xFF7B8FC4)),  // periwinkle
+    CONTENT(10, "Content", Icons.Default.Spa,        Color(0xFF7DB58A)); // sage green
 
     companion object {
         fun from(value: Int?): Mood? =

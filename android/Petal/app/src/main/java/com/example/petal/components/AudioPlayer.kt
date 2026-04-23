@@ -68,11 +68,15 @@ class AudioPlayer {
 
     private fun startProgressTracking() {
         progressJob?.cancel()
-        progressJob = CoroutineScope(Dispatchers.Main).launch {
+        progressJob = CoroutineScope(Dispatchers.Main + Job()).launch {
             while (true) {
                 val p = player ?: break
-                if (p.isPlaying) {
-                    onProgressUpdate?.invoke(p.currentPosition, p.duration)
+                try {
+                    if (p.isPlaying) {
+                        onProgressUpdate?.invoke(p.currentPosition, p.duration)
+                    }
+                } catch (e: IllegalStateException) {
+                    break // player was released mid-loop
                 }
                 delay(200)
             }

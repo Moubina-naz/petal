@@ -14,10 +14,8 @@ import androidx.compose.ui.unit.sp
 fun SectionHeader(title: String) {
     Text(
         text = title,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold,
-        color =MaterialTheme.colorScheme.onSurface,
-        letterSpacing = 2.sp,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
     )
 }
