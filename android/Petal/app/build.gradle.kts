@@ -10,6 +10,9 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
+val storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD") ?: ""
+val keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD") ?: ""
+
 android {
     namespace = "com.example.petal"
     compileSdk = 36
@@ -28,15 +31,28 @@ android {
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../keystore/petal-release-key.jks")
+            storePassword = storePassword
+            keyAlias = "petal_key"
+            keyPassword = keyPassword
+        }
+    }
+
+    // ✅ THEN use it
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -50,6 +66,7 @@ android {
         compose = true
         buildConfig = true
     }
+
 }
 
 dependencies {
