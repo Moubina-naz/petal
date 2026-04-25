@@ -144,11 +144,17 @@ def memory_detail(request, pk):
         if serializer.is_valid():
             updated_memory = serializer.save(revision=mem.revision + 1)
             
+            # Handle image deletions if provided
+            delete_ids = request.data.getlist('delete_image_ids')
+            if delete_ids:
+                MemoryImage.objects.filter(memory=updated_memory, id__in=delete_ids).delete()
+            
+            # Handle new images
             image_files = request.FILES.getlist('image_files')
             for image_file in image_files:
                 MemoryImage.objects.create(memory=updated_memory, image=image_file)
             
-            return Response(MemorySerializer(updated_memory).data)
+            return Response(MemorySerializer(updated_memory, context={'request': request}).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
