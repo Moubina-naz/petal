@@ -1,5 +1,7 @@
 # Petal 🌸
 
+[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/Moubina-naz/petal/releases/latest)
+
 **Petal** is a full-stack memory journaling application designed to help users capture, organize, and revisit meaningful life moments.
 It combines a modern Android client built with Jetpack Compose and a scalable backend powered by Django REST Framework.
 
