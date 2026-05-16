@@ -113,9 +113,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     //voyager
-    implementation("cafe.adriel.voyager:voyager-navigator:1.0.1")
-    implementation("cafe.adriel.voyager:voyager-tab-navigator:1.0.1")
-    implementation("cafe.adriel.voyager:voyager-transitions:1.0.1")
+    implementation(libs.voyager.navigator)
+    implementation(libs.voyager.tab.navigator)
+    implementation(libs.voyager.transitions)
+    implementation(libs.voyager.screenmodel)
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
     implementation("androidx.compose.foundation:foundation:1.7.0")
@@ -128,6 +129,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.android.libraries.places:places:3.5.0")
     implementation("org.maplibre.gl:android-sdk:12.3.1")
-    implementation("cafe.adriel.voyager:voyager-screenmodel:1.0.0")
     implementation("com.google.android.libraries.places:places:3.3.0")
 }

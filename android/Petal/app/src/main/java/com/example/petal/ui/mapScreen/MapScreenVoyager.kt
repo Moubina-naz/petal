@@ -58,7 +58,11 @@ class MapVoyagerScreen(
                     }
                 }
             },
+            onMemoryClick = { id ->
+                navigator.push(MemoryDetailVoyagerScreen(id))
+            },
             onDismiss = { navigator.pop() }
+
         )
     }
 }

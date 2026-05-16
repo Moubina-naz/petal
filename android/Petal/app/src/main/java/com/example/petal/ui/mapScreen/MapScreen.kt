@@ -48,6 +48,8 @@ import com.example.petal.theme.extended
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.libraries.places.api.Places
+import com.example.petal.components.MemoryCard
+
 
 import kotlinx.coroutines.delay
 
@@ -57,7 +59,9 @@ fun MapScreen(
     mode: MapMode,
     locationSource: LocationSource,
     onLocationPicked: (Double, Double, String?) -> Unit,
+    onMemoryClick: (Int) -> Unit = {},
     onDismiss: () -> Unit
+
 ){
     val viewModel = remember { MapViewModel(ApiProvider.memoryRepository) }
     val context = LocalContext.current
@@ -257,10 +261,13 @@ fun MapScreen(
                     },
                     shape = RoundedCornerShape(28.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = MaterialTheme.colorScheme.background,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.background,
                         focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                     ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
@@ -425,7 +432,7 @@ fun MapScreen(
                         colors   = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer)
                     ) {
                         Text("Add Memory",
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.extended.textWhite
                         )
                     }
 
@@ -471,28 +478,14 @@ fun MapScreen(
                     Text("(No memories yet)", color = MaterialTheme.extended.textSecondary)
                 } else {
                     pin.memories.forEach { memory ->
-                        ListItem(
-                            headlineContent = {
-                                Text(pin.name ?: "Unknown Location", color = MaterialTheme.colorScheme.onBackground)
-                            },
-                            supportingContent = {
-
-                                Text(
-                                    memory.createdAt
-                                        .atZone(java.time.ZoneId.systemDefault())
-                                        .format(java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy • HH:mm")
-                                        )
-                                    ,color = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            leadingContent = { Text("📅") },
-                            modifier = Modifier.clickable {
-                                // TODO: navigate to detail
-                            }
+                        MemoryCard(
+                            memory = memory,
+                            onMemoryClick = { onMemoryClick(memory.id) }
                         )
-                        HorizontalDivider()
+                        Spacer(Modifier.height(12.dp))
                     }
                 }
+
             }
         }
     }

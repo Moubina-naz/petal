@@ -1,144 +1,295 @@
 # Petal 🌸
 
-Petal is a full-stack memory journaling application that allows users to capture, reflect upon, and revisit their life's moments. It comes with a modern native Android client built with Jetpack Compose and a robust backend built with Django and the Django REST Framework. 
+**Petal** is a full-stack memory journaling application designed to help users capture, organize, and revisit meaningful life moments.
+It combines a modern Android client built with Jetpack Compose and a scalable backend powered by Django REST Framework.
 
-With Petal, every memory is more than just text—it's an interactive experience tied to locations, moods, images, and audio.
+Unlike basic journaling apps, Petal transforms memories into rich, multi-dimensional entries by integrating **location, mood, images, and audio** into a single experience.
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+  <table style="border: none; border-collapse: collapse;">
+    <tr>
+      <td align="center"><b>Splash Screen</b></td>
+      <td align="center"><b>Home Screen</b></td>
+      <td align="center"><b>Calendar</b></td>
+    </tr>
+    <tr>
+      <td><img src="screenshots/splashscreen.jpeg" width="200" style="border-radius: 10px;"></td>
+      <td><img src="screenshots/homescreen.jpeg" width="200" style="border-radius: 10px;"></td>
+      <td><img src="screenshots/calendarscreen.jpeg" width="200" style="border-radius: 10px;"></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Map Pin</b></td>
+      <td align="center"><b>Map View</b></td>
+      <td align="center"><b>Memory Detail</b></td>
+    </tr>
+    <tr>
+      <td><img src="screenshots/mappin.jpeg" width="200" style="border-radius: 10px;"></td>
+      <td><img src="screenshots/mapscreen.jpeg" width="200" style="border-radius: 10px;"></td>
+      <td><img src="screenshots/memoryscreen.jpeg" width="200" style="border-radius: 10px;"></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Favourites</b></td>
+      <td align="center"><b>Image Gallery</b></td>
+      <td align="center"><b>Profile</b></td>
+    </tr>
+    <tr>
+      <td><img src="screenshots/favourites.jpeg" width="200" style="border-radius: 10px;"></td>
+      <td><img src="screenshots/images.jpeg" width="200" style="border-radius: 10px;"></td>
+      <td><img src="screenshots/profilescreen.jpeg" width="200" style="border-radius: 10px;"></td>
+    </tr>
+    <tr>
+      <td align="center" colspan="3"><b>Search</b></td>
+    </tr>
+    <tr>
+      <td align="center" colspan="3"><img src="screenshots/search.jpeg" width="200" style="border-radius: 10px;"></td>
+    </tr>
+  </table>
+</div>
+
+### 🎥 Demo Video
+
+> *(Optional but highly recommended)*
+> Add a short demo GIF or video showing:
+
+* Creating a memory
+* Viewing memories
+* Media upload
+
+Example:
+
+```
+![Demo](your-gif-link)
+```
 
 ---
 
 ## ✨ Features
 
-- **Mood Tracking**: Log how you felt during the moment (Calm, Happy, Sad, Anxious, etc.).
-- **Location Tagging**: Integrated with Google Maps API and Places API to automatically or manually log exactly where the memory happened.
-- **Rich Media**:
-  - Upload multiple images per memory.
-  - Record or upload an audio note/diary entry.
-- **Cloud Storage**: Seamless media streaming and storage with Cloudinary.
-- **Organization**: Tag your memories, mark them as favorites, and filter them by month.
-- **Secure Authentication**: Register and login securely using JWT tokens.
+* **Mood Tracking**
+  Capture emotional context (Happy, Calm, Sad, Anxious, etc.)
+
+* **Location Tagging**
+  Add precise locations using Google Maps & Places API
+
+* **Rich Media Support**
+
+  * Upload multiple images
+  * Record or attach audio notes
+
+* **Cloud-Based Storage**
+  Media storage and delivery powered by Cloudinary
+
+* **Memory Organization**
+
+  * Tagging system
+  * Favorites marking
+  * Monthly filtering
+
+* **Secure Authentication**
+  JWT-based authentication for protected API access
+
+---
+
+## 🧠 Architecture
+
+### Frontend (Android)
+
+* **Architecture**: MVVM
+* **State Management**: ViewModel + Kotlin Flow
+* **UI**: Jetpack Compose (Material 3)
+* **Networking**: Retrofit + Gson
+* **Image Loading**: Coil
+* **Navigation**: Voyager
+* **Concurrency**: Kotlin Coroutines
+* **Location Services**: Google Maps SDK, Places API
+
+### Backend (API Server)
+
+* **Framework**: Django + Django REST Framework
+* **Database**: PostgreSQL
+* **Authentication**: JWT (Simple JWT)
+* **Media Storage**: Cloudinary
+* **Media Processing**:
+
+  * Pillow (images)
+  * Mutagen (audio metadata validation)
+
+---
+
+## 🔄 Data Flow
+
+1. User creates a memory in the Android app
+2. ViewModel processes and validates input
+3. Repository layer sends data via Retrofit
+4. Django API handles validation and persistence
+5. Media files are uploaded to Cloudinary
+6. Response is returned and UI updates reactively via Flow
+
+---
+
+## ⚡ Key Engineering Challenges
+
+* Efficient handling of **multi-part media uploads (images + audio)**
+* Maintaining **reactive UI updates** using Kotlin Flow
+* Integrating **location services with graceful fallback handling**
+* Implementing **secure JWT-based authentication flow**
+* Managing **scalable media storage and delivery**
 
 ---
 
 ## 🛠 Tech Stack
 
-### Frontend (Android app)
-- **Language**: Kotlin
-- **UI Framework**: Jetpack Compose (Material 3)
-- **Navigation**: Voyager
-- **Network calls**: Retrofit & Gson
-- **Image Loading**: Coil
-- **Concurrency**: Kotlin Coroutines
-- **Maps & Location**: Google Maps SDK, Google Places API, Accompanist (Permissions)
+### Mobile App
 
-### Backend (REST API)
-- **Framework**: Django & Django REST Framework (DRF)
-- **Database**: PostgreSQL
-- **Authentication**: Simple JWT
-- **Media Storage**: Cloudinary & django-cloudinary-storage
-- **Media Processing**: Pillow (Images), Mutagen (Audio duration & metadata validation)
+* Kotlin
+* Jetpack Compose
+* Retrofit
+* Gson
+* Coil
+* Coroutines
+
+### Backend
+
+* Django
+* Django REST Framework
+* PostgreSQL
+* Cloudinary
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Python 3.10+](https://www.python.org/downloads/)
-- [Android Studio (Latest)](https://developer.android.com/studio)
-- A [Cloudinary Account](https://cloudinary.com/) (for media storage)
-- A Google Maps/Places API Key
-- PostgreSQL installed and running
 
-### Backend Setup
-
-1. **Navigate to the backend directory:**
-   ```bash
-   cd backend/memory_project
-   ```
-
-2. **Create and activate a virtual environment:**
-   ```bash
-   python -m venv venv
-   # On Windows
-   venv\Scripts\activate
-   # On Unix/macOS
-   source venv/bin/activate
-   ```
-
-3. **Install the dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Environment Variables:**
-   Create a `.env` file in the `memory_project` directory containing:
-   ```env
-   # Django
-   DEBUG=True
-   SECRET_KEY=your_django_secret_key
-   
-   # PostgreSQL
-   DB_NAME=your_db_name
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_HOST=localhost
-   DB_PORT=5432
-   
-   # Cloudinary
-   CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
-   ```
-
-5. **Run Migrations:**
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
-
-6. **Start the Development Server:**
-   ```bash
-   python manage.py runserver
-   ```
-   *The backend will be running at `http://127.0.0.1:8000/`.*
-
-### Android Setup
-
-1. Open Android Studio and select **Open an existing project**.
-2. Navigate to and select the `android/Petal` folder.
-3. Once the Gradle sync is complete, add your Google Maps API key.
-4. Create a `local.properties` file in `android/Petal` (if it does not exist) and add your API key:
-   ```properties
-   MAPS_API_KEY=your_actual_google_maps_api_key_here
-   ```
-5. Run the application on an Emulator or a physical device.
+* Python 3.10+
+* Android Studio (latest)
+* PostgreSQL
+* Cloudinary account
+* Google Maps API key
 
 ---
 
-## 📝 API Endpoints Summary
+### Backend Setup
 
-- `POST /register/` - Register a new user
-- `POST /login/` - Login and receive JWT tokens
-- `GET /profile/` - Get user profile details
-- `GET /memories/` - List all user memories
-- `POST /memories/` - Create a new memory
-- `GET /memories/by-month/` - Group memories by month
-- `GET /memories/<id>/` - Retrieve memory details
-- `POST /memories/<id>/favorite/` - Mark a memory as favorite
-- `POST /memories/<id>/images/` - Add images to an existing memory
-- `POST /memories/<id>/audio/` - Upload an audio file for a memory
+```bash
+cd backend/memory_project
+python -m venv venv
+```
 
-*(All memory endpoints are protected and require the `Authorization: Bearer <token>` header)*
+Activate environment:
+
+```bash
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create `.env` file:
+
+```env
+DEBUG=True
+SECRET_KEY=your_secret_key
+
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+
+CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
+```
+
+Run server:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
+
+---
+
+### Android Setup
+
+1. Open project in Android Studio
+2. Add API key in `local.properties`:
+
+```properties
+MAPS_API_KEY=your_google_maps_api_key
+```
+
+3. Run on emulator or device
+
+---
+
+## 🧾 API Overview
+
+### Authentication
+
+* `POST /register/`
+* `POST /login/`
+
+### User
+
+* `GET /profile/`
+
+### Memories
+
+* `GET /memories/`
+* `POST /memories/`
+* `GET /memories/<id>/`
+* `GET /memories/by-month/`
+
+### Actions
+
+* `POST /memories/<id>/favorite/`
+* `POST /memories/<id>/images/`
+* `POST /memories/<id>/audio/`
+
+> All endpoints require:
+
+```
+Authorization: Bearer <token>
+```
+
+---
+
+### Example Request
+
+**POST /memories/**
+
+```json
+{
+  "title": "Beach Day",
+  "mood": "Happy",
+  "location": "Goa",
+  "tags": ["travel", "friends"]
+}
+```
 
 ---
 
 ## 🤝 Contributing
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository
+2. Create a new branch
+3. Commit changes
+4. Push and open a Pull Request
 
 ---
 
 ## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+
+This project is licensed under the MIT License.

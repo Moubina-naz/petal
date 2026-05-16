@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -129,12 +130,13 @@ fun AddMemoryScreen(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.surface,
                     disabledContainerColor = MaterialTheme.colorScheme.surface,
-                    disabledContentColor = MaterialTheme.colorScheme.surface
+                    disabledContentColor = MaterialTheme.colorScheme.primary.copy(0.5f)
                 ),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = if (uiState.isSaving) "Saving..." else "Save",
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -303,6 +305,7 @@ fun AddMemoryScreen(
                 value = uiState.title,
                 onValueChange = { if (it.length <= 100) viewModel.onTitleChange(it) },
                 textStyle = MaterialTheme.typography.headlineLarge.copy(color = MaterialTheme.colorScheme.onBackground),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (uiState.title.isEmpty()) {
@@ -363,6 +366,7 @@ fun AddMemoryScreen(
                 value = uiState.note,
                 onValueChange = { if (it.length <= 10000) viewModel.onNoteChange(it) },
                 textStyle = TextStyle(fontSize = 16.sp, lineHeight = 26.sp, color = MaterialTheme.colorScheme.onBackground),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { inner ->
                     if (uiState.note.isEmpty()) {
