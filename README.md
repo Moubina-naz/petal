@@ -50,22 +50,6 @@ Unlike basic journaling apps, Petal transforms memories into rich, multi-dimensi
   </table>
 </div>
 
-### 🎥 Demo Video
-
-> *(Optional but highly recommended)*
-> Add a short demo GIF or video showing:
-
-* Creating a memory
-* Viewing memories
-* Media upload
-
-Example:
-
-```
-![Demo](your-gif-link)
-```
-
----
 
 ## ✨ Features
 
