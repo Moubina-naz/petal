@@ -33,7 +33,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../keystore/petal-release-key.jks")
+            storeFile = file("../../../Keystore/petal-release-key.jks")
             storePassword = storePassword
             keyAlias = "petal_key"
             keyPassword = keyPassword
